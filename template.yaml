@@ -6,12 +6,18 @@ Description: >
 
 # ⚠️ 보안: HTTP API 에 authorizer 없음 → 엔드포인트가 공개(미인증)입니다.
 #    코어 데모 기준. 운영/플러스에서는 Cognito JWT Authorizer 를 붙여 user_id 를 토큰 sub 로 대체.
+#
+# 해커톤 제한계정(netzero-12) 대응:
+#  - 리전 us-east-1 고정 (samconfig)
+#  - 새 IAM Role 생성 불가 → 기존 SafeRole-{username} 을 ExecRoleArn 으로 지정(Role 생성 안 함)
+#    SafeRole 에 DynamoDB(CRUD)+Logs 권한이 포함돼 있어야 함(관리자 확인 항목).
 
 Globals:
   Function:
     Runtime: python3.12
     Timeout: 10
     MemorySize: 256
+    Role: !Ref ExecRoleArn
     Environment:
       Variables:
         TERRA_TABLE: !Ref TerraTable
@@ -20,6 +26,10 @@ Parameters:
   StageName:
     Type: String
     Default: prod
+  ExecRoleArn:
+    Type: String
+    Default: arn:aws:iam::842544789367:role/SafeRole-netzero-12
+    Description: Lambda 실행 역할(기존). 해커톤 규칙상 새 역할 생성 불가 → SafeRole 사용.
 
 Resources:
   TerraTable:
@@ -56,9 +66,6 @@ Resources:
     Properties:
       CodeUri: backend/
       Handler: handlers.compute_handler.handler
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref TerraTable
       Events:
         Compute:
           Type: HttpApi
@@ -72,9 +79,6 @@ Resources:
     Properties:
       CodeUri: backend/
       Handler: handlers.campus_handler.handler
-      Policies:
-        - DynamoDBReadPolicy:
-            TableName: !Ref TerraTable
       Events:
         Campus:
           Type: HttpApi
