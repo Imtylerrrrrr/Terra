@@ -98,11 +98,12 @@
     padding:22px 26px;z-index:5}
   .brand{font-weight:800;letter-spacing:.18em;font-size:14px;text-transform:uppercase}
   .brand b{color:var(--green)}
-  .coach-back{margin-left:auto;align-self:center;display:inline-flex;align-items:center;gap:5px;
-    padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;
-    color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;
-    transition:color .15s ease,border-color .15s ease}
-  .coach-back:hover{color:var(--green);border-color:var(--green)}
+  /* 행성 메인으로 돌아가기 */
+  .back-btn{align-self:center;padding:8px 13px;border:1px solid var(--line);border-radius:10px;
+    background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;text-decoration:none;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap}
+  .back-btn:hover{color:var(--green);border-color:var(--green)}
+  @media (max-width:600px){ .back-btn{padding:7px 11px;font-size:12px} }
 
   .container{max-width:900px;margin:0 auto;padding:40px 26px 60px}
 
@@ -258,8 +259,8 @@
   </div>
   <canvas id="fx"></canvas>
   <div class="topbar">
+    <a class="back-btn" href="planet.html">← 행성으로</a>
     <span class="brand">TERRA<b>.</b></span>
-    <a class="coach-back" href="planet.html" aria-label="나의 행성으로 돌아가기">🌍 나의 행성</a>
   </div>
 
   <div class="container">
