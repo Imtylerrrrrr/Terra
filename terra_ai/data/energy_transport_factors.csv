@@ -1,0 +1,12 @@
+domain,item_ko,item_en,unit,factor_kgco2e_per_unit,source,verify
+전력,전력_KEITI,electricity_keiti,kWh,0.495106716,KEITI 환경성적표지 평가계수(2021) 전기,공인값
+전력,전력_가정용체감,electricity_household,kWh,0.4781,한국기후환경네트워크(kcen)가정용,공인값
+전력,전력_국가계수,electricity_national,kWh,0.4173,GIR2023소비단(0.4173tCO2eq/MWh),공인값
+연료,휘발유,gasoline,L,2.085,KEITI 환경성적표지 평가계수(2021) 휘발유_육상수송,공인값
+연료,경유,diesel,L,2.582,KEITI 환경성적표지 평가계수(2021) 경유_육상수송,공인값
+연료,LPG,lpg,kg,1.8677737,KEITI 환경성적표지 평가계수(2021) LPG_상업공공,공인값
+교통,승용차_가솔린1인,car_gasoline,passenger_km,0.168,KEITI 휘발유 2.085kgCO2/L÷평균연비12.4km/L 환산(1인),여객계수로 교체 권장
+교통,시내버스,city_bus,passenger_km,0.080,잠정(여객 인-km),여객 배출계수 확보 필요
+교통,지하철전철,metro,passenger_km,0.040,잠정(여객 인-km),여객 배출계수 확보 필요
+교통,셔틀버스,shuttle_bus,passenger_km,0.050,시내버스 준용 잠정,운행데이터로 보정
+교통,도보자전거,walk_bike,passenger_km,0.0,직접배출 없음,확정

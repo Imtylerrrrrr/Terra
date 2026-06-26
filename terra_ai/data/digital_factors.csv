@@ -1,0 +1,7 @@
+activity_ko,ios_category,mode,unit,factor_gco2e_per_unit,source,verify
+엔터테인먼트,Entertainment,screentime,hour,36,IEA 2020 영상스트리밍 1시간 ~36 gCO2e,공인추정
+소셜,Social,screentime,hour,50,YouTube 0.46g/분(~28g/h) 기준 단축영상(릴스·틱톡) 비중 보정,추정(상한 틱톡 5×)
+게임,Games,screentime,hour,12,로컬 모바일게임=기기전력 위주+경량데이터,추정
+정보생산성,Information·Productivity·Education·기타,screentime,hour,8,경량 데이터+기기전력(검색 0.5g 참고),추정
+이메일,-,discrete,건,4,환경부 대한민국 정책브리핑,공인값
+음성통화,-,discrete,분,3.6,환경부 대한민국 정책브리핑,공인값
