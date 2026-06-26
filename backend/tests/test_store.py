@@ -185,6 +185,8 @@ class LoadFailureGuardTest(unittest.TestCase):
 
         self.assertEqual(res["statusCode"], 200)  # 계산 결과는 여전히 반환
         self.assertFalse(body["persisted"])  # 저장 실패 surface
+        # 응답 unlocks 는 prev=0 기준이라 기존 해금 누락 → 잘못된 부분집합 대신 빈 배열.
+        self.assertEqual(body["unlocks"], [])
 
         prog = inner.load_user_progress("main", "u1")  # 기존 값 보존(덮어쓰기 X)
         self.assertEqual(prog["cumulative_saved_grams"], 9000.0)

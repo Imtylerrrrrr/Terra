@@ -136,6 +136,7 @@ Claude API 멀티모달이 식판·영수증·스크린타임·전력을 정규�
 - 에러 응답: `{ "error": { "code": string, "message": string } }` + 적절한 HTTP status.
 - `campus_id`는 선택(기본 `"main"`). `/compute`는 계산 후 결과를 DynamoDB에 저장(집계용)하고 응답에 `persisted: bool` 포함.
 - `request_id`는 선택(멱등키). 같은 `request_id` 재시도·중복 제출은 누적 절감을 **1회만** 반영(도감 과해금 방지). 생략 시 매 호출 누적.
+- **`persisted: false` 일 때 `unlocks` 는 신뢰 불가** — 진행상태 로드 실패 시 `unlocks` 는 빈 배열로 내려간다(부분집합 오표시 방지). **FE 는 이 응답으로 도감을 덮어쓰지 말 것**(직전 캐시 유지). `tier`·`total_grams_co2e` 등 계산 결과는 항상 유효.
 
 ## 6) DynamoDB 스키마 (주영 확정 — 단일 테이블)
 
@@ -150,6 +151,6 @@ Claude API 멀티모달이 식판·영수증·스크린타임·전력을 정규�
 - 캠퍼스 1건 **Query(PK)** 로 결과 + 학과 메타를 한 번에 조회 → `aggregate()`.
 - `load_campus()` 는 `RESULT#`/`DEPT#` 만 취함 → `USER#` 항목은 집계(§2-B)에 영향 없음.
 - **도감 해금**: `/compute` 가 `best_alternative.saving_grams` 를 사용자별 `cumulative_saved_grams` 에 누적 → `unlocked_ids(누적)` 으로 `unlocks` 채워 응답·저장. 해금 규칙·카탈로그(14종)는 §4-A·`terra_ai/data/collection.json`(백엔드 미러: `carbon_engine/dex_catalog.seed.json`).
-- **멱등·안전 저장**: `request_id` 가 `processed_requests` 에 있으면 누적을 다시 더하지 않음(중복 제출 방어). 진행상태 **로드 실패 시 저장을 스킵**해 기존 누적/해금이 `0` 으로 덮어써지는 것을 방지(응답 `persisted=false` 로 surface).
+- **멱등·안전 저장**: `request_id` 가 `processed_requests` 에 있으면 누적을 다시 더하지 않음(중복 제출 방어). 진행상태 **로드 실패 시 저장을 스킵**해 기존 누적/해금이 `0` 으로 덮어써지는 것을 방지하고, **응답 `unlocks` 도 빈 배열**로 내려 부분집합 오표시를 막음(둘 다 `persisted=false` 로 surface — FE 는 이때 도감 갱신 금지).
 - 학과 메타(`total_students`)는 관성 가상데이터에서 미리 적재(`put_dept_meta`).
 - 코드: `backend/store/` (Dynamo / InMemory 동일 인터페이스).

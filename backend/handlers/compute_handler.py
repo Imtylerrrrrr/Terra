@@ -78,7 +78,9 @@ def handler(event: dict[str, Any], _context: Any = None, store: ResultStore | No
         if request_id:
             seen = (seen + [request_id])[-_MAX_SEEN_REQUESTS:]  # 최근 N개만 유지
 
-    unlocks = unlocked_ids(cumulative)
+    # 로드 실패 시 prev=0 기준이라 unlocks 가 기존 해금을 누락 → 신뢰 불가.
+    # 잘못된 부분집합을 내려보내지 않도록 빈 배열(persisted=false 가 "신뢰 불가" 신호).
+    unlocks = unlocked_ids(cumulative) if load_ok else []
     result["unlocks"] = unlocks
 
     # 집계용 개인 결과 + 사용자 진행상태 저장 (best-effort: 실패해도 계산 결과는 반환)
