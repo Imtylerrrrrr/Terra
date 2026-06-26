@@ -2,20 +2,20 @@
 Terra 코칭 문장 생성 — best_alternative(코드 계산)를 사람 말투 코칭으로.
 계약: docs/CONTRACT.md §2-A 보조 — coach(result, user_dept) → {planet_line, next_action, expected_saving_grams, tone}
 
-설계(계약 명시): 숫자(절감량·tier)는 **코드**, 문장(planet_line·next_action)만 **Bedrock Sonnet**.
-라이브 Bedrock이 없거나(MOCK=1) 실패하면 **규칙기반 폴백** — 데모는 항상 동작.
+설계(계약 명시): 숫자(절감량·tier)는 **코드**, 문장(planet_line·next_action)만 **Claude Sonnet**.
+라이브 API가 없거나(MOCK=1) 실패하면 **규칙기반 폴백** — 데모는 항상 동작.
 best_alternative 는 엔진(주영)이 이미 계산 → coach 는 숫자를 새로 만들지 않는다(환각 차단).
 
-모델 라우팅(extract=Haiku 와 분리): 코칭=Claude Sonnet 4.6.
-  주영이 환경에 맞는 ID를 TERRA_COACH_MODEL 로 주입(예: us.anthropic.claude-sonnet-4-6-...).
+⚠️ 대회 Bedrock 불가 → Anthropic 직접 API. 인증=환경변수 ANTHROPIC_API_KEY.
+모델 라우팅(extract=Haiku 와 분리): 코칭=Claude Sonnet 4.6 (claude-sonnet-4-6).
+  모델 변경 시 TERRA_COACH_MODEL 로 오버라이드.
 """
 import json
 import os
 import re
 import sys
 
-SONNET = os.environ.get("TERRA_COACH_MODEL", "anthropic.claude-sonnet-4-6")
-REGION = os.environ.get("AWS_REGION", "us-east-1")
+SONNET = os.environ.get("TERRA_COACH_MODEL", "claude-sonnet-4-6")
 
 # tier → 톤 라벨(코드 결정 · 프론트 코칭 화면 스타일 분기용)
 _TONE = {"low": "celebratory", "mid": "encouraging", "high": "gentle"}
@@ -29,9 +29,9 @@ SYSTEM = (
 
 
 def _client():
-    """Bedrock 클라이언트 (anthropic SDK, Messages API, 주영의 AWS 자격증명)."""
-    from anthropic import AnthropicBedrock
-    return AnthropicBedrock(aws_region=REGION)
+    """Anthropic Claude API 클라이언트 (api_key=환경변수 ANTHROPIC_API_KEY 자동 인식)."""
+    from anthropic import Anthropic
+    return Anthropic()
 
 
 def _rule_based(total, tier, alt, saving, dept):
@@ -94,7 +94,7 @@ def coach(result, user_dept="우리 학과"):
             if parsed and parsed[0] and parsed[1]:
                 planet, action = parsed
         except Exception as e:
-            # 폴백=규칙기반 (라이브 Bedrock 부재/실패 시 데모 보호).
+            # 폴백=규칙기반 (라이브 API 부재/실패 시 데모 보호).
             # silent 금지 — 라이브 경로가 가려지지 않게 stderr 경고 1줄(검증·디버깅용).
             print(f"[coach] Sonnet 호출 실패 → 규칙기반 폴백: {type(e).__name__}: {e}", file=sys.stderr)
 
