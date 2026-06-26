@@ -13,6 +13,7 @@
 | ① 식단 | food_factors.csv | **소고기·쌀밥=한끼밥상(한국일보, 정부연구 종합) 국내값** / 나머지 Poore&Nemecek 2018 시드 | 🟡 일부 국내, 잔여 보강 |
 
 > ③ 영수증: KEITI EPD 3,002개 중 편의점/매점 소비재 28개 추출. 미매칭 품목은 금액기반 대체.
+> ③ purchase 아메리카노: KEITI EPD에 커피 항목 부재 → **문헌값** 채택. Berners-Lee 2010 『How Bad Are Bananas?』 블랙커피 1잔 21 gCO₂e(물 끓임 + 원두 운송·가공 포함). 동일값 인용 [New Scientist](https://www.newscientist.com/letter/mg21729030-900-hold-the-milk/) · [8 Billion Trees](https://8billiontrees.com/carbon-offsets-credits/coffee-carbon-footprint/). (라이선스 준수 위해 재서술)
 
 ## 그린AI 추정 근거 (윤리성 — net-negative 주장용)
 - AI 분석 비용 ~0.3 gCO2e/건: 보수 추정. GPT-4o 1천토큰 교환 ≈0.38g([Vanderbilt 2025](https://wp0.vanderbilt.edu/youngscientistjournal/article/a-token-level-framework-for-quantifying-chatgpts-environ-mental-impacts-and-a-browser-based-intervention-for-reducing-prompt-resource-use)), Gemini 텍스트 ≈0.03g([Google 2025](https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference)). 우리는 더 작은 Haiku 사용 → 범위 이하. (출처 내용은 라이선스 준수 위해 재구성)

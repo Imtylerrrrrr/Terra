@@ -1,5 +1,5 @@
 {
-  "_note": "민지 계수 반영 — 값만 교체(키/단위/형식 불변, CONTRACT.md §4-A). food: 소고기·쌀밥 국내값·그 외 Poore&Nemecek 2018(정식계수). screentime: 공인 분당계수 부재 → 기기전력(W)×kcen 478.1×IEA 네트워크보정(÷0.72) 전력기반 환산값(모델추정 · 근거·한계=terra_ai/data/KEYMAP.md·terra_ai/data/digital_factors.csv). 전체 출처=terra_ai/data/SOURCES.md. 미반영(임시 유지): purchase 아메리카노(EPD/문헌 출처 부재).",
+  "_note": "민지 계수 반영 — 값만 교체(키/단위/형식 불변, CONTRACT.md §4-A). food: 소고기·쌀밥 국내값·그 외 Poore&Nemecek 2018(정식계수). screentime: 공인 분당계수 부재 → 기기전력(W)×kcen 478.1×IEA 네트워크보정(÷0.72) 전력기반 환산값(모델추정 · 근거·한계=terra_ai/data/KEYMAP.md·terra_ai/data/digital_factors.csv). 전체 출처=terra_ai/data/SOURCES.md. purchase 아메리카노=문헌값(Berners-Lee 2010 'How Bad Are Bananas?' 블랙커피 1잔 21g · KEITI EPD 커피 부재로 문헌 채택).",
   "_units": {
     "food_factors": "gCO2e per gram",
     "purchase_factors": "gCO2e per 개(qty)",
