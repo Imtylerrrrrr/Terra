@@ -77,7 +77,7 @@ const appTitle = document.getElementById("appTitle");
 function showScreen(id) {
   screens.forEach((s) => s.classList.toggle("active", s.id === id));
   const isHome = id === "screen-home";
-  backBtn.hidden = isHome;
+  backBtn.hidden = false;   // 홈에선 '행성으로', 하위화면에선 '홈으로' (항상 노출)
   appTitle.textContent = isHome ? "탄소 측정" : "측정하기";
   const co2 = document.getElementById("iconCO2");
   const sprout = document.getElementById("iconLeaf");
@@ -88,7 +88,11 @@ function showScreen(id) {
 document.querySelectorAll(".menu-card").forEach((card) => {
   card.addEventListener("click", () => showScreen(card.dataset.target));
 });
-backBtn.addEventListener("click", () => showScreen("screen-home"));
+backBtn.addEventListener("click", () => {
+  const onHome = document.getElementById("screen-home").classList.contains("active");
+  if (onHome) window.location.href = "planet.html";   // 홈에서 뒤로 = 3D 행성으로 복귀
+  else showScreen("screen-home");                      // 하위화면 → 홈
+});
 document.getElementById("heroCta")?.addEventListener("click", () => {
   document.querySelector(".menu-grid")?.scrollIntoView({ behavior: "smooth", block: "center" });
 });
