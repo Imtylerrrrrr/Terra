@@ -94,14 +94,12 @@ def _serve(port):
                 self.send_error(404, "use POST /extract")
                 return
             n = int(self.headers.get("Content-Length", 0))
-            raw = self.rfile.read(n).decode() or "{}"
-            try:
-                result, code = _extract(json.loads(raw)), 200
-            except (ValueError, json.JSONDecodeError) as e:
-                result, code = _error("invalid_json" if isinstance(e, json.JSONDecodeError) else "bad_request", e), 400
-            payload = json.dumps(result, ensure_ascii=False).encode()
-            self.send_response(code)
-            self.send_header("Content-Type", "application/json; charset=utf-8")
+            raw = self.rfile.read(n).decode()
+            resp = handler({"body": raw})   # Lambda 핸들러 재사용 → 폴백·에러 처리 일치
+            payload = resp["body"].encode()
+            self.send_response(resp["statusCode"])
+            for k, v in resp["headers"].items():
+                self.send_header(k, v)
             self.end_headers()
             self.wfile.write(payload)
 

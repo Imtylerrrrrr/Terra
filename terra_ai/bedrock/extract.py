@@ -33,12 +33,28 @@ def _client():
     return AnthropicBedrock(aws_region=REGION)
 
 
+_VALID_TYPES = {"menu", "food", "purchase", "screentime", "energy"}
+
+
+def _normalize(out):
+    """LLM 출력 방어 — 계약 §1 타입만 남기고, 버린 항목이 있으면 needs_review."""
+    if not isinstance(out, dict):
+        return {"activities": [], "needs_review": True}
+    acts = out.get("activities", [])
+    acts = acts if isinstance(acts, list) else []
+    kept = [a for a in acts if isinstance(a, dict) and a.get("type") in _VALID_TYPES]
+    if len(kept) != len(acts):
+        out["needs_review"] = True
+    out["activities"] = kept
+    return out
+
+
 def _parse_json(text):
-    """LLM 응답에서 JSON만 안전 추출 (마크다운 코드펜스 제거)."""
+    """LLM 응답에서 JSON만 안전 추출 (마크다운 코드펜스 제거) + 계약 §1 정규화."""
     text = re.sub(r"```(?:json)?|```", "", text)
     m = re.search(r"\{.*\}", text, re.S)
     try:
-        return json.loads(m.group(0)) if m else {"activities": [], "needs_review": True}
+        return _normalize(json.loads(m.group(0)) if m else {"activities": [], "needs_review": True})
     except json.JSONDecodeError:
         return {"activities": [], "needs_review": True}
 

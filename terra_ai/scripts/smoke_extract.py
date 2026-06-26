@@ -47,5 +47,12 @@ fb = json.loads(fr["body"])
 check("fixture 폴백 200+해당메뉴",
       fr["statusCode"] == 200 and fb["activities"][0].get("name") == "소불고기덮밥")
 
+# 5) 출력 정규화 — 계약 밖 타입 제거 + needs_review (라이브 LLM 방어)
+from terra_ai.bedrock.extract import _normalize
+nz = _normalize({"activities": [{"type": "menu", "name": "x"},
+                                {"type": "transport", "km": 3}], "needs_review": False})
+check("정규화: 계약밖 타입 제거 + needs_review",
+      len(nz["activities"]) == 1 and nz["needs_review"] is True)
+
 print(f"\n{'전부 PASS ✅' if not fails else f'실패 {len(fails)}건: {fails}'}")
 sys.exit(1 if fails else 0)
