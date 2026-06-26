@@ -1,0 +1,6 @@
+# 엔진 단일 진실 = backend/carbon_engine/factors.seed.json (이 CSV는 환산 근거·참고용, 코드 미소비). 한쪽만 수정 시 어긋남 주의.
+# network_dc_overhead(÷0.72) = IEA 영상스트리밍 기기:전송:DC 72:23:5 기준 → 비영상(문서/코딩)엔 보정 과대, 셀룰러 영상엔 과소 가능(입력에 활동종류 없어 단일 가정).
+device,device_power_w,grid_factor_gco2e_per_kwh,network_dc_overhead,factor_gco2e_per_min,device_source,note
+스마트폰,3,478.1,1.39,0.03,활성사용 <3W(Qnovo·Carroll2010 스마트폰 전력분석; 발열한계 ~3W),모바일 셀룰러 활동은 네트워크 과소추정 가능 — 보수적 하한
+노트북,45,478.1,1.39,0.50,노트북 평균 45W(Energuide),시드값(0.5)이 우연히 근거값과 일치
+PC,150,478.1,1.39,1.66,표준 사무용 데스크탑 150W(Energuide·주변기기 포함),모니터 포함 추정; 비영상 사용 시 ÷0.72 보정 과대 가능

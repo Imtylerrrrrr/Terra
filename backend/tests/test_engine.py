@@ -53,13 +53,13 @@ class ComputeTest(unittest.TestCase):
             "activities": [
                 {"type": "food", "item": "닭고기", "grams": 100},     # 600
                 {"type": "purchase", "item": "아메리카노", "qty": 2},   # 42
-                {"type": "screentime", "item": "스마트폰", "minutes": 300},  # 45
+                {"type": "screentime", "item": "스마트폰", "minutes": 300},  # 9 (0.03 g/분)
                 {"type": "energy", "item": "전력_가정용체감", "kwh": 1.5},   # 717.2
             ],
             "needs_review": False,
         }
         r = compute(extraction, "u1", "cs", self.f)
-        self.assertAlmostEqual(r["total_grams_co2e"], 600 + 42 + 45 + 717.2, places=1)
+        self.assertAlmostEqual(r["total_grams_co2e"], 600 + 42 + 9 + 717.2, places=1)
         self.assertEqual(len(r["items"]), 4)
 
     def test_unmapped_key_sets_needs_review(self):
