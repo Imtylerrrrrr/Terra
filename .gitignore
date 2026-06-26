@@ -1,0 +1,54 @@
+# ── Node / 프론트엔드 (Kiro, three.js) ──
+node_modules/
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Python (AI/데이터 파이프라인) ──
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.ipynb_checkpoints/
+
+# ── AWS / 서버리스 (Lambda, SAM, Serverless) ──
+.serverless/
+.aws-sam/
+.aws/
+samconfig.toml
+cdk.out/
+
+# ── 환경 변수 / 시크릿 ──
+.env
+.env.*
+!.env.example
+*.pem
+credentials
+secrets.json
+
+# ── 데이터 / 산출물 ──
+*.sqlite
+*.db
+data/raw/
+data/tmp/
+
+# ── IDE / 에디터 ──
+.vscode/
+.idea/
+*.swp
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── 임시 파일 (docx 잠금 등) ──
+~$*.docx
+*.tmp
