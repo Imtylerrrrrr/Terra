@@ -56,8 +56,16 @@ def _one(a):
 
 
 def resolve(activities):
-    """입력 4종 activities → {total_grams_co2e, items[], by_type}."""
-    items = [x for x in (_one(a) for a in activities) if x]
+    """입력 4종 activities → {total_grams_co2e, items[], by_type}. 잘못된 항목 하나가 전체를 깨지 않음."""
+    items = []
+    for a in activities:
+        try:
+            r = _one(a)
+        except Exception as e:   # 키 누락·잘못된 값 → needs_review로 격리(크래시 방지)
+            r = {"type": a.get("type", "?"), "label": str(a)[:40], "grams_co2e": 0,
+                 "source": "처리오류", "needs_review": True, "error": str(e)}
+        if r:
+            items.append(r)
     by_type = {}
     for i in items:
         by_type[i["type"]] = round(by_type.get(i["type"], 0) + i["grams_co2e"], 1)

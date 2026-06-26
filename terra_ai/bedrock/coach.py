@@ -15,7 +15,8 @@ sys.path.insert(0, str(ROOT.parent))
 from terra_ai.engine.carbon_engine import menu, RECIPES
 
 SYSTEM = (ROOT / "prompts" / "coach.md").read_text(encoding="utf-8")
-SONNET = "anthropic.claude-sonnet-4-6"
+# ⚠️ Bedrock 정식 ID는 리전/클라이언트별로 다를 수 있음(날짜·버전·추론프로파일) → 환경변수로 주입
+SONNET = os.environ.get("TERRA_COACH_MODEL", "anthropic.claude-sonnet-4-6")
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 
 

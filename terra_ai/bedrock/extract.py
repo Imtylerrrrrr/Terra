@@ -20,7 +20,10 @@ import pathlib
 PROMPTS = pathlib.Path(__file__).resolve().parent.parent / "prompts"
 SYSTEM = (PROMPTS / "classify.md").read_text(encoding="utf-8")
 
-HAIKU = "anthropic.claude-haiku-4-5"   # 비전·분류 (저전력 라우팅)
+# 비전·분류 (저전력 라우팅). ⚠️ Bedrock은 리전/클라이언트에 따라 정식 ID 필요할 수 있음:
+#   anthropic.claude-haiku-4-5-20251001-v1:0  또는 추론프로파일  us.anthropic.claude-haiku-4-5-...
+#   → 주영이 환경에 맞는 ID를 TERRA_EXTRACT_MODEL 로 주입.
+HAIKU = os.environ.get("TERRA_EXTRACT_MODEL", "anthropic.claude-haiku-4-5")
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 
 
