@@ -54,5 +54,11 @@ nz = _normalize({"activities": [{"type": "menu", "name": "x"},
 check("정규화: 계약밖 타입 제거 + needs_review",
       len(nz["activities"]) == 1 and nz["needs_review"] is True)
 
+# 6) S3 키 입력 경로 (CONTRACT §5 image_s3_key) — MOCK: 다운로드 생략, 스키마 흐름만
+s3r = handler({"body": json.dumps({"image_s3_key": "uploads/lunch.jpg"})})
+s3b = json.loads(s3r["body"])
+check("image_s3_key 경로 200 + activities",
+      s3r["statusCode"] == 200 and isinstance(s3b.get("activities"), list) and len(s3b["activities"]) > 0)
+
 print(f"\n{'전부 PASS ✅' if not fails else f'실패 {len(fails)}건: {fails}'}")
 sys.exit(1 if fails else 0)

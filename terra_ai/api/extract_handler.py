@@ -7,6 +7,7 @@ POST /extract — 사진/텍스트 → 품목·수량(activities, CONTRACT §1).
 
 입력(JSON 본문):
   {"image_base64": "<b64>", "media_type": "image/jpeg"}   # 식판·영수증 사진(라이브 Claude API)
+  {"image_s3_key": "uploads/abc.jpg", "s3_bucket": "..."}  # S3 업로드 사진(CONTRACT §5). bucket 생략 시 env TERRA_UPLOAD_BUCKET
   {"text": "학식: 밥, 제육볶음, 김치"}                      # 텍스트(라이브 Claude API)
   {"fixture": "소불고기덮밥"}                               # 데모 결정적 폴백(라이브·키 불필요)
 출력: CONTRACT §1 — {"activities":[...], "confidence":..., "needs_review":...}
@@ -42,8 +43,23 @@ _FIXTURES = {
 }
 
 
+def _s3_image_bytes(key, bucket=None):
+    """S3 객체(업로드 사진) → 바이트. CONTRACT §5 이미지(S3 key) 입력 경로.
+
+    MOCK=1 → 다운로드 생략(extract_from_image_bytes가 mock 반환). boto3 는 Lambda 런타임 기본 제공.
+    """
+    if os.environ.get("MOCK") == "1":
+        return b""  # MOCK: 네트워크 없이 스키마 흐름만 (extract_from_image_bytes가 무시)
+    bucket = bucket or os.environ.get("TERRA_UPLOAD_BUCKET")
+    if not bucket:
+        raise ValueError("S3 버킷 미지정 (s3_bucket 또는 env TERRA_UPLOAD_BUCKET)")
+    import boto3   # Lambda 런타임 기본 포함 → requirements 불필요
+    obj = boto3.client("s3").get_object(Bucket=bucket, Key=key)
+    return obj["Body"].read()
+
+
 def _extract(body):
-    """JSON 본문 dict → activities(계약 §1). 우선순위: fixture > text > image_base64.
+    """JSON 본문 dict → activities(계약 §1). 우선순위: fixture > text > image_base64 > image_s3_key.
 
     `fixture`: 데모 결정적 모드 — 라이브 추출 없이 사전 추출 결과 반환(폴백·리허설).
     """
@@ -57,7 +73,10 @@ def _extract(body):
     if body.get("image_base64"):
         img = base64.b64decode(body["image_base64"])
         return extract_from_image_bytes(img, body.get("media_type", "image/jpeg"))
-    raise ValueError("fixture · text · image_base64 중 하나 필요")
+    if body.get("image_s3_key"):
+        img = _s3_image_bytes(body["image_s3_key"], body.get("s3_bucket"))
+        return extract_from_image_bytes(img, body.get("media_type", "image/jpeg"))
+    raise ValueError("fixture · text · image_base64 · image_s3_key 중 하나 필요")
 
 
 def _error(code, message):
