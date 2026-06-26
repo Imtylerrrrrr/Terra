@@ -130,6 +130,10 @@ function showScreen(id) {
   const isHome = id === "screen-home";
   backBtn.hidden = false;   // 홈에선 '행성으로', 하위화면에선 '홈으로' (항상 노출)
   appTitle.textContent = isHome ? "탄소 측정" : "측정하기";
+  // 홈: '행성으로' 텍스트 / 하위화면: 원형 ‹ 화살표
+  backBtn.classList.toggle("to-planet", isHome);
+  backBtn.textContent = isHome ? "행성으로" : "‹";
+  backBtn.setAttribute("aria-label", isHome ? "행성으로 돌아가기" : "뒤로가기");
   const co2 = document.getElementById("iconCO2");
   const sprout = document.getElementById("iconLeaf");
   if (isHome) { co2.removeAttribute("hidden"); sprout.setAttribute("hidden", ""); }
