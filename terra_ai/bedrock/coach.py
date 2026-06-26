@@ -74,13 +74,17 @@ def _milestone_nudge(cumulative_saving_grams):
     """누적 절감(gCO2e) → 다음 도감 해금까지 넛지 한 줄. 숫자=코드(next_milestone).
 
     카탈로그 미탑재(import 실패)·전종 해금이면 '' (넛지 없음).
+    잔여량은 적응 표기(1kg 미만은 g), 복수 해금은 "OO 등 N종"으로 정확히 알림.
     """
     if next_milestone is None:
         return ""
     nm = next_milestone(cumulative_saving_grams)
     if not nm:
         return ""
-    return f"앞으로 {nm['remaining_grams'] / 1000:.1f}kg 더 줄이면 {nm['name']} 해금!"
+    rem = nm["remaining_grams"]
+    amount = f"{rem:.0f}g" if rem < 1000 else f"{rem / 1000:.1f}kg"
+    species = f"{nm['name']} 등 {nm['count']}종" if nm.get("count", 1) > 1 else nm["name"]
+    return f"앞으로 {amount} 더 줄이면 {species} 해금!"
 
 
 def coach(result, user_dept="우리 학과", cumulative_saving_grams=None):

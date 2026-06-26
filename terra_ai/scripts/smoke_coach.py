@@ -49,8 +49,9 @@ check("절감량은 입력 result에서만 파생", r["expected_saving_grams"] =
 base = {"total_grams_co2e": 1050.0, "tier": "mid",
         "best_alternative": {"name": "비건비빔밥", "grams_co2e": 285.0, "saving_grams": 765.0}}
 rn = coach(base, "컴퓨터공학과", cumulative_saving_grams=200)
-check("넛지: 누적 0.2kg → next_action에 '여우 해금' 포함", "여우 해금" in rn["next_action"])
-check("넛지: 남은 양 '0.3kg' 표기", "0.3kg" in rn["next_action"])
+check("넛지: 누적 0.2kg → next_action에 '여우' + 복수해금 '4종' 포함",
+      "여우" in rn["next_action"] and "4종" in rn["next_action"])
+check("넛지: 잔여 1kg 미만은 g 표기('300g')", "300g" in rn["next_action"])
 check("넛지 줘도 4필드 유지",
       set(rn) == {"planet_line", "next_action", "expected_saving_grams", "tone"})
 
