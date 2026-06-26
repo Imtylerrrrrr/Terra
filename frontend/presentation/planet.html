@@ -97,6 +97,11 @@
   .dex-panel.show{transform:translateX(0)}
   .dex-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:15px;margin-bottom:14px}
   .dex-close{background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
+  .dex-codex-link{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:14px;
+    padding:10px 12px;border:1px solid rgba(95,211,138,.4);border-radius:10px;
+    background:linear-gradient(135deg,rgba(95,211,138,.14),rgba(70,110,200,.12));
+    color:var(--ink);font-weight:700;font-size:12.5px;text-decoration:none}
+  .dex-codex-link:hover{border-color:#5fd38a;color:#5fd38a}
   .dex-close:hover{color:var(--ink)}
   .dex-demo{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
   .dex-demo label{font-size:12px;color:var(--muted)}
@@ -275,6 +280,7 @@
   <button class="dex-toggle" id="dexToggle">📖 도감</button>
   <div class="dex-panel" id="dexPanel">
     <div class="dex-head"><span>📖 도감 — 탄소 절감 수집</span><button class="dex-close" id="dexClose">×</button></div>
+    <a class="dex-codex-link" href="terra_dex.html">📖 정령의 도감(오픈북) 펼치기 →</a>
     <div class="dex-demo">
       <label>누적 절감량 <b id="dexKgVal">0.0</b> kg</label>
       <input id="dexKg" class="slider" type="range" min="0" max="12" step="0.1" value="0">
