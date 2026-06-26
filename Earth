@@ -66,12 +66,12 @@
   .hint{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);font-size:10.5px;
     color:rgba(255,255,255,.32);letter-spacing:.06em;z-index:6;pointer-events:none}
 
-  .addbox{position:fixed;top:172px;left:26px;z-index:6;width:208px;display:flex;flex-direction:column;gap:10px}
-  .add-toggle{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+  .addbox{position:fixed;top:172px;left:26px;z-index:6;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+  .add-toggle{align-self:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
     color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);text-align:left}
+    -webkit-backdrop-filter:blur(12px);text-align:left;white-space:nowrap}
   .add-toggle:hover{color:#5fd38a}
-  .add-form{display:none;flex-direction:column;gap:8px;padding:14px;background:var(--panel);
+  .add-form{display:none;flex-direction:column;gap:8px;padding:14px;width:200px;background:var(--panel);
     border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   .add-form.show{display:flex}
   .add-form input{padding:8px 10px;border-radius:8px;border:1px solid #2a2f4a;background:#141831;
@@ -175,8 +175,8 @@
     .controls{width:94vw;bottom:14px;padding:12px 14px;border-radius:14px}
     .avatar-btn,.dex-toggle{top:14px;right:14px;padding:7px 11px;font-size:12px}
     .back-btn{top:14px;left:14px;padding:7px 11px;font-size:12px}
-    .addbox{top:auto;bottom:88px;left:14px;width:170px}
-    .addbox2{top:120px;left:14px;width:170px}
+    .addbox{top:56px;bottom:auto;left:14px;width:180px}
+    .addbox2{top:56px;left:14px;width:180px}
     .dex-panel{width:100vw;max-width:100vw;padding:16px}
     .dex-grid{grid-template-columns:repeat(2,1fr)}
     .theme-box{padding:20px}
@@ -259,6 +259,7 @@
   <div class="hint">드래그 회전·이동 · 휠/핀치 확대 · 탭으로 진입 · 우클릭/길게눌러 삭제</div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
   <script>
   // ============================================================================
   //  TERRA — Living Low-Poly Earth  (high-detail rebuild)
@@ -1203,9 +1204,148 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       const img=card.querySelector('img');
       img.onerror=()=>{ img.onerror=null; img.src=it.thumb; };   // 이미지 파일 없으면 실루엣 폴백
       img.src=`assets/dex/${it.id}.png`;                          // 있으면 일러스트 사용
+      card.draggable=true;                                        // 카드를 캔버스로 드래그
+      card.addEventListener('dragstart',e=>{ if(card.classList.contains('locked')){e.preventDefault();return;}
+        e.dataTransfer.setData('text/plain', it.id); });
       dexGrid.appendChild(card); it.el=card;
     }
   })();
+
+  // 크리처 시스템: 도감 동물을 아바타 행성에 풀어놓기 (4족=육지 보행, 박쥐=비행)
+  const _fRight=new THREE.Vector3(), _fMtx=new THREE.Matrix4(), _tmpDir=new THREE.Vector3(), _v1=new THREE.Vector3();
+  const glbCache={}, creatures=[], spawning=new Set();
+  const CREATURES={
+    red_fox:{type:'walk',glb:'Fox'},                 // 여우=GLB 고퀄(다리 스윙 없이 갤럽)
+    asiatic_black_bear:{type:'walk',glb:'asiatic_black_bear'},
+    leopard:{type:'walk',glb:'Cheetah'},
+    wolf:{type:'walk',glb:'wolf'},
+    sika_deer:{type:'walk',glb:'sika_deer'},
+    tiger:{type:'walk',glb:'Tiger'},
+    goral:{type:'walk',glb:'goral'},
+    least_weasel:{type:'walk',glb:'least_weasel'},
+    lynx:{type:'walk',glb:'lynx'},
+    musk_deer:{type:'walk',glb:'musk_deer'},
+    otter:{type:'walk',glb:'otter'},
+    spotted_seal:{type:'walk',glb:'Seal',habitat:'sea'},   // 바다표범=바다(물) 영역에서만
+    golden_bat:{type:'fly',glb:'golden_bat',nose:new THREE.Vector3(0,1,0),up:new THREE.Vector3(-1,0,0)},          // 모델 정면=+Y·등=-X
+    tube_nosed_bat:{type:'fly',glb:'tube_nosed_bat',anim:true,nose:new THREE.Vector3(0,-1,0),up:new THREE.Vector3(0,0,1)}, // 정면=-Y·등=+Z
+  };
+  // 비행 종: 모델 코축→전진(+Z)·등축→위(+Y) 로 맞추는 고정 쿼터니언 (얼굴이 하늘 보는 문제 보정)
+  function orientQ(nose,up){ const f=nose.clone().normalize(); const r=new THREE.Vector3().crossVectors(up,f).normalize();
+    const u=new THREE.Vector3().crossVectors(f,r).normalize();
+    return new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(r,u,f)).invert(); }
+  function randLandDir(){ const d=new THREE.Vector3(); let t=0; do{ d.set(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize(); }while(!isLand(d)&&++t<300); return d; }
+  function randSeaDir(){ const d=new THREE.Vector3(); let t=0; do{ d.set(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize(); }while(isLand(d)&&++t<300); return d; }
+  function tangentOf(dir){ const f=new THREE.Vector3().crossVectors(dir,new THREE.Vector3(0,1,0)); if(f.lengthSq()<1e-4)f.set(1,0,0); return f.normalize(); }
+  function loadGlb(name,cb){ if(glbCache[name]){cb(glbCache[name]);return;} if(!THREE.GLTFLoader)return;
+    new THREE.GLTFLoader().load('assets/models/'+name+'.glb', g=>{glbCache[name]=g;cb(g);}, undefined, e=>console.warn('GLB load fail',name,e)); }
+  // 도감 카드 썸네일을 GLB 모델 렌더로 교체 — 14종 전부(여우와 동일 방식, 같은 assets/models/*.glb)
+  (function buildGlbThumbs(){
+    if(!THREE.GLTFLoader) return;
+    const r=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+    r.setSize(180,180); r.setPixelRatio(1.5); r.outputEncoding=THREE.sRGBEncoding;
+    const sc=new THREE.Scene(); sc.add(new THREE.AmbientLight(0xffffff,0.9));
+    const dl=new THREE.DirectionalLight(0xffffff,1.0); dl.position.set(3,5,4); sc.add(dl);
+    const cam=new THREE.PerspectiveCamera(35,1,0.01,5000);
+    const todo=DEX.filter(it=>CREATURES[it.id]); let done=0;
+    for(const it of todo){
+      loadGlb(CREATURES[it.id].glb, gltf=>{
+        const m=gltf.scene; sc.add(m); m.rotation.set(0,0,0);
+        const box=new THREE.Box3().setFromObject(m), c=box.getCenter(new THREE.Vector3()), s=box.getSize(new THREE.Vector3());
+        m.position.sub(c);
+        const rad=Math.max(s.x,s.y,s.z)*0.5||1, d=rad*2.6;
+        cam.position.set(d*0.8,d*0.42,d*0.8); cam.lookAt(0,0,0); cam.near=Math.max(0.01,d*0.02); cam.far=d*20; cam.updateProjectionMatrix();
+        r.render(sc,cam);
+        it.thumb=r.domElement.toDataURL('image/png');
+        sc.remove(m); m.position.set(0,0,0);     // 스폰 재사용 위해 임시 씬에서 분리·원위치
+        if(it.el){ const img=it.el.querySelector('img'); if(img){ img.onerror=null; img.src=it.thumb; } }
+        if(++done===todo.length) r.dispose();
+      });
+    }
+  })();
+
+  // 아바타 행성에 여우 풀어놓기 (한 마리, 표면을 무작위 보행)
+  // 다리가 분리된 절차적 로우폴리 여우 (매끈한 곡면 몸통 + 4족보행)
+  function makeWalkingFox(){
+    const g=new THREE.Group();
+    const M=c=>new THREE.MeshStandardMaterial({color:c,flatShading:false,roughness:0.85});
+    const orange=M(0xe8743a), white=M(0xf3ead8), dark=M(0x241a12);
+    const body=new THREE.Mesh(new THREE.SphereGeometry(0.13,18,14),orange); body.scale.set(1.0,0.92,1.7); body.position.set(0,0.28,-0.02); g.add(body);
+    const belly=new THREE.Mesh(new THREE.SphereGeometry(0.118,16,12),white); belly.scale.set(0.9,0.55,1.45); belly.position.set(0,0.235,-0.02); g.add(belly);
+    const neck=new THREE.Mesh(new THREE.SphereGeometry(0.1,16,12),orange); neck.scale.set(1,1,1.1); neck.position.set(0,0.31,0.16); g.add(neck);
+    const head=new THREE.Mesh(new THREE.SphereGeometry(0.09,16,12),orange); head.position.set(0,0.37,0.26); g.add(head);
+    const cheek=new THREE.Mesh(new THREE.SphereGeometry(0.072,14,10),white); cheek.scale.set(1,0.8,0.9); cheek.position.set(0,0.34,0.30); g.add(cheek);
+    const snout=new THREE.Mesh(new THREE.ConeGeometry(0.045,0.13,12),orange); snout.rotation.x=Math.PI/2; snout.position.set(0,0.355,0.37); g.add(snout);
+    const nose=new THREE.Mesh(new THREE.SphereGeometry(0.02,8,6),dark); nose.position.set(0,0.355,0.44); g.add(nose);
+    for(const sx of [-1,1]){
+      const ear=new THREE.Mesh(new THREE.ConeGeometry(0.042,0.11,10),orange); ear.position.set(sx*0.05,0.46,0.23); g.add(ear);
+      const tip=new THREE.Mesh(new THREE.ConeGeometry(0.024,0.045,8),dark); tip.position.set(sx*0.05,0.51,0.23); g.add(tip);
+      const eye=new THREE.Mesh(new THREE.SphereGeometry(0.013,8,6),dark); eye.position.set(sx*0.045,0.39,0.33); g.add(eye);
+    }
+    const tail=new THREE.Mesh(new THREE.ConeGeometry(0.072,0.27,12),orange); tail.rotation.x=-1.1; tail.position.set(0,0.31,-0.27); g.add(tail);
+    const ttip=new THREE.Mesh(new THREE.ConeGeometry(0.056,0.1,12),white); ttip.rotation.x=-1.1; ttip.position.set(0,0.385,-0.37); g.add(ttip);
+    const mk=(x,z)=>{ const piv=new THREE.Group(); piv.position.set(x,0.21,z);   // 엉덩이 피벗
+      const seg=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.024,0.21,8),orange); seg.position.y=-0.105; piv.add(seg);
+      const paw=new THREE.Mesh(new THREE.SphereGeometry(0.034,8,6),dark); paw.scale.set(1,0.7,1.25); paw.position.set(0,-0.21,0.012); piv.add(paw);
+      g.add(piv); return piv; };
+    g.userData.legs={FL:mk(-0.07,0.13),FR:mk(0.07,0.13),BL:mk(-0.07,-0.13),BR:mk(0.07,-0.13)};
+    return g;
+  }
+  function spawnCreature(id){
+    if(view!=='avatar') return;
+    const def=CREATURES[id]; if(!def) return;
+    if(creatures.find(c=>c.id===id) || spawning.has(id)) return;   // 종당 1마리
+    spawning.add(id);
+    loadGlb(def.glb, gltf=>{
+      spawning.delete(id);
+      if(creatures.find(c=>c.id===id)) return;
+      const m=gltf.scene;
+      const s=new THREE.Box3().setFromObject(m).getSize(_v1.clone());
+      const maxDim=Math.max(s.x,s.y,s.z)||1;                       // 몸 최장축(=길이) 기준 → 종 무관 균일 크기
+      const target=(def.type==='fly')?0.40:0.50;                   // 여우와 동일 톤(여우는 길이가 최장축이라 기존 유지)
+      m.scale.setScalar(target/maxDim);
+      const box2=new THREE.Box3().setFromObject(m), c2=box2.getCenter(new THREE.Vector3());
+      m.position.set(-c2.x, (def.type==='fly')? -c2.y : -box2.min.y, -c2.z);
+      m.rotation.y=def.yaw||0;                                       // 정면 축 보정(종별)
+      if(def.nose) m.quaternion.copy(orientQ(def.nose,def.up));      // 비행 종: 코→전진·등→위 정렬(하늘 보기 보정)
+      const holder=new THREE.Group(); holder.add(m); earthGroup.add(holder); holder.visible=(view==='avatar');
+      let mixer=null;
+      if(def.anim && gltf.animations && gltf.animations.length){ mixer=new THREE.AnimationMixer(m); mixer.clipAction(gltf.animations[0]).play(); }
+      const dir=(def.type==='fly')? new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize() : (def.habitat==='sea'?randSeaDir():randLandDir());
+      creatures.push({id,type:def.type,habitat:def.habitat,holder,model:m,mixer,dir,fwd:tangentOf(dir),phase:0,baseY:m.position.y});
+    });
+  }
+  function updateCreature(c){
+    c.fwd.applyAxisAngle(c.dir,(Math.random()-0.5)*0.025).normalize();          // 가끔 방향 틀기
+    c.fwd.addScaledVector(c.dir,-c.fwd.dot(c.dir)).normalize();
+    _fRight.crossVectors(c.dir,c.fwd).normalize();
+    if(c.type==='walk'){
+      _tmpDir.copy(c.dir).applyAxisAngle(_fRight,0.0005625).normalize();         // 전진(서식지 영역만)
+      let moving=true;
+      const canGo = c.habitat==='sea' ? !isLand(_tmpDir) : isLand(_tmpDir);      // 바다표범=바다, 나머지=육지
+      if(canGo){ c.dir.copy(_tmpDir); c.fwd.applyAxisAngle(_fRight,0.0005625).normalize(); }
+      else { c.fwd.applyAxisAngle(c.dir,0.4).normalize(); moving=false; }
+      c.fwd.addScaledVector(c.dir,-c.fwd.dot(c.dir)).normalize();
+      const fc=classify(c.dir); c.holder.position.copy(c.dir).multiplyScalar(2.0*liftAt(fc.h,c.dir)+0.005);
+      _fRight.crossVectors(c.dir,c.fwd).normalize(); _fMtx.makeBasis(_fRight,c.dir,c.fwd); c.holder.quaternion.setFromRotationMatrix(_fMtx);
+      if(moving) c.phase+=0.05;                                                  // 갤럽 바운스(다리 대체)
+      c.model.position.y=c.baseY+Math.abs(Math.sin(c.phase))*0.03;
+      c.model.rotation.x=Math.sin(c.phase*2)*0.04;
+    } else {                                                                     // 비행(육지 무관, 상공)
+      c.dir.applyAxisAngle(_fRight,0.0011).normalize(); c.fwd.applyAxisAngle(_fRight,0.0011).normalize();
+      c.fwd.addScaledVector(c.dir,-c.fwd.dot(c.dir)).normalize();
+      c.phase+=0.05;
+      c.holder.position.copy(c.dir).multiplyScalar(2.0*1.5 + Math.sin(c.phase*0.5)*0.15);
+      _fRight.crossVectors(c.dir,c.fwd).normalize(); _fMtx.makeBasis(_fRight,c.dir,c.fwd); c.holder.quaternion.setFromRotationMatrix(_fMtx);
+      if(c.mixer) c.mixer.update(0.016);                                         // 내장 날갯짓(작은관코박쥐)
+      // 황금박쥐는 정렬 쿼터니언 유지 위해 별도 펄럭 없이 활공(고도 보브로 생동감)
+    }
+  }
+  // 도감 카드 → 캔버스로 드래그 → 드롭 시 해당 동물 스폰
+  const stageEl=document.getElementById('stage');
+  stageEl.addEventListener('dragover',e=>e.preventDefault());
+  stageEl.addEventListener('drop',e=>{ e.preventDefault();
+    const id=e.dataTransfer.getData('text/plain'); if(CREATURES[id]) spawnCreature(id); });
 
   // 해금 상태
   const unlocked=new Set();
@@ -1347,6 +1487,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     GALAXIES.visible=(v==='galaxy');
     camDist=(v==='galaxy')?GALAXY_DIST:PLANET_DIST; updateCam();
     backBtn.textContent=(v==='avatar')?'← 학과 행성':'← 캠퍼스 은하';
+    creatures.forEach(c=>c.holder.visible=(v==='avatar'));   // 동물은 아바타 행성에서만
   }
   function crossfadeTo(fn){
     fadeover.style.opacity='1';
@@ -1654,6 +1795,8 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     for(const tw of twinkles){ tw.mat.opacity = tw.base*(0.5+0.5*Math.sin(smk*tw.sp+tw.ph)); }  // 희미한 별 레이어
     // 은하 뷰: 각 은하 나선 자전
     if(view==='galaxy'){ for(const g of galaxies){ g.userData.pts.rotation.y += g.userData.spin; } }
+    // 동물: 아바타 행성 위 동물들 업데이트 (4족=육지 보행, 박쥐=비행)
+    if(view==='avatar'){ for(const c of creatures){ if(c.holder.visible) updateCreature(c); } }
     // 흩어진 학과 행성 — 자전 + 살짝 떠다님
     for(const b of bgPlanets){ const u=b.group.userData; b.mesh.rotation.y+=u.spin; u.ph+=0.01; b.group.position.y=u.baseY+Math.sin(u.ph)*0.18; }
     // 회전초 — 육지에서만, 바다로 가면 작아지며 사라짐
