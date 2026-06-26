@@ -1264,33 +1264,6 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     }
   })();
 
-  // 아바타 행성에 여우 풀어놓기 (한 마리, 표면을 무작위 보행)
-  // 다리가 분리된 절차적 로우폴리 여우 (매끈한 곡면 몸통 + 4족보행)
-  function makeWalkingFox(){
-    const g=new THREE.Group();
-    const M=c=>new THREE.MeshStandardMaterial({color:c,flatShading:false,roughness:0.85});
-    const orange=M(0xe8743a), white=M(0xf3ead8), dark=M(0x241a12);
-    const body=new THREE.Mesh(new THREE.SphereGeometry(0.13,18,14),orange); body.scale.set(1.0,0.92,1.7); body.position.set(0,0.28,-0.02); g.add(body);
-    const belly=new THREE.Mesh(new THREE.SphereGeometry(0.118,16,12),white); belly.scale.set(0.9,0.55,1.45); belly.position.set(0,0.235,-0.02); g.add(belly);
-    const neck=new THREE.Mesh(new THREE.SphereGeometry(0.1,16,12),orange); neck.scale.set(1,1,1.1); neck.position.set(0,0.31,0.16); g.add(neck);
-    const head=new THREE.Mesh(new THREE.SphereGeometry(0.09,16,12),orange); head.position.set(0,0.37,0.26); g.add(head);
-    const cheek=new THREE.Mesh(new THREE.SphereGeometry(0.072,14,10),white); cheek.scale.set(1,0.8,0.9); cheek.position.set(0,0.34,0.30); g.add(cheek);
-    const snout=new THREE.Mesh(new THREE.ConeGeometry(0.045,0.13,12),orange); snout.rotation.x=Math.PI/2; snout.position.set(0,0.355,0.37); g.add(snout);
-    const nose=new THREE.Mesh(new THREE.SphereGeometry(0.02,8,6),dark); nose.position.set(0,0.355,0.44); g.add(nose);
-    for(const sx of [-1,1]){
-      const ear=new THREE.Mesh(new THREE.ConeGeometry(0.042,0.11,10),orange); ear.position.set(sx*0.05,0.46,0.23); g.add(ear);
-      const tip=new THREE.Mesh(new THREE.ConeGeometry(0.024,0.045,8),dark); tip.position.set(sx*0.05,0.51,0.23); g.add(tip);
-      const eye=new THREE.Mesh(new THREE.SphereGeometry(0.013,8,6),dark); eye.position.set(sx*0.045,0.39,0.33); g.add(eye);
-    }
-    const tail=new THREE.Mesh(new THREE.ConeGeometry(0.072,0.27,12),orange); tail.rotation.x=-1.1; tail.position.set(0,0.31,-0.27); g.add(tail);
-    const ttip=new THREE.Mesh(new THREE.ConeGeometry(0.056,0.1,12),white); ttip.rotation.x=-1.1; ttip.position.set(0,0.385,-0.37); g.add(ttip);
-    const mk=(x,z)=>{ const piv=new THREE.Group(); piv.position.set(x,0.21,z);   // 엉덩이 피벗
-      const seg=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.024,0.21,8),orange); seg.position.y=-0.105; piv.add(seg);
-      const paw=new THREE.Mesh(new THREE.SphereGeometry(0.034,8,6),dark); paw.scale.set(1,0.7,1.25); paw.position.set(0,-0.21,0.012); piv.add(paw);
-      g.add(piv); return piv; };
-    g.userData.legs={FL:mk(-0.07,0.13),FR:mk(0.07,0.13),BL:mk(-0.07,-0.13),BR:mk(0.07,-0.13)};
-    return g;
-  }
   function spawnCreature(id){
     if(view!=='avatar') return;
     const def=CREATURES[id]; if(!def) return;
