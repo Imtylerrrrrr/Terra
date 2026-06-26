@@ -3,292 +3,542 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>탄소 측정</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>로그인 · 탄소 측정</title>
+  <style>
+    :root {
+      --bg-0: #0a1118;
+      --bg-1: #122031;
+      --bg-2: #1d3346;
+      --green-bright: #8ee6a6;
+      --green: #5fc488;
+      --green-deep: #36a368;
+      --green-darker: #2a7a52;
+      --accent-light: #c4f5d3;
+      --card: rgba(20, 44, 32, 0.72);
+      --card-border: rgba(95, 196, 136, 0.24);
+      --text: #dcf2e4;
+      --muted: #aecdb9;
+      --text-shadow: #163524;
+      --shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+      /* 우주 배경 팔레트 (블루/퍼플 코스믹) */
+      --space-0: #05061a;
+      --space-1: #0a0f33;
+      --space-2: #161046;
+      --neb-purple: rgba(150, 90, 230, 0.55);
+      --neb-magenta: rgba(205, 95, 205, 0.5);
+      --neb-blue: rgba(70, 120, 230, 0.5);
+      --horizon-rim: rgba(190, 165, 255, 0.6);
+      --star: #ffffff;
+      --star-blue: #cfe0ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+      background: #05061a url("login-bg.png") center center / cover no-repeat fixed;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 24px 84px;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    /* 배경 우주 */
+    .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+    .nebula { position: absolute; border-radius: 50%; filter: blur(90px); }
+    .nebula.a { width: 460px; height: 460px; background: radial-gradient(circle, var(--neb-magenta), transparent 70%); top: -120px; right: -120px; opacity: 0.55; }
+    .nebula.b { width: 480px; height: 480px; background: radial-gradient(circle, var(--neb-blue), transparent 70%); bottom: -120px; left: -140px; opacity: 0.45; }
+    .nebula.c { width: 360px; height: 360px; background: radial-gradient(circle, var(--neb-purple), transparent 70%); top: 30%; left: 60%; opacity: 0.4; }
+
+    .stars { position: absolute; inset: -50%; background-repeat: repeat; }
+    .stars.l1 {
+      background-image:
+        radial-gradient(1.5px 1.5px at 20% 30%, var(--star), transparent),
+        radial-gradient(1.5px 1.5px at 70% 60%, var(--star-blue), transparent),
+        radial-gradient(2px 2px at 40% 80%, var(--star), transparent),
+        radial-gradient(1.5px 1.5px at 85% 20%, #dCE6ff, transparent);
+      background-size: 340px 340px;
+      opacity: 0.7;
+      animation: twinkle 5s ease-in-out infinite, drift 140s linear infinite;
+    }
+    .stars.l2 {
+      background-image:
+        radial-gradient(1px 1px at 10% 50%, var(--star-blue), transparent),
+        radial-gradient(1px 1px at 60% 25%, var(--star), transparent),
+        radial-gradient(1.5px 1.5px at 32% 70%, #d8c8ff, transparent),
+        radial-gradient(1px 1px at 90% 80%, var(--star), transparent);
+      background-size: 240px 240px;
+      opacity: 0.55;
+      animation: twinkle 7s ease-in-out infinite 1s, drift 200s linear infinite reverse;
+    }
+    .stars.l3 {
+      background-image:
+        radial-gradient(1px 1px at 15% 15%, var(--star), transparent),
+        radial-gradient(1px 1px at 50% 45%, #e6ecff, transparent),
+        radial-gradient(1px 1px at 80% 65%, var(--star), transparent);
+      background-size: 160px 160px;
+      opacity: 0.4;
+      animation: twinkle 4s ease-in-out infinite 0.5s;
+    }
+    @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.8; } }
+    @keyframes drift { to { transform: translate(60px, 40px); } }
+
+    /* 은하수 띠 (대각선) */
+    .milkyway {
+      position: absolute;
+      width: 170%; height: 80%;
+      left: -12%; top: -8%;
+      background:
+        radial-gradient(58% 36% at 70% 46%, rgba(180, 120, 255, 0.55), transparent 70%),
+        radial-gradient(46% 30% at 54% 56%, rgba(120, 160, 255, 0.5), transparent 70%),
+        radial-gradient(40% 24% at 84% 30%, rgba(220, 120, 220, 0.45), transparent 72%);
+      transform: rotate(-24deg);
+      filter: blur(40px);
+      opacity: 0.85;
+      mix-blend-mode: screen;
+    }
+
+    /* 아래쪽 행성 지평선 */
+    .horizon {
+      position: absolute;
+      left: 50%;
+      bottom: -120vw;
+      transform: translateX(-50%);
+      width: 220vw;
+      height: 220vw;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 8%, #4a3a86 0%, #261c58 26%, #0d0a2a 52%, #06061a 70%);
+      box-shadow: 0 0 0 2px var(--horizon-rim), 0 -10px 90px 10px rgba(160, 120, 255, 0.55);
+      opacity: 0.97;
+    }
+    .horizon::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      box-shadow: inset 0 16px 64px rgba(200, 170, 255, 0.45);
+    }
+
+    /* 행성 + 달 */
+    .planet {
+      position: absolute;
+      width: 250px; height: 250px;
+      left: -70px; top: -70px;
+      border-radius: 50%;
+      background:
+        repeating-linear-gradient(10deg, rgba(255,255,255,0.05) 0 6px, rgba(0,0,0,0.07) 6px 15px),
+        radial-gradient(circle at 36% 30%, #c2d4ff, #3f5fd6 52%, #131f5c 100%);
+      box-shadow: 0 0 90px rgba(90, 130, 255, 0.45), inset -24px -28px 64px rgba(0, 0, 0, 0.6);
+      opacity: 0.95;
+      animation: floatA 15s ease-in-out infinite;
+    }
+    .planet::after {
+      content: ""; position: absolute; inset: -34px -78px;
+      border: 2px solid rgba(150, 175, 255, 0.22);
+      border-radius: 50%; transform: rotate(-22deg);
+    }
+    .moon {
+      position: absolute;
+      width: 84px; height: 84px;
+      right: 70px; top: 120px;
+      left: auto; bottom: auto;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 34%, #e3e9ff, #8f9fce 60%, #2c3458 100%);
+      box-shadow: 0 0 40px rgba(150, 170, 255, 0.35), inset -10px -12px 26px rgba(0, 0, 0, 0.5);
+      opacity: 0.8;
+      animation: floatB 19s ease-in-out infinite;
+    }
+    @keyframes floatA {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(-12px, 14px) rotate(3deg); }
+    }
+    @keyframes floatB {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(14px, -12px) rotate(-4deg); }
+    }
+
+    /* 로우폴리 우주비행사 (행성 마스코트) */
+    .astro-wrap {
+      position: absolute;
+      right: 30px; top: 96px;
+      width: 84px;
+      pointer-events: none;
+      animation: floatAstro 38s ease-in-out infinite;
+    }
+    .astro-wrap:hover, .astro-wrap.talking { animation-play-state: paused; }
+    .astro {
+      display: block;
+      width: 100%; height: auto;
+      opacity: 0.96;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
+      transition: transform 0.15s ease;
+    }
+    .astro-wrap:hover .astro { transform: scale(1.08); }
+    .astro-bubble {
+      position: absolute;
+      bottom: 112%;
+      right: -10px;
+      width: max-content;
+      max-width: 220px;
+      padding: 8px 12px;
+      background: transparent;
+      border: 1px solid rgba(95, 196, 136, 0.35);
+      border-radius: 14px;
+      color: var(--accent-light);
+      font-size: 12.5px;
+      line-height: 1.5;
+      font-weight: 600;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85), 0 0 14px rgba(8, 16, 12, 0.7);
+      opacity: 0;
+      transform: translateY(6px) scale(0.96);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+    }
+    .astro-bubble::after { display: none; }
+    .astro-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
+    @keyframes floatAstro {
+      0%   { transform: translate(0, 0) rotate(-5deg); }
+      25%  { transform: translate(-7vw, 9px) rotate(4deg); }
+      50%  { transform: translate(-2vw, -7px) rotate(-4deg); }
+      75%  { transform: translate(-9vw, 6px) rotate(5deg); }
+      100% { transform: translate(0, 0) rotate(-5deg); }
+    }
+    @media (max-width: 560px) {
+      .astro-wrap { width: 60px; right: 14px; top: 76px; }
+      .astro-bubble { max-width: 168px; font-size: 11.5px; }
+    }
+
+    /* 별똥별 */
+    .shooting {
+      position: absolute;
+      width: 140px; height: 2px;
+      background: linear-gradient(90deg, transparent, #d8c8ff);
+      border-radius: 2px;
+      filter: drop-shadow(0 0 6px #b18cff);
+      opacity: 0;
+      transform: rotate(18deg);
+    }
+    .shooting.s1 { top: 12%; left: -15%; animation: shoot 6s linear infinite; }
+    .shooting.s2 { top: 30%; left: -20%; animation: shoot 15s linear infinite 1.5s; }
+    .shooting.s3 { top: 48%; left: -18%; animation: shoot 9s linear infinite 3.5s; }
+    .shooting.s4 { top: 66%; left: -22%; animation: shoot 20s linear infinite 2.5s; }
+    .shooting.s5 { top: 22%; left: -25%; animation: shoot 8s linear infinite 5s; }
+    .shooting.s6 { top: 78%; left: -16%; animation: shoot 13s linear infinite 4.5s; }
+    @keyframes shoot {
+      0% { transform: translate(0, 0) rotate(18deg); opacity: 0; }
+      6% { opacity: 1; }
+      26% { opacity: 1; }
+      40% { transform: translate(115vw, 38vh) rotate(18deg); opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* 카드 */
+    .auth-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 40px 34px 36px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      animation: fade 0.3s ease;
+    }
+    @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    .brand-zone {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+    body.signup-active .brand-zone { align-items: center; transform: none; }
+    .brand-top {
+      text-align: center;
+      margin: 0;
+      font-size: clamp(72px, 14vw, 108px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      line-height: 1;
+      background: linear-gradient(90deg, var(--green-bright), var(--accent-light), var(--green));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 2px 28px rgba(95, 196, 136, 0.25);
+    }
+    .auth-wrap {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-title { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .auth-sub { font-size: 13.5px; color: var(--muted); margin-bottom: 24px; }
+
+    .field { margin-bottom: 18px; }
+    .field label { display: block; font-size: 13px; color: var(--accent-light); margin-bottom: 7px; font-weight: 600; }
+    .field input {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: rgba(8, 16, 12, 0.55);
+      color: var(--text);
+      font-size: 15px;
+    }
+    .field input::placeholder { color: #6f8a78; }
+    .field input:focus { outline: none; border-color: var(--green-bright); box-shadow: 0 0 0 3px rgba(95, 196, 136, 0.18); }
+
+    .auth-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 15px;
+      border: none;
+      border-radius: 13px;
+      background: linear-gradient(135deg, var(--green), var(--green-deep));
+      color: #06210f;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(54, 163, 104, 0.45);
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+    .auth-btn:hover { filter: brightness(1.12); }
+    .auth-btn:active { transform: scale(0.99); }
+
+    .auth-link { margin-top: 18px; text-align: center; font-size: 13px; color: var(--muted); }
+    .auth-link a { color: var(--green-bright); font-weight: 700; text-decoration: none; cursor: pointer; }
+    .auth-link a:hover { text-decoration: underline; }
+
+    .auth-msg { min-height: 16px; margin-top: 10px; font-size: 12.5px; text-align: center; }
+    .auth-msg.error { color: #e8896f; }
+    .auth-msg.ok { color: var(--green-bright); }
+
+    .hidden { display: none; }
+
+    /* 작은 화면: 잘리지 않게 스크롤 허용 + 로고 축소 */
+    @media (max-height: 760px) {
+      .brand-top { font-size: clamp(44px, 11vw, 72px); }
+      body { padding-bottom: 32px; }
+    }
+
+    /* 모션 민감 사용자 배려 */
+    @media (prefers-reduced-motion: reduce) {
+      .stars, .stars.l1, .stars.l2, .stars.l3,
+      .planet, .moon, .shooting, .auth-card, .astro-wrap {
+        animation: none !important;
+      }
+      .shooting { display: none; }
+    }
+  </style>
 </head>
 <body>
-  <!-- 우주 배경 레이어 -->
-  <div class="space-bg" aria-hidden="true">
-    <div class="stars stars-1"></div>
-    <div class="stars stars-2"></div>
-    <div class="nebula nebula-green"></div>
-    <div class="nebula nebula-teal"></div>
-  </div>
+  <div class="bg" aria-hidden="true">
+    <!-- 배경 = login-bg.png (CSS background-image) · 색 레이어 제거, 별똥별만 유지 -->
 
-  <!-- 공용 SVG 그라데이션 정의 -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <defs>
-      <linearGradient id="iconGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#c4f5d3" />
-        <stop offset="100%" stop-color="#36a368" />
-      </linearGradient>
-    </defs>
-  </svg>
-
-  <div class="app">
-    <!-- 상단 헤더 -->
-    <header class="app-header">
-      <button id="backBtn" class="back-btn" hidden aria-label="뒤로가기">‹</button>
-      <svg class="header-icon" id="iconCO2" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M7.4 19a4 4 0 0 1-.4-8 5.5 5.5 0 0 1 10.6-1A3.75 3.75 0 0 1 17 19z" />
-        <text x="12" y="16" font-size="6" font-weight="800" fill="url(#iconGrad)" stroke="none" text-anchor="middle">CO₂</text>
-      </svg>
-      <svg class="header-icon" id="iconLeaf" hidden viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M7 20h10" />
-        <path d="M10 20c5.5-2.5.8-6.4 3-10" />
-        <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" />
-        <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
-      </svg>
-      <h1 id="appTitle">탄소 측정</h1>
-      <a class="earth-back" href="earth.html" aria-label="나의 행성으로 돌아가기">🌍 나의 행성</a>
-    </header>
-
-    <!-- ===================== 메인 메뉴 ===================== -->
-    <section id="screen-home" class="screen active">
-      <!-- 히어로 -->
-      <div class="hero">
-        <div class="hero-glow"></div>
-        <div class="hero-orb"></div>
-        <span class="hero-badge">CARBON · DAILY</span>
-        <p class="hero-sub">내 하루가 만드는 탄소 발자국</p>
-        <h2 class="hero-title">지금, 바로<br />측정해보세요</h2>
-        <p class="hero-desc">식단·전기·영수증·휴대폰 사용까지, 일상 속 탄소를 한 곳에서 측정하고 눈으로 확인하세요.</p>
-
-        <div class="hero-stats">
-          <div class="stat"><strong>4</strong><span>측정 카테고리</span></div>
-          <div class="stat"><strong id="statToday">0</strong><span>오늘 gCO₂e</span></div>
-          <div class="stat"><strong id="statWeek">0</strong><span>최근 7일 gCO₂e</span></div>
-          <div class="stat"><strong>1일</strong><span>자동 초기화</span></div>
-        </div>
-      </div>
-
-      <!-- 카테고리 -->
-      <p class="section-eyebrow">CATEGORY · 일상 탄소 측정</p>
-      <h3 class="section-title">카테고리별 측정</h3>
-      <div class="menu-grid">
-        <!-- 식단 사진 -->
-        <button class="menu-card" data-target="screen-diet">
-          <span class="card-deco"></span>
-          <span class="icon-tile">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.52-4.48 10-10 10z" />
-              <path d="M2 21c0-3 1.85-5.36 5.08-6" />
-            </svg>
-          </span>
-          <span class="menu-label">식단 사진</span>
-          <span class="menu-sub">음식 칼로리·종류 분석</span>
-        </button>
-        <!-- 전기계량기 -->
-        <button class="menu-card" data-target="screen-power">
-          <span class="card-deco"></span>
-          <span class="icon-tile">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M13 2 5 13h6l-1 9 8-12h-6z" />
-            </svg>
-          </span>
-          <span class="menu-label">전기</span>
-          <span class="menu-sub">전력 사용량 분석</span>
-        </button>
-        <!-- 영수증 -->
-        <button class="menu-card" data-target="screen-receipt">
-          <span class="card-deco"></span>
-          <span class="icon-tile">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M6 8h12l-1 12a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" />
-              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-            </svg>
-          </span>
-          <span class="menu-label">영수증</span>
-          <span class="menu-sub">구매 품목 분석</span>
-        </button>
-        <!-- 휴대폰 -->
-        <button class="menu-card" data-target="screen-phone">
-          <span class="card-deco"></span>
-          <span class="icon-tile">
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="6.5" y="2" width="11" height="20" rx="2.5" />
-              <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" />
-            </svg>
-          </span>
-          <span class="menu-label">휴대폰</span>
-          <span class="menu-sub">스크린타임 분석</span>
-        </button>
-      </div>
-
-      <!-- ===== 하단 대시보드 ===== -->
-      <div class="dashboard">
-        <!-- 최근 7일 추이 -->
-        <div class="dash-card week-card">
-          <span class="dash-title">최근 7일 추이</span>
-          <div class="week-chart" id="weekChart"></div>
-          <div class="chart-tip" id="chartTip" hidden></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 식단 사진 ===================== -->
-    <section id="screen-diet" class="screen">
-      <h2 class="screen-title">식단 사진 분석</h2>
-      <p class="screen-desc">아침·점심·저녁 사진을 올리면 끼니별 칼로리와 종류를 분석해 탄소 배출량을 계산합니다.</p>
-
-      <div class="meal-grid">
-        <div class="meal-slot">
-          <span class="meal-label">🌅 아침</span>
-          <label class="upload-box meal-upload" for="diet-breakfast">
-            <input type="file" id="diet-breakfast" accept="image/*" data-meal="아침" hidden />
-            <div class="upload-placeholder">
-              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="5" width="18" height="15" rx="2.5" />
-                <circle cx="12" cy="12.5" r="3.5" />
-                <path d="M8 5l1.5-2h5L16 5" />
-              </svg>
-              <span>사진</span>
-            </div>
-            <img class="preview" alt="아침 미리보기" hidden />
-          </label>
-        </div>
-        <div class="meal-slot">
-          <span class="meal-label">🌞 점심</span>
-          <label class="upload-box meal-upload" for="diet-lunch">
-            <input type="file" id="diet-lunch" accept="image/*" data-meal="점심" hidden />
-            <div class="upload-placeholder">
-              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="5" width="18" height="15" rx="2.5" />
-                <circle cx="12" cy="12.5" r="3.5" />
-                <path d="M8 5l1.5-2h5L16 5" />
-              </svg>
-              <span>사진</span>
-            </div>
-            <img class="preview" alt="점심 미리보기" hidden />
-          </label>
-        </div>
-        <div class="meal-slot">
-          <span class="meal-label">🌙 저녁</span>
-          <label class="upload-box meal-upload" for="diet-dinner">
-            <input type="file" id="diet-dinner" accept="image/*" data-meal="저녁" hidden />
-            <div class="upload-placeholder">
-              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="5" width="18" height="15" rx="2.5" />
-                <circle cx="12" cy="12.5" r="3.5" />
-                <path d="M8 5l1.5-2h5L16 5" />
-              </svg>
-              <span>사진</span>
-            </div>
-            <img class="preview" alt="저녁 미리보기" hidden />
-          </label>
-        </div>
-      </div>
-
-      <button class="analyze-btn" data-kind="diet" disabled>분석하기</button>
-
-      <div class="result-card" hidden>
-        <h3>분석 결과</h3>
-        <ul class="result-list"></ul>
-        <div class="carbon-box">
-          <span class="carbon-label">예상 탄소 배출량</span>
-          <span class="carbon-value">- gCO₂e</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 전기계량기 ===================== -->
-    <section id="screen-power" class="screen">
-      <h2 class="screen-title">전기 분석</h2>
-      <p class="screen-desc">계량기 사진을 올리면 전기 사용량을 인식해 탄소 배출량을 계산합니다.</p>
-
-      <p class="lock-note" id="powerLock" hidden>🔒 전기계량기는 <b>매달 1일</b>에만 업로드할 수 있어요.<br /><span id="powerNextDate"></span></p>
-
-      <label class="upload-box" id="powerBox" for="power-file">
-        <input type="file" id="power-file" accept="image/*" hidden />
-        <div class="upload-placeholder">
-          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="5" width="18" height="15" rx="2.5" />
-            <circle cx="12" cy="12.5" r="3.5" />
-            <path d="M8 5l1.5-2h5L16 5" />
-          </svg>
-          <span>사진 업로드 / 촬영</span>
-        </div>
-        <img class="preview" alt="계량기 미리보기" hidden />
-      </label>
-
-      <button class="analyze-btn" data-kind="power" disabled>분석하기</button>
-
-      <div class="result-card" hidden>
-        <h3>분석 결과</h3>
-        <ul class="result-list"></ul>
-        <div class="carbon-box">
-          <span class="carbon-label">예상 탄소 배출량</span>
-          <span class="carbon-value">- gCO₂e</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 영수증 ===================== -->
-    <section id="screen-receipt" class="screen">
-      <h2 class="screen-title">영수증 분석</h2>
-      <p class="screen-desc">영수증을 여러 장 올릴 수 있어요. "영수증 추가"를 누르면 아래에 간단히 정리됩니다.</p>
-
-      <label class="upload-box" for="receipt-file">
-        <input type="file" id="receipt-file" accept="image/*" hidden />
-        <div class="upload-placeholder">
-          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="5" width="18" height="15" rx="2.5" />
-            <circle cx="12" cy="12.5" r="3.5" />
-            <path d="M8 5l1.5-2h5L16 5" />
-          </svg>
-          <span>사진 업로드 / 촬영</span>
-        </div>
-        <img class="preview" alt="영수증 미리보기" hidden />
-      </label>
-
-      <button class="analyze-btn" id="receiptAddBtn" data-kind="receiptAdd" disabled>영수증 추가</button>
-
-      <div class="receipt-summary" id="receiptSummary" hidden>
-        <h3>추가한 영수증 <span id="receiptCount">0</span>장</h3>
-        <ul class="receipt-list" id="receiptList"></ul>
-        <button class="more-btn" id="receiptMoreBtn" hidden>전체 보기</button>
-        <div class="carbon-box">
-          <span class="carbon-label">영수증 합계 탄소 배출량</span>
-          <span class="carbon-value" id="receiptTotal">- gCO₂e</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===================== 휴대폰 ===================== -->
-    <section id="screen-phone" class="screen">
-      <h2 class="screen-title">휴대폰 사용량 분석</h2>
-      <p class="screen-desc">스크린타임을 연동해 휴대폰 사용량을 가져와 탄소 배출량을 계산합니다.</p>
-
-      <button class="analyze-btn screentime-btn" data-kind="phone">스크린타임 연동하기</button>
-
-      <div class="result-card" hidden>
-        <h3>오늘의 스크린타임</h3>
-        <ul class="result-list"></ul>
-        <div class="carbon-box">
-          <span class="carbon-label">예상 탄소 배출량</span>
-          <span class="carbon-value">- gCO₂e</span>
-        </div>
-      </div>
-    </section>
-
-    <footer class="app-footer">
-      <p class="footer-tagline">내 캠퍼스 생활이 만드는 지구를 눈으로 봐요</p>
-      <small>※ 분석/연동 결과는 데모용 추정치입니다.</small>
-    </footer>
-  </div>
-
-  <!-- 영수증 전체 보기 모달 -->
-  <div class="modal" id="receiptModal" hidden>
-    <div class="modal-backdrop" id="receiptModalBackdrop"></div>
-    <div class="modal-card">
-      <div class="modal-head">
-        <h3>추가한 영수증 전체</h3>
-        <button class="modal-close" id="receiptModalClose" aria-label="닫기">×</button>
-      </div>
-      <ul class="receipt-list" id="receiptModalList"></ul>
+    <!-- 로우폴리 우주비행사 (새싹 헬멧) — 클릭하면 탄소 팁 -->
+    <div class="astro-wrap" id="astroWrap" aria-hidden="true">
+      <div class="astro-bubble" id="astroBubble"></div>
+      <svg class="astro" viewBox="0 0 100 126" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="visor" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#36a368" />
+          <stop offset="100%" stop-color="#0e3322" />
+        </linearGradient>
+      </defs>
+      <!-- 새싹 -->
+      <polygon points="49,11 51,11 51,3 49,3" fill="#5fc488" />
+      <polygon points="49,6 42,2 48,9" fill="#8ee6a6" />
+      <polygon points="51,6 58,2 52,9" fill="#8ee6a6" />
+      <!-- 팔 -->
+      <polygon points="33,70 25,73 21,98 30,95" fill="#dceae3" />
+      <polygon points="67,70 75,73 79,98 70,95" fill="#cfe1d8" />
+      <!-- 다리 -->
+      <polygon points="37,106 47,106 45,123 38,123" fill="#dceae3" />
+      <polygon points="53,106 63,106 62,123 55,123" fill="#cfe1d8" />
+      <!-- 몸통 -->
+      <polygon points="33,68 67,68 63,107 37,107" fill="#e9f1ec" />
+      <polygon points="67,68 63,107 50,107 50,68" fill="#d4e4dc" />
+      <!-- 가슴 라이트 -->
+      <polygon points="50,78 56,84 50,90 44,84" fill="#5fc488" />
+      <!-- 헬멧 -->
+      <polygon points="50,10 70,19 78,40 70,60 50,68 30,60 22,40 30,19" fill="#eef6f0" />
+      <polygon points="50,10 78,40 70,60 50,68" fill="#d8e8de" />
+      <!-- 바이저 -->
+      <polygon points="39,28 61,28 69,40 60,53 40,53 31,40" fill="url(#visor)" />
+      <polygon points="39,28 52,28 40,41" fill="#9be0bd" opacity="0.45" />
+      <polygon points="58,46 64,42 60,52" fill="#bdeed6" opacity="0.35" />
+    </svg>
     </div>
+    <div class="shooting s1"></div>
+    <div class="shooting s2"></div>
+    <div class="shooting s3"></div>
+    <div class="shooting s4"></div>
+    <div class="shooting s5"></div>
+    <div class="shooting s6"></div>
   </div>
 
-  <script src="app.js"></script>
+  <div class="brand-zone"><h1 class="brand-top">Terra</h1></div>
+
+  <div class="auth-wrap">
+  <!-- ===================== 로그인 ===================== -->
+  <div class="auth-card" id="loginCard">
+    <h2 class="auth-title">로그인</h2>
+    <p class="auth-sub">캠퍼스의 안부, 만나서 반가워요 🌱</p>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="login-id">아이디</label>
+        <input id="login-id" type="text" autocomplete="username" placeholder="아이디를 입력하세요" />
+      </div>
+      <div class="field">
+        <label for="login-pw">비밀번호</label>
+        <input id="login-pw" type="password" autocomplete="current-password" placeholder="비밀번호를 입력하세요" />
+      </div>
+
+      <button class="auth-btn" type="submit" id="loginBtn">로그인</button>
+      <p class="auth-msg" id="loginMsg" role="status" aria-live="polite"></p>
+    </form>
+
+    <p class="auth-link">계정이 없으신가요? <a href="#" id="toSignup">회원가입</a></p>
+  </div>
+
+  <!-- ===================== 회원가입 ===================== -->
+  <div class="auth-card hidden" id="signupCard">
+    <h2 class="auth-title">회원가입</h2>
+    <p class="auth-sub">정보를 입력하고 캠퍼스 탄소 여정을 시작하세요</p>
+
+    <form id="signupForm" novalidate>
+      <div class="field">
+        <label for="su-id">아이디</label>
+        <input id="su-id" type="text" autocomplete="username" placeholder="사용할 아이디" />
+      </div>
+      <div class="field">
+        <label for="su-pw">비밀번호</label>
+        <input id="su-pw" type="password" autocomplete="new-password" placeholder="비밀번호" />
+      </div>
+      <div class="field">
+        <label for="su-name">이름</label>
+        <input id="su-name" type="text" autocomplete="name" placeholder="이름" />
+      </div>
+      <div class="field">
+        <label for="su-school">학교</label>
+        <input id="su-school" type="text" placeholder="학교명" />
+      </div>
+      <div class="field">
+        <label for="su-dept">학과</label>
+        <input id="su-dept" type="text" placeholder="학과명" />
+      </div>
+
+      <button class="auth-btn" type="submit" id="signupBtn">회원가입</button>
+      <p class="auth-msg" id="signupMsg" role="status" aria-live="polite"></p>
+    </form>
+
+    <p class="auth-link"><a href="#" id="toLogin">← 로그인으로 돌아가기</a></p>
+  </div>
+  </div>
+
+  <script>
+    const loginCard = document.getElementById("loginCard");
+    const signupCard = document.getElementById("signupCard");
+    const loginMsg = document.getElementById("loginMsg");
+    const signupMsg = document.getElementById("signupMsg");
+
+    function showLogin() {
+      signupCard.classList.add("hidden");
+      loginCard.classList.remove("hidden");
+      document.body.classList.remove("signup-active");
+      loginMsg.textContent = "";
+    }
+    function showSignup() {
+      loginCard.classList.add("hidden");
+      signupCard.classList.remove("hidden");
+      document.body.classList.add("signup-active");
+      signupMsg.textContent = "";
+    }
+    document.getElementById("toSignup").addEventListener("click", (e) => { e.preventDefault(); showSignup(); });
+    document.getElementById("toLogin").addEventListener("click", (e) => { e.preventDefault(); showLogin(); });
+
+    function setMsg(el, text, ok) {
+      el.textContent = text;
+      el.className = "auth-msg " + (ok ? "ok" : "error");
+    }
+
+    // 데모용: 실제 인증/백엔드 없음 — 입력 확인 후 메인 화면으로 이동 (Enter 제출 지원)
+    document.getElementById("loginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const id = document.getElementById("login-id").value.trim();
+      const pw = document.getElementById("login-pw").value;
+      if (!id || !pw) { setMsg(loginMsg, "아이디와 비밀번호를 입력해 주세요.", false); return; }
+      setMsg(loginMsg, "로그인 중…", true);
+      setTimeout(() => { window.location.href = "planet.html"; }, 500);   // 로그인 → 나의 3D 행성
+    });
+
+    document.getElementById("signupForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = (id) => document.getElementById(id).value.trim();
+      const id = v("su-id"), pw = document.getElementById("su-pw").value;
+      const name = v("su-name"), school = v("su-school"), dept = v("su-dept");
+      if (!id || !pw || !name || !school || !dept) {
+        setMsg(signupMsg, "모든 항목을 입력해 주세요.", false); return;
+      }
+      setMsg(signupMsg, "가입 완료! 로그인해 주세요 🌱", true);
+      setTimeout(showLogin, 1000);
+    });
+
+    // 우주비행사 클릭 → 탄소 배출 경각심 메시지
+    const astroWrap = document.getElementById("astroWrap");
+    const astroBubble = document.getElementById("astroBubble");
+    const carbonTips = [
+      "지금 이 순간에도 대기 중 CO₂ 농도는 최고치를 경신하고 있어요 🌍",
+      "우리가 머뭇거리는 사이에도 탄소는 계속 쌓여만 갑니다 ⏳",
+      "지구 평균 기온이 1.5℃ 한계선에 빠르게 다가가고 있어요 🔥",
+      "한번 내뿜은 탄소는 수백 년간 대기에 그대로 남습니다 😶‍🌫️",
+      "기록적인 폭염과 이상기후, 모두 탄소가 보내는 경고예요 🌡️",
+      "지금 줄이지 않으면, 줄여야 할 양은 해마다 더 커집니다 📈",
+      "빙하가 녹고 해수면이 차오르고 있어요. 시간이 없습니다 🧊",
+      "바다는 산성화되고, 생태계는 지금도 신음하고 있어요 🌊",
+      "한 사람의 탄소는 작아 보여도, 모이면 도시를 뒤덮어요 🏙️",
+      "당신의 하루 탄소, 생각보다 훨씬 무겁습니다 ⚠️",
+      "탄소 시계는 멈추지 않아요. 지금이 가장 빠른 때입니다 ⏰",
+      "이대로면 다음 세대가 마주할 지구는 지금과 다를 거예요 🌱",
+    ];
+    let astroTimer;
+    let lastTipIdx = -1;
+    function speakCarbon() {
+      let idx = Math.floor(Math.random() * carbonTips.length);
+      if (carbonTips.length > 1) {
+        while (idx === lastTipIdx) idx = Math.floor(Math.random() * carbonTips.length);
+      }
+      lastTipIdx = idx;
+      astroBubble.textContent = carbonTips[idx];
+      astroBubble.classList.remove("show");
+      void astroBubble.offsetWidth;
+      astroBubble.classList.add("show");
+      clearTimeout(astroTimer);
+      astroTimer = setTimeout(() => {
+        astroBubble.classList.remove("show");
+      }, 5000);
+    }
+    // 일정 시간마다 자동으로 메시지 표시
+    setTimeout(speakCarbon, 1500);
+    setInterval(speakCarbon, 8000);
+  </script>
 </body>
 </html>
