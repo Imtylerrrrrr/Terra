@@ -612,6 +612,18 @@
     if(rnd()<0.75) add(makePine(), s.dir, lo, 100, 'tree', 0.7+rnd()*0.7);
     else add(makeBush(), s.dir, lo+6, 100, 'tree', 0.7+rnd()*0.6);
   });
+  // 선인장 — 아바타 '사막' 테마 전용 (평지·해변). 평소엔 숨김(테마 게이팅)
+  function makeCactus(){
+    const g=new THREE.Group(), m=M(0x4a8a4a,1);
+    const body=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.036,0.18,7),m); body.position.y=0.09; g.add(body);
+    for(const sx of [-1,1]){ if(rnd()<0.7){
+      const arm=new THREE.Mesh(new THREE.CylinderGeometry(0.016,0.02,0.07,6),m); arm.position.set(sx*0.045,0.10,0); arm.rotation.z=-sx*0.6; g.add(arm);
+      const up=new THREE.Mesh(new THREE.CylinderGeometry(0.016,0.018,0.05,6),m); up.position.set(sx*0.072,0.145,0); g.add(up);
+    }}
+    if(rnd()<0.5){ const fl=new THREE.Mesh(new THREE.SphereGeometry(0.016,6,5),M(0xff6f9a,1)); fl.position.y=0.19; g.add(fl); }
+    return g;
+  }
+  spots(c=>c.b===3||c.b===2, 32).forEach(s=> add(makeCactus(), s.dir, 0, 100, 'cactus', 0.9+rnd()*0.4));
   // 풍력터빈 (정상~청정) — 평지/고지
   spots(c=>c.b===3||c.b===5, 18).forEach(s=> add(makeTurbine(), s.dir, 60, 100, 'turbine', 0.85+rnd()*0.3));
   // 청정 전용: 통나무집 / 풍차 / 태양광
@@ -948,8 +960,13 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   function ramp(v,lo,hi){const fade=13;if(v<lo-fade||v>hi+fade)return 0;let f=1;
     if(v<lo)f=(v-(lo-fade))/fade;else if(v>hi)f=((hi+fade)-v)/fade;return Math.max(0,Math.min(1,f));}
   function updateProps(v){
-    for(const p of props){const k=ramp(v,p.lo,p.hi);p.mesh.visible=k>0.02;
-      if(p.mesh.visible)p.mesh.scale.setScalar(p.base*k);}
+    for(const p of props){
+      let k=ramp(v,p.lo,p.hi);
+      if(p.type==='cactus' && avatarTheme!=='desert') k=0;   // 선인장: 사막 테마에서만
+      if(p.type==='tree'   && avatarTheme==='desert') k=0;   // 사막엔 나무 숨김
+      p.mesh.visible=k>0.02;
+      if(p.mesh.visible)p.mesh.scale.setScalar(p.base*k);
+    }
   }
 
   // ============================================================================
@@ -1326,9 +1343,20 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   const backBtn=document.getElementById('backBtn');
   let personalTheme=null, personalScore=72;   // 테마: winter|desert|balance / 건강도
   function themeLabel(t){ return t==='winter'?'겨울':t==='desert'?'사막':'밸런스'; }
+  const _white=new THREE.Color(0xffffff);
+  function applyTreeSnow(on){                  // 겨울: 나무에 눈 쌓인 색
+    for(const p of props){ if(p.type!=='tree') continue;
+      p.mesh.traverse(o=>{ if(o.material && o.material.color){
+        if(o.material.userData._orig===undefined) o.material.userData._orig=o.material.color.getHex();
+        if(on) o.material.color.setHex(o.material.userData._orig).lerp(_white,0.72);
+        else o.material.color.setHex(o.material.userData._orig);
+      }});
+    }
+  }
   function enterAvatar(theme){
     personalTheme=theme;
     avatarTheme=(theme==='balance')?null:theme;   // 밸런스=평소 지구(tint 없음)
+    applyTreeSnow(theme==='winter');
     centralScale=1.05;
     earthGroup.position.set(0,0,0); earthGroup.scale.setScalar(centralScale); setEarthOpacity(1);
     current=target=personalScore; apply(current);
@@ -1337,7 +1365,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     setView('avatar'); earthGroup.visible=true;
   }
   function backToDept(){
-    avatarTheme=null;
+    avatarTheme=null; applyTreeSnow(false);
     const d=DEPARTMENTS[selIdx];
     if(d){ centralScale=0.78+ratioOf(d)*0.4; earthGroup.scale.setScalar(centralScale);
       current=target=d.score; apply(current); updateDeptLabel(d); slider.value=Math.round(d.score); }
