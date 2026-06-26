@@ -98,6 +98,11 @@
     padding:22px 26px;z-index:5}
   .brand{font-weight:800;letter-spacing:.18em;font-size:14px;text-transform:uppercase}
   .brand b{color:var(--green)}
+  .coach-back{margin-left:auto;align-self:center;display:inline-flex;align-items:center;gap:5px;
+    padding:7px 12px;font-size:12.5px;font-weight:700;text-decoration:none;
+    color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:999px;
+    transition:color .15s ease,border-color .15s ease}
+  .coach-back:hover{color:var(--green);border-color:var(--green)}
 
   .container{max-width:900px;margin:0 auto;padding:40px 26px 60px}
 
@@ -254,6 +259,7 @@
   <canvas id="fx"></canvas>
   <div class="topbar">
     <span class="brand">TERRA<b>.</b></span>
+    <a class="coach-back" href="earth.html" aria-label="나의 행성으로 돌아가기">🌍 나의 행성</a>
   </div>
 
   <div class="container">
