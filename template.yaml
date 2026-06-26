@@ -52,6 +52,11 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: !Ref StageName
+      # 공개(미인증) + PAY_PER_REQUEST → 호출 폭주가 곧 비용.
+      # 기본 라우트 스로틀로 데모 중 사고 방지(데모 트래픽엔 충분, 필요 시 상향).
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
       CorsConfiguration:
         AllowOrigins:
           - "*"
