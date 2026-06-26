@@ -3,22 +3,22 @@
 민지 코드는 머지·검증 완료. 아래는 **라이브 동작까지** 남은 사람/권한 단계. 순서대로.
 
 ## 1. PR 머지 — 주영
-- [ ] **PR #28** 머지 (`/extract` Lambda·라우트 + Bedrock 클라이언트 교정). 머지돼야 `template.yaml`에 `/extract`가 들어감.
+- [ ] **PR #28** 머지 (`/extract` Lambda·라우트 + Claude API 클라이언트). 머지돼야 `template.yaml`에 `/extract`가 들어감.
 
-## 2. SafeRole 권한 — 관리자/주영
-- [ ] `SafeRole-netzero-12` 에 **`bedrock:InvokeModel`** 추가 (없으면 라이브 추출 403/AccessDenied).
-  - 리전 us-east-1, 모델: Claude Haiku 4.5(추출). 모델 액세스도 콘솔에서 활성화 확인.
+## 2. Claude API 키 — 관리자/주영
+- [ ] 대회 발급 **Claude API 키** 확보(`sk-ant-...`). 별도 IAM 권한 불필요(Bedrock 미사용).
+  - 배포 시 `AnthropicApiKey` 파라미터로 주입 → Lambda 환경변수 `ANTHROPIC_API_KEY`. (없으면 라이브 추출 401/인증실패)
 
 ## 3. 배포 — 주영
-- [ ] 리포 루트에서 `sam build && sam deploy`
-  - `ExtractFunction`은 `CodeUri: terra_ai/` → `terra_ai/requirements.txt`(anthropic[bedrock]·boto3) 자동 설치.
-  - 라이브 모델 ID가 추론프로파일을 요구하면 `TERRA_EXTRACT_MODEL`(예: `us.anthropic.claude-haiku-4-5-...`) 주입.
+- [ ] 리포 루트에서 `sam build && sam deploy --parameter-overrides AnthropicApiKey=sk-ant-...`
+  - `ExtractFunction`은 `CodeUri: terra_ai/` → `terra_ai/requirements.txt`(anthropic) 자동 설치.
+  - 모델 변경 시 `TERRA_EXTRACT_MODEL`(기본 `claude-haiku-4-5-20251001`) 오버라이드.
 - [ ] 출력 `ApiUrl` 확보.
 
 ## 4. 라이브 검증 — 민지/주영
 - [ ] `TERRA_API="<ApiUrl>" python3 terra_ai/scripts/live_check.py`
-  - ① /extract 라이브(Bedrock) ② /extract fixture ③ /extract→/compute 종단 = **OK** 확인.
-- 실패 시: 403=2번 권한, ImportError=requirements/모델ID, 타임아웃=ExtractFunction Timeout(현재 29s).
+  - ① /extract 라이브(Claude API) ② /extract fixture ③ /extract→/compute 종단 = **OK** 확인.
+- 실패 시: 401=2번 API 키, ImportError=requirements/모델ID, 타임아웃=ExtractFunction Timeout(현재 29s).
 
 ## 5. 데모 리허설 — 팀
 - [ ] 골든패스(식판→탄소→행성) 1회 소리내어 리허설(시간측정).

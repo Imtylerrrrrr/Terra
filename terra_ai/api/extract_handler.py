@@ -1,20 +1,20 @@
 """
-POST /extract — 사진/텍스트 → 품목·수량(activities, CONTRACT §1). Bedrock 멀티모달 추출.
+POST /extract — 사진/텍스트 → 품목·수량(activities, CONTRACT §1). Claude API 멀티모달 추출.
 
 의존성 0(표준 라이브러리만). AWS Lambda(API Gateway proxy) 핸들러 + 로컬 데모 서버 겸용:
   - Lambda : handler(event, context)          # API Gateway proxy in/out
   - 로컬   : python3 -m terra_ai.api.extract_handler   # http://localhost:8000/extract
 
 입력(JSON 본문):
-  {"image_base64": "<b64>", "media_type": "image/jpeg"}   # 식판·영수증 사진(라이브 Bedrock)
-  {"text": "학식: 밥, 제육볶음, 김치"}                      # 텍스트(라이브 Bedrock)
-  {"fixture": "소불고기덮밥"}                               # 데모 결정적 폴백(라이브·AWS 불필요)
+  {"image_base64": "<b64>", "media_type": "image/jpeg"}   # 식판·영수증 사진(라이브 Claude API)
+  {"text": "학식: 밥, 제육볶음, 김치"}                      # 텍스트(라이브 Claude API)
+  {"fixture": "소불고기덮밥"}                               # 데모 결정적 폴백(라이브·키 불필요)
 출력: CONTRACT §1 — {"activities":[...], "confidence":..., "needs_review":...}
 
 데모 폴백: 라이브 추출 실패 시 자동폴백은 env `TERRA_DEMO_FALLBACK=<fixture명>` (opt-in).
 fixture 목록: data/demo_fixtures.json.
 
-MOCK=1 이면 AWS 없이 스키마 흐름 검증(데모/CI). 라이브는 AWS 자격증명 + Bedrock 모델 액세스 필요.
+MOCK=1 이면 키 없이 스키마 흐름 검증(데모/CI). 라이브는 환경변수 ANTHROPIC_API_KEY 필요.
 ⚠️ 인증 없음(데모용). 운영 노출 시 API Gateway 인증/요청크기 제한 필수.
 """
 import base64
@@ -45,7 +45,7 @@ _FIXTURES = {
 def _extract(body):
     """JSON 본문 dict → activities(계약 §1). 우선순위: fixture > text > image_base64.
 
-    `fixture`: 데모 결정적 모드 — 라이브 Bedrock 없이 사전 추출 결과 반환(폴백·리허설).
+    `fixture`: 데모 결정적 모드 — 라이브 추출 없이 사전 추출 결과 반환(폴백·리허설).
     """
     if body.get("fixture"):
         fx = _FIXTURES.get(body["fixture"])

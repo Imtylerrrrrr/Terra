@@ -1,15 +1,18 @@
 """
-Terra 입력 해석 — Bedrock Claude 멀티모달로 식판/영수증/이동을 품목·수량 JSON으로.
+Terra 입력 해석 — Claude API(Anthropic) 멀티모달로 식판/영수증/이동을 품목·수량 JSON으로.
 설계: 해석만 LLM, 숫자(탄소)는 안 만든다 → CONTRACT.md §1 스키마로 출력 → 주영 엔진이 계산.
+
+⚠️ 대회 Bedrock 사용 불가 → Anthropic 직접 API로 전환. SDK·messages.create 시그니처는 동일,
+   클라이언트(AnthropicBedrock→Anthropic)·모델 ID('anthropic.' 접두사 제거)만 다름.
 
 모델 라우팅(그린AI · 저전력):
   - 분류/비전 추출 = Claude Haiku 4.5  (싸고 빠름, 이미지 지원)
   - 코칭(별도) = Claude Sonnet 4.6     (coach.py에서)
 
-Bedrock 모델 ID는 'anthropic.' 접두사 (claude-api 스킬 확인):
-  anthropic.claude-haiku-4-5 / anthropic.claude-sonnet-4-6 / anthropic.claude-opus-4-8
+Claude API 모델 ID(접두사 없음): claude-haiku-4-5-20251001 / claude-sonnet-4-6
+인증: 환경변수 ANTHROPIC_API_KEY (Anthropic SDK가 자동 인식).
 
-AWS 크레딧/Bedrock 모델 액세스 전이면 MOCK=1 로 스키마만 검증하며 개발 가능.
+API 키 전이면 MOCK=1 로 스키마만 검증하며 개발 가능.
 """
 import base64
 import json
@@ -20,17 +23,14 @@ import pathlib
 PROMPTS = pathlib.Path(__file__).resolve().parent.parent / "prompts"
 SYSTEM = (PROMPTS / "classify.md").read_text(encoding="utf-8")
 
-# 비전·분류 (저전력 라우팅). ⚠️ Bedrock은 리전/클라이언트에 따라 정식 ID 필요할 수 있음:
-#   anthropic.claude-haiku-4-5-20251001-v1:0  또는 추론프로파일  us.anthropic.claude-haiku-4-5-...
-#   → 주영이 환경에 맞는 ID를 TERRA_EXTRACT_MODEL 로 주입.
-HAIKU = os.environ.get("TERRA_EXTRACT_MODEL", "anthropic.claude-haiku-4-5")
-REGION = os.environ.get("AWS_REGION", "us-east-1")
+# 비전·분류 (저전력 라우팅). 모델 ID 변경 시 TERRA_EXTRACT_MODEL 로 오버라이드.
+HAIKU = os.environ.get("TERRA_EXTRACT_MODEL", "claude-haiku-4-5-20251001")
 
 
 def _client():
-    """Bedrock 클라이언트 (anthropic SDK, Messages API, 주영의 AWS 자격증명 사용)."""
-    from anthropic import AnthropicBedrock
-    return AnthropicBedrock(aws_region=REGION)
+    """Anthropic Claude API 클라이언트 (api_key=환경변수 ANTHROPIC_API_KEY 자동 인식)."""
+    from anthropic import Anthropic
+    return Anthropic()
 
 
 _VALID_TYPES = {"menu", "food", "purchase", "screentime", "energy"}

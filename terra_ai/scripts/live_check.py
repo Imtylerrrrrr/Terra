@@ -3,8 +3,8 @@
 사용: TERRA_API="https://xxxx.execute-api.us-east-1.amazonaws.com/prod" \
       python3 terra_ai/scripts/live_check.py
 
-전제: PR #28(/extract 라우트) 머지 + SafeRole bedrock:InvokeModel 권한 + sam deploy 완료.
-확인: ① 라이브 추출(Bedrock) ② fixture 폴백 ③ 추출→compute 종단.
+전제: PR #28(/extract 라우트) 머지 + ANTHROPIC_API_KEY 주입 + sam deploy 완료.
+확인: ① 라이브 추출(Claude API) ② fixture 폴백 ③ 추출→compute 종단.
 """
 import json
 import os
@@ -33,7 +33,7 @@ def post(path, body):
 
 print(f"API = {API}")
 
-# 1) 라이브 추출 (실제 Bedrock 비전/분류)
+# 1) 라이브 추출 (실제 Claude API 비전/분류)
 st, ext = post("/extract", {"text": "학식: 제육볶음, 밥, 김치"})
 print(f"\n① POST /extract (live)  → {st}")
 print("  ", json.dumps(ext, ensure_ascii=False)[:200])
@@ -51,5 +51,5 @@ if st3 == 200:
     print(f"   total={res.get('total_grams_co2e')}g  tier={res.get('tier')}")
 
 ok = (st == 200 and st3 == 200)
-print(f"\n{'라이브 종단 OK ✅' if ok else '⚠️ 일부 실패 — 위 응답/권한(SafeRole bedrock) 확인'}")
+print(f"\n{'라이브 종단 OK ✅' if ok else '⚠️ 일부 실패 — 위 응답/ANTHROPIC_API_KEY 확인'}")
 sys.exit(0 if ok else 1)
