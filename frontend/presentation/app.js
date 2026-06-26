@@ -6,7 +6,7 @@
  *  - 추출 결과(§1 ExtractionResult)에는 숫자(탄소)가 없음 — 계산은 엔진.
  *    실제 연동: §1 → POST /compute → §2-A PersonalResult 를 "표시만".
  *    아래 buildExtraction*() 가 §1, mockCompute() 가 §2-A 자리(엔진 대체).
- *  - 데모 시드 계수(엔진측 임시): 스크린타임 0.15 gCO2e/분, 전력 459.4 gCO2e/kWh.
+ *  - 폴백 계수는 엔진 factors.seed.json 과 정렬: 스크린타임 0.03 gCO2e/분, 전력 478.1 gCO2e/kWh.
  *  - 이미지 분석/스크린타임 연동은 데모 mock — 실제 API로 교체 지점은 buildExtraction*().
  * =================================================================== */
 
@@ -19,18 +19,19 @@ function tierFromGrams(g) {
 const TIER_LABEL = { low: "낮음 🌿", mid: "보통", high: "높음 ⚠️" };
 
 /* ---------- 데모 시드 계수 (엔진측 임시값) ---------- */
+// 폴백 계수 — 엔진 factors.seed.json 과 정렬(라이브 실패 시 mock 폴백이 라이브와 수치 일관).
 const SEED = {
-  screentimePerMin: 0.15, // gCO2e/분 (스마트폰) — 계약 4-A
-  energyPerKwh: 459.4,    // gCO2e/kWh (한국 전력, 0.4594 kg)
+  screentimePerMin: 0.03, // gCO2e/분 (스마트폰) — 엔진 screentime_factor
+  energyPerKwh: 478.1,    // gCO2e/kWh (전력_가정용체감) — 엔진 energy_factors
 };
-// 메뉴 1끼 gCO2e (계약 §3 예시값)
+// 메뉴 1끼 gCO2e — 엔진 menu_recipes×food_factors 로 산출(라이브 /compute 와 동일값)
 const MENU = [
-  { name: "제육덮밥", g: 1185 },
-  { name: "김치찌개", g: 1065 },
-  { name: "치킨마요덮밥", g: 1140 },
-  { name: "비건비빔밥", g: 570 },
-  { name: "잔치국수", g: 305 },
-  { name: "소불고기덮밥", g: 8150 },
+  { name: "제육덮밥", g: 1050 },
+  { name: "김치찌개", g: 960 },
+  { name: "치킨마요덮밥", g: 1035 },
+  { name: "비건비빔밥", g: 285 },
+  { name: "잔치국수", g: 310 },
+  { name: "소불고기덮밥", g: 6021 },
 ];
 // 영수증 품목 개당 gCO2e — 키는 엔진 purchase_factors 와 정렬(라이브 /compute 가 실수치 산출). g=폴백용 근사.
 const PURCHASE = [
@@ -257,7 +258,7 @@ async function analyzePower(screen) {
     activities: [{ type: "energy", item: "전력_가정용체감", kwh }],
     confidence: 0.8, needs_review: false,
   });
-  showResult(screen, "power", result, [{ k: "인식된 사용량", v: `${kwh} kWh` }]);
+  showResult(screen, "power", result, [{ k: "사용량 (데모 입력)", v: `${kwh} kWh` }]);
 }
 
 // 휴대폰: 스크린타임(분) → 라이브 엔진(/compute)
