@@ -100,5 +100,61 @@ class AggregateTest(unittest.TestCase):
         self.assertEqual(out["departments"][0]["participation_rate"], 0.0)
 
 
+class UnlocksTest(unittest.TestCase):
+    """도감 해금 파생 — terra_ai/gamify.unlocked_ids 와 의미 1:1 (CONTRACT §4-A)."""
+
+    T1 = ["red_fox", "otter", "goral", "sika_deer"]                     # 0.5kg
+    T2 = ["least_weasel", "spotted_seal", "lynx", "golden_bat"]         # 2kg
+    T3 = ["tube_nosed_bat", "musk_deer", "asiatic_black_bear", "wolf"]  # 5kg
+    T4 = ["leopard", "tiger"]                                           # 10kg
+
+    def test_milestone_boundaries(self):
+        from carbon_engine import unlocked_ids
+
+        self.assertEqual(unlocked_ids(0), [])
+        self.assertEqual(unlocked_ids(499), [])
+        self.assertEqual(unlocked_ids(500), self.T1)          # 0.5kg 경계 포함
+        self.assertEqual(unlocked_ids(2000), self.T1 + self.T2)
+        self.assertEqual(unlocked_ids(5000), self.T1 + self.T2 + self.T3)
+        self.assertEqual(unlocked_ids(12000), self.T1 + self.T2 + self.T3 + self.T4)
+
+    def test_none_and_negative_safe(self):
+        from carbon_engine import unlocked_ids
+
+        self.assertEqual(unlocked_ids(None), [])
+        self.assertEqual(unlocked_ids(-100), [])
+
+    def test_catalog_has_14_in_order(self):
+        from carbon_engine import catalog_ids
+
+        self.assertEqual(catalog_ids(), self.T1 + self.T2 + self.T3 + self.T4)
+
+
+class CatalogDriftGuardTest(unittest.TestCase):
+    """백엔드 벤더 카탈로그(dex_catalog.seed.json) ↔ terra_ai/data/collection.json 동기화 강제.
+
+    단일 진실은 terra_ai 측. 두 파일의 (id·milestone_kg)·순서가 어긋나면 실패한다.
+    terra_ai 파일이 없는 환경(백엔드만 배포)에서는 skip.
+    """
+
+    def test_backend_catalog_mirrors_terra_ai(self):
+        import json as _json
+        from pathlib import Path
+
+        repo_root = Path(__file__).resolve().parents[2]
+        terra = repo_root / "terra_ai" / "data" / "collection.json"
+        if not terra.exists():
+            self.skipTest("terra_ai/data/collection.json 부재(백엔드 단독 환경)")
+
+        backend = Path(__file__).resolve().parents[1] / "carbon_engine" / "dex_catalog.seed.json"
+
+        def pairs(p):
+            items = _json.loads(p.read_text(encoding="utf-8")).get("items", [])
+            items = sorted(items, key=lambda it: it["milestone_kg"])
+            return [(it["id"], it["milestone_kg"]) for it in items]
+
+        self.assertEqual(pairs(backend), pairs(terra))
+
+
 if __name__ == "__main__":
     unittest.main()

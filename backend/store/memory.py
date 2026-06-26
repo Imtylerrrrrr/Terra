@@ -14,6 +14,8 @@ class InMemoryResultStore:
         self._results: dict[str, dict[str, dict[str, Any]]] = {}
         # campus_id -> dept_id -> {name, total_students}
         self._dept: dict[str, dict[str, dict[str, Any]]] = {}
+        # campus_id -> user_id -> {cumulative_saved_grams, unlocks}
+        self._progress: dict[str, dict[str, dict[str, Any]]] = {}
 
     def save_personal(self, campus_id: str, result: dict[str, Any]) -> None:
         key = f"{result['dept_id']}#{result['user_id']}"
@@ -32,6 +34,27 @@ class InMemoryResultStore:
             "total_students": int(total_students),
         }
 
+    def load_user_progress(self, campus_id: str, user_id: str) -> dict[str, Any]:
+        prog = self._progress.get(campus_id, {}).get(user_id)
+        if prog is None:
+            return {"cumulative_saved_grams": 0.0, "unlocks": []}
+        return {
+            "cumulative_saved_grams": float(prog.get("cumulative_saved_grams", 0.0)),
+            "unlocks": list(prog.get("unlocks", [])),
+        }
+
+    def save_user_progress(
+        self,
+        campus_id: str,
+        user_id: str,
+        cumulative_saved_grams: float,
+        unlocks: list[str],
+    ) -> None:
+        self._progress.setdefault(campus_id, {})[user_id] = {
+            "cumulative_saved_grams": round(float(cumulative_saved_grams), 1),
+            "unlocks": list(unlocks),
+        }
+
     def load_campus(
         self, campus_id: str
     ) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
@@ -42,3 +65,4 @@ class InMemoryResultStore:
     def clear(self) -> None:
         self._results.clear()
         self._dept.clear()
+        self._progress.clear()

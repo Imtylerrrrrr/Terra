@@ -4,7 +4,9 @@
   PK = "CAMPUS#{campus_id}"
   SK = "RESULT#{dept_id}#{user_id}"   개인 결과
      | "DEPT#{dept_id}"               학과 메타
+     | "USER#{user_id}"               사용자 도감 진행(누적 절감·해금)
 → 캠퍼스 1건 Query(PK)로 결과 + 학과 메타를 한 번에 조회.
+  (load_campus 는 RESULT#/DEPT# 만 취함 → USER# 는 집계에 영향 없음)
 
 boto3 는 Lambda 런타임 기본 제공. 로컬 테스트는 InMemoryResultStore 사용.
 """
@@ -54,6 +56,34 @@ class DynamoResultStore:
                 "dept_id": dept_id,
                 "name": name,
                 "total_students": int(total_students),
+            }
+        )
+
+    def load_user_progress(self, campus_id: str, user_id: str) -> dict[str, Any]:
+        resp = self._t().get_item(Key={"PK": _pk(campus_id), "SK": f"USER#{user_id}"})
+        item = resp.get("Item")
+        if not item:
+            return {"cumulative_saved_grams": 0.0, "unlocks": []}
+        return {
+            "cumulative_saved_grams": float(item.get("cumulative_saved_grams", 0)),
+            "unlocks": list(item.get("unlocks", [])),
+        }
+
+    def save_user_progress(
+        self,
+        campus_id: str,
+        user_id: str,
+        cumulative_saved_grams: float,
+        unlocks: list[str],
+    ) -> None:
+        self._t().put_item(
+            Item={
+                "PK": _pk(campus_id),
+                "SK": f"USER#{user_id}",
+                "user_id": user_id,
+                # float → Decimal (DynamoDB Number)
+                "cumulative_saved_grams": Decimal(str(round(float(cumulative_saved_grams), 1))),
+                "unlocks": list(unlocks),
             }
         )
 

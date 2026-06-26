@@ -144,7 +144,10 @@ Claude API 멀티모달이 식판·영수증·스크린타임·전력을 정규�
 |---|---|---|---|
 | `CAMPUS#{campus_id}` | `RESULT#{dept_id}#{user_id}` | 개인 결과 | `total_grams_co2e` · `tier` · `dept_id` · `user_id` |
 | `CAMPUS#{campus_id}` | `DEPT#{dept_id}` | 학과 메타 | `name` · `total_students` |
+| `CAMPUS#{campus_id}` | `USER#{user_id}` | 사용자 도감 진행 | `cumulative_saved_grams` · `unlocks`(id 배열) |
 
 - 캠퍼스 1건 **Query(PK)** 로 결과 + 학과 메타를 한 번에 조회 → `aggregate()`.
+- `load_campus()` 는 `RESULT#`/`DEPT#` 만 취함 → `USER#` 항목은 집계(§2-B)에 영향 없음.
+- **도감 해금**: `/compute` 가 `best_alternative.saving_grams` 를 사용자별 `cumulative_saved_grams` 에 누적 → `unlocked_ids(누적)` 으로 `unlocks` 채워 응답·저장. 해금 규칙·카탈로그(14종)는 §4-A·`terra_ai/data/collection.json`(백엔드 미러: `carbon_engine/dex_catalog.seed.json`).
 - 학과 메타(`total_students`)는 관성 가상데이터에서 미리 적재(`put_dept_meta`).
 - 코드: `backend/store/` (Dynamo / InMemory 동일 인터페이스).

@@ -22,6 +22,26 @@ class ResultStore(Protocol):
         """학과 메타(이름·총원) 저장(upsert) — 참여율 계산용."""
         ...
 
+    def load_user_progress(
+        self, campus_id: str, user_id: str
+    ) -> dict[str, Any]:
+        """사용자별 도감 진행상태 조회.
+
+        반환: {"cumulative_saved_grams": float, "unlocks": list[str]}.
+        항목이 없으면 기본값 {"cumulative_saved_grams": 0.0, "unlocks": []}.
+        """
+        ...
+
+    def save_user_progress(
+        self,
+        campus_id: str,
+        user_id: str,
+        cumulative_saved_grams: float,
+        unlocks: list[str],
+    ) -> None:
+        """사용자별 누적 절감·해금 도감 저장(upsert). SK=USER#{user_id}."""
+        ...
+
     def load_campus(
         self, campus_id: str
     ) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
