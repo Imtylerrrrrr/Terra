@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "aws-serverless-mcp": {
+      "command": "uvx",
+      "args": ["awslabs.aws-serverless-mcp-server@latest", "--allow-write"],
+      "env": { "FASTMCP_LOG_LEVEL": "ERROR" },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "awsknowledge": {
+      "type": "http",
+      "url": "https://knowledge-mcp.global.api.aws"
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": { "Authorization": "Bearer ${GITHUB_PERSONAL_ACCESS_TOKEN}" }
+    }
+  }
+}

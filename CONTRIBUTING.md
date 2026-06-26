@@ -119,3 +119,24 @@ git config core.hooksPath .githooks      # 커밋 형식 검증 + main 직접 pu
 AI에게 커밋을 시켜도 위 형식(`type(scope): 설명`)을 따르게 됩니다.
 또한 §3의 `core.hooksPath` 를 켜 두면 **AI가 만든 커밋도 `commit-msg` 훅이 형식을 한 번 더 검증**합니다(도구 무관 안전망).
 규칙을 바꾸면 **이 4개 파일(`CONTRIBUTING.md`·`CLAUDE.md`·`GEMINI.md`·Kiro steering)** 을 함께 수정하세요.
+
+---
+
+## 5. AI 도구 공통 MCP (AWS·GitHub)
+
+각 도구가 자기 설정 파일을 자동으로 읽습니다 — **별도 명령 없이** AWS·GitHub MCP가 붙습니다(같은 서버, 도구만 다름):
+
+| AI 툴 | MCP 설정 파일 | 비고 |
+|---|---|---|
+| Claude | `.claude/settings.json` (플러그인) | `git config core.hooksPath` 처럼 자동 |
+| Gemini | `.gemini/settings.json` | 워크스페이스 설정 |
+| Kiro | `.kiro/settings/mcp.json` | 워크스페이스 설정 |
+
+붙는 서버(3개): `aws-serverless-mcp`(Lambda·API GW) · `awsknowledge`(AWS 문서 RAG, 무인증) · `github`(PR·이슈).
+
+**각자 한 번만 준비하면 됩니다 (도구 공통):**
+- `uvx` 설치 — `pip install uv` 또는 `brew install uv` (AWS serverless 서버 실행용)
+- AWS 자격증명 — `aws configure` (`~/.aws`)
+- GitHub 토큰 — 환경변수 `GITHUB_PERSONAL_ACCESS_TOKEN` (repo 권한). 미설정 시 `github` MCP만 안 붙고 나머진 정상.
+
+> 설정 파일에는 토큰을 직접 넣지 않습니다(`${GITHUB_PERSONAL_ACCESS_TOKEN}` 치환) — 커밋해도 안전.
