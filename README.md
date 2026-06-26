@@ -10,7 +10,7 @@ AWS 해커톤(무박 2일) 출품작입니다.
 ## 핵심 아이디어
 
 1. **입력** — 캠퍼스 활동을 입력: **식단 · 스크린타임 · 영수증 · 전력**
-2. **AI 추출** — Amazon Bedrock(Claude 멀티모달)이 식단·영수증 등에서 품목·수량을 추출
+2. **AI 추출** — Claude(멀티모달) API가 식단·영수증 등에서 품목·수량을 추출
 3. **계산엔진** — 추출 결과 × 배출계수(식품·전력 등)로 탄소배출량 산출
 4. **시각화** — three.js로 **캠퍼스 행성계 → 학과 행성 → 개인 행성**에 결과를 반영
 5. **수집/육성** — 탄소를 줄이면 동물·풍력발전소 등을 **도감으로 수집**하는 **키우기 게임 감성**
@@ -33,17 +33,20 @@ AWS 해커톤(무박 2일) 출품작입니다.
 | 인증 | Cognito | 로그인·학과 소속 관리 | ✅ |
 | API 입구 | API Gateway (HTTP API) | 프론트 ↔ 백엔드 | ✅ |
 | 백엔드 로직 | Lambda (서버리스) | 입력 처리 + 계산엔진 + 조회 | ✅ |
-| AI 추출 | Amazon Bedrock (Claude 멀티모달) | 식단·영수증 사진 → 품목·수량 | ✅ |
-| 계수 RAG | Bedrock Knowledge Base | 배출계수 매핑(식품·전력) | ✅ |
+| AI 추출 | **Claude API**(Anthropic 직접) | 식단·영수증 사진 → 품목·수량 | — \* |
+| 배출계수 | `factors.seed.json`(공공계수·민지) | 식품·전력 매핑 | — \*\* |
 | DB | DynamoDB | 사용자·학과·캠퍼스·배출량·도감 | ✅ |
-| 파일 저장 | S3 | 업로드 사진 원본 + 계수 데이터셋 | ✅ |
+| 파일 저장 | S3 | 업로드 사진 원본(`/extract` image_s3_key) | ✅ |
 | 로그·모니터링 | CloudWatch | Lambda 로그·지표(자동) | ✅ |
 | 데이터 | 공공 배출계수 + AI 가상데이터 | 하이브리드 | — |
 
-**🟢 코어(무조건 데모):** S3 · Lambda · API Gateway · Bedrock · Bedrock KB · DynamoDB → 입력→추출→계산→저장→3D 한 사이클.
-**🔵 플러스(여유 시 점수+):** Cognito · Step Functions · DynamoDB Streams(학과 평균 집계) · SQS/EventBridge(비동기) · SAM/CDK(IaC).
+\* 대회 제한계정에서 **Bedrock 사용 불가** → Anthropic Claude API 직접 호출(키=Lambda 환경변수)로 전환.
+\*\* Bedrock Knowledge Base(계수 RAG)는 스트레치였으나 미채택 — 계수는 코드 시드(`factors.seed.json`)로 직접 사용.
 
-> ⚠️ 플러스 욕심내다 코어 안 돌면 0점 — **코어 한 사이클 먼저**. 사진 추출은 Bedrock 멀티모달로 통일(Textract와 중복 주의).
+**🟢 현재 라이브 배포:** S3 · Lambda · API Gateway(HTTP API) · DynamoDB + Claude API 추출 → **입력→추출→계산→저장→3D 한 사이클 동작**(SAM `template.yaml`, us-east-1).
+**🔵 플러스(미배포·여유 시 점수+):** Cognito 인증 · Amplify/S3+CloudFront 호스팅 · Step Functions · DynamoDB Streams · SQS/EventBridge.
+
+> ⚠️ 플러스 욕심내다 코어 안 돌면 0점 — **코어 한 사이클 먼저**. 사진 추출은 Claude API 멀티모달로 통일(Textract 중복 주의).
 
 ## 팀 & 역할
 
@@ -78,17 +81,23 @@ AWS 해커톤(무박 2일) 출품작입니다.
 
 ## 상태
 
-🚧 해커톤 진행 중 — 제품 방향·JSON 계약·핵심 스택 확정. 코어 백엔드 로직과 프론트 계약 계층은 구현 완료, AWS 배포·AI 추출·3D 렌더링이 남음.
+🚧 해커톤 진행 중 — **입력→추출→계산→저장→3D 한 사이클이 라이브로 동작**. 백엔드·AI·3D·통합 데모까지 구현·배포 완료, 남은 건 코칭 라우트 배포·학과 메타 풀시드·리허설.
 
 **구현 완료**
 - [x] JSON 계약 확정 — [docs/CONTRACT.md](./docs/CONTRACT.md) §1~6 (추출·출력·tier·API·DynamoDB)
-- [x] 계산엔진 — `compute()`(개인)·`aggregate()`(집계), tier 700/2500, 임시 시드 계수 · 단위 테스트 13건 통과
+- [x] 계산엔진 — `compute()`(개인)·`aggregate()`(집계), tier 700/2500 · 단위 테스트 13건 통과
+- [x] 정식 배출계수 — `factors.seed.json` (공공계수·민지) 반영
 - [x] 저장 계층 — DynamoDB 단일 테이블(`TERRA_TABLE`) / InMemory 동일 인터페이스
-- [x] Lambda 핸들러 — `POST /compute` · `GET /campus/{id}`
-- [x] 프론트 — 도메인 타입(`contract.ts`) · 백엔드 API 클라이언트(`api.ts`: `postCompute`/`getCampus`) · React+Vite+TS 스캐폴딩
+- [x] AI 추출 — `POST /extract` Claude API 멀티모달(식단·영수증 사진→품목·수량), S3 업로드 경로 · **라이브 배포·동작 확인**
+- [x] **AWS 배포** — SAM `template.yaml`(Lambda · API Gateway HTTP API · DynamoDB · S3) 프로비저닝, API 라이브(us-east-1)
+- [x] Lambda 핸들러 — `POST /compute` · `GET /campus/{id}` · `POST /extract` (라이브)
+- [x] 3D 행성 렌더링 — three.js: 캠퍼스 은하 → 학과 행성 → 개인 아바타 행성 + 도감 14종 (`frontend/demo/planet.html`)
+- [x] 데모 데이터 — 시드 6학과(`campus=demo` 라이브 적재) + 탄소입력 4종(식단/스크린타임/영수증/전력) 화면
+- [x] **통합 데모** — `frontend/presentation/` (폰 프레임 + 라이브 `/compute`·`/extract`·`/campus` 연동), `start-presentation.bat` 으로 실행
+- [x] 프론트 계약 계층 — 도메인 타입(`contract.ts`) · API 클라이언트(`api.ts`: `postCompute`/`getCampus`) · React+Vite+TS 스캐폴딩
 
 **남은 작업**
-- [ ] AWS 배포 — SAM 템플릿 작성 + DynamoDB·Lambda·API Gateway 프로비저닝 (`samconfig.toml`만 준비됨)
-- [ ] AI 추출 — `POST /extract` (Bedrock 멀티모달, 민지 AI 모듈)
-- [ ] 3D 행성 렌더링 — three.js (캠퍼스계→학과→개인 3계층)
-- [ ] 정식 배출계수 — `factors.seed.json` 값 교체 (민지)
+- [ ] 코칭 라이브화 — `POST /coach` SAM 라우트 추가 + 재배포 (핸들러는 구현됨)
+- [ ] 학과 메타 풀시드 — 참여율·총원(현재 공개시드라 0) → `put_dept_meta` 풀시드로 행성 크기 실값화
+- [ ] (플러스) Cognito 인증 · Amplify/S3+CloudFront 호스팅 · CloudWatch
+- [ ] 2일차 — 전체 리허설 + 시연영상
