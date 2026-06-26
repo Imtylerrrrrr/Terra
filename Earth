@@ -41,6 +41,8 @@
     font-variant-numeric:tabular-nums;text-shadow:0 6px 30px rgba(0,0,0,.55);transition:color .25s}
   .status{margin-top:6px;font-size:13px;letter-spacing:.32em;text-transform:uppercase;
     font-weight:700;transition:color .25s}
+  .dept{font-size:15px;letter-spacing:.22em;font-weight:700;color:#cdd6dd;margin-bottom:6px;
+    text-shadow:0 2px 12px rgba(0,0,0,.6)}
 
   .controls{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);width:min(680px,92vw);
     background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 22px 20px;
@@ -60,6 +62,51 @@
   .ticks span{flex:1}.ticks span:nth-child(2),.ticks span:nth-child(3){text-align:center}.ticks span:last-child{text-align:right}
   .hint{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);font-size:10.5px;
     color:rgba(255,255,255,.32);letter-spacing:.06em;z-index:6;pointer-events:none}
+
+  .addbox{position:fixed;top:172px;left:26px;z-index:6;width:208px;display:flex;flex-direction:column;gap:10px}
+  .add-toggle{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+    color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);text-align:left}
+  .add-toggle:hover{color:#5fd38a}
+  .add-form{display:none;flex-direction:column;gap:8px;padding:14px;background:var(--panel);
+    border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .add-form.show{display:flex}
+  .add-form input{padding:8px 10px;border-radius:8px;border:1px solid #2a2f4a;background:#141831;
+    color:var(--ink);font-size:13px;width:100%}
+  .add-form input::placeholder{color:#6b7280}
+  .add-form #f-add{padding:9px;border:none;border-radius:8px;background:#5fd38a;color:#06210f;
+    font-weight:800;font-size:13px;cursor:pointer}
+  .add-form #f-add:hover{background:#74e09c}
+  .add-msg{font-size:11px;color:#e8a33a;min-height:13px;letter-spacing:.02em}
+
+  .dex-toggle{position:fixed;top:22px;right:26px;z-index:7;padding:9px 14px;border:1px solid var(--line);
+    border-radius:10px;background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .dex-toggle:hover{color:#5fd38a}
+  .dex-panel{position:fixed;top:0;right:0;height:100%;width:340px;max-width:86vw;z-index:8;transform:translateX(100%);
+    transition:transform .35s ease;background:rgba(10,15,21,.93);border-left:1px solid var(--line);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;padding:20px}
+  .dex-panel.show{transform:translateX(0)}
+  .dex-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:15px;margin-bottom:14px}
+  .dex-close{background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
+  .dex-close:hover{color:var(--ink)}
+  .dex-demo{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .dex-demo label{font-size:12px;color:var(--muted)}
+  .dex-demo label b{color:#5fd38a;font-size:14px}
+  .dex-hint{font-size:10.5px;color:rgba(255,255,255,.35)}
+  .dex-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;overflow-y:auto;padding-right:4px}
+  .dex-card{background:#141831;border:1px solid #232844;border-radius:12px;padding:10px;text-align:center;transition:all .3s}
+  .dex-thumb{position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;
+    background:radial-gradient(circle at 50% 38%,#1c2440,#0c1020)}
+  .dex-thumb img{width:100%;height:100%;object-fit:contain;transition:filter .3s,opacity .3s}
+  .dex-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+  .dex-card.locked .dex-thumb img{filter:grayscale(1) brightness(.35);opacity:.6}
+  .dex-card:not(.locked) .dex-lock{display:none}
+  .dex-name{margin-top:8px;font-size:13px;font-weight:700}
+  .dex-card.locked .dex-name{color:var(--muted)}
+  .dex-kg{font-size:11px;color:#5fd38a;margin-top:2px}
+  .dex-card.locked .dex-kg{color:var(--muted)}
+  .dex-card.justUnlocked{border-color:#5fd38a;box-shadow:0 0 18px rgba(95,211,138,.55);transform:scale(1.05)}
   @media (max-width:520px){.score{font-size:62px}.readout{margin-top:52px}.topbar{padding:16px 18px}}
 </style>
 </head>
@@ -76,14 +123,36 @@
     <div class="menu-item">- 나</div>
   </div>
 
-  <div class="readout"><div class="score" id="score">62</div><div class="status" id="status">회복 중</div></div>
+  <div class="addbox">
+    <button class="add-toggle" id="addToggle">+ 학과 추가</button>
+    <div class="add-form" id="addForm">
+      <input id="f-name" type="text" placeholder="학과명" maxlength="14" aria-label="학과명">
+      <input id="f-students" type="number" min="1" placeholder="전체 학과생 수" aria-label="전체 학과생 수">
+      <input id="f-part" type="number" min="0" placeholder="참여 학과생 수" aria-label="참여 학과생 수">
+      <button id="f-add">행성 추가</button>
+      <div class="add-msg" id="addMsg"></div>
+    </div>
+  </div>
+
+  <div class="readout"><div class="dept" id="dept">컴퓨터공학과</div><div class="score" id="score">62</div><div class="status" id="status">회복 중</div></div>
 
   <div class="controls">
     <div class="ends"><span class="l">◀ 황폐</span><span class="r">풍요 ▶</span></div>
     <input id="slider" class="slider" type="range" min="0" max="100" value="62" step="1">
     <div class="ticks"><span>0 · 멸망</span><span>33 · 사막화</span><span>66 · 정상</span><span>100 · 청정</span></div>
   </div>
-  <div class="hint">드래그로 회전 · 휠/핀치로 확대·축소</div>
+  <button class="dex-toggle" id="dexToggle">📖 도감</button>
+  <div class="dex-panel" id="dexPanel">
+    <div class="dex-head"><span>📖 도감 — 탄소 절감 수집</span><button class="dex-close" id="dexClose">×</button></div>
+    <div class="dex-demo">
+      <label>누적 절감량 <b id="dexKgVal">0.0</b> kg</label>
+      <input id="dexKg" class="slider" type="range" min="0" max="50" step="0.1" value="0">
+      <div class="dex-hint">마일스톤마다 1종 해금 · 0.5·2·5·10kg 확정(이후 임시)</div>
+    </div>
+    <div class="dex-grid" id="dexGrid"></div>
+  </div>
+
+  <div class="hint">드래그로 회전 · 휠/핀치로 확대·축소 · 주변 행성 클릭으로 학과 전환</div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
@@ -220,8 +289,8 @@
   const HX = h=>new THREE.Color(h);
   //               0멸망      33사막     66정상     100청정
   const TAB = {
-    0:[HX(0x35492a),HX(0x3e4a36),HX(0x2c6280),HX(0x256d92)], // deep ocean: 썩은녹→파랑
-    1:[HX(0x42603a),HX(0x4e6042),HX(0x4894a6),HX(0x3aa0b6)], // shallow:   썩은녹→청록
+    0:[HX(0x35492a),HX(0x3e4a36),HX(0x123f63),HX(0x0c5285)], // deep ocean: 썩은녹→짙은 네이비블루
+    1:[HX(0x42603a),HX(0x4e6042),HX(0x1c6b8e),HX(0x2090b4)], // shallow:   썩은녹→밝은 청록
     2:[HX(0x564c34),HX(0xa89868),HX(0xb8ad84),HX(0xb2a67c)], // beach
     3:[HX(0x524630),HX(0xa08850),HX(0x5f9050),HX(0x5c9c50)], // plain (진한 초록)
     4:[HX(0x42392a),HX(0x8a7c50),HX(0x437440),HX(0x3e7e44)], // forest
@@ -668,6 +737,113 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   const moon=new THREE.Mesh(new THREE.IcosahedronGeometry(0.32,1),M(0xd7d9de,1));moon.position.set(5,3.2,-3);scene.add(moon);
 
   // ============================================================================
+  //  학과 행성 (선택=중앙 풀디테일 / 나머지=우주에 흩뿌린 로우폴리)
+  //  ⚠️ students/participants/co2Kg 는 목업. 추후 계산엔진(탄소배출량)·DB 연동.
+  //    · score(건강도)  = 1인당 탄소배출량 역산 (배출↑ → 건강↓)
+  //    · 행성 크기       = 참여율 (참여 학과생 / 전체 학과생)
+  // ============================================================================
+  const DEPARTMENTS = [
+    {id:'cse',    name:'컴퓨터공학과', students:1200, participants:760,  co2Kg:4560},
+    {id:'mech',   name:'기계공학과',   students:900,  participants:300,  co2Kg:2700},
+    {id:'biz',    name:'경영학과',     students:1500, participants:1050, co2Kg:4725},
+    {id:'design', name:'디자인학과',   students:600,  participants:480,  co2Kg:1440},
+    {id:'env',    name:'환경공학과',   students:500,  participants:460,  co2Kg:1104},
+  ];
+  let selIdx = 0;
+
+  // 1인당 일일 탄소배출량(kg) → 건강도 0~100 (역산). 경계값은 임시.
+  const CO2_LO=2, CO2_HI=12;
+  const NEUTRAL_SCORE=66;   // 데이터 없는 신규 학과 기본 상태 (정상 경계)
+  function healthFromCo2(perCapita){
+    const t=(perCapita-CO2_LO)/(CO2_HI-CO2_LO);            // 0 청정 ~ 1 오염
+    return Math.round(100*(1-Math.min(Math.max(t,0),1)));
+  }
+  function ratioOf(d){ return d.students>0 ? d.participants/d.students : 0; }
+  // 파생값(score) 초기 계산 — 슬라이더로 개별 조정 가능
+  DEPARTMENTS.forEach(d=>{ d.score = healthFromCo2(d.co2Kg / Math.max(d.participants,1)); });
+
+  // 건강도 → 색 (멸망 갈색 → 사막 황 → 정상 청록 → 청정 녹)
+  function healthColor(s){
+    const C=h=>new THREE.Color(h);
+    if(s<33) return C(0x7a4f38).lerp(C(0xc9a24a), s/33);
+    if(s<66) return C(0xc9a24a).lerp(C(0x2f7fa8), (s-33)/33);
+    return C(0x2f7fa8).lerp(C(0x4fd08a), (s-66)/34);
+  }
+
+  // 학과 수에 맞춰 자동 분산되는 슬롯
+  // 좌·우 영역에 위아래로 분산 → 중앙 지구에 안 가리고 화면 안에 머묾
+  function makeSlots(n){
+    const out=[], m=Math.ceil(n/2), ymax=2.4;
+    for(let k=0;k<n;k++){
+      const side=(k%2===0)?1:-1, tier=Math.floor(k/2);
+      const yy = m<=1 ? 0 : (-ymax + 2*ymax*(tier/(m-1)));
+      const x = side*(4.6 + (tier%2)*0.9);
+      const z = -1.5 - tier*1.3;               // 약간 뒤로(시차) → 화면 여유 ↑
+      out.push(new THREE.Vector3(x, yy, z));
+    }
+    return out;
+  }
+
+  // 이름표 스프라이트
+  function makeLabel(text){
+    const cv=document.createElement('canvas'); cv.width=256; cv.height=64;
+    const ctx=cv.getContext('2d');
+    ctx.font='bold 30px "Malgun Gothic","Apple SD Gothic Neo",sans-serif';
+    ctx.fillStyle='#eaf0f4'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(0,0,0,.7)'; ctx.shadowBlur=8;
+    ctx.fillText(text, 128, 34);
+    const tex=new THREE.CanvasTexture(cv); tex.minFilter=THREE.LinearFilter;
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true}));
+    sp.scale.set(2.6,0.65,1);
+    return sp;
+  }
+
+  const SPACE = new THREE.Group(); scene.add(SPACE);
+  let bgPlanets=[];
+  function disposeGroup(g){ g.traverse(o=>{ if(o.geometry)o.geometry.dispose();
+    if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map)m.map.dispose(); m.dispose();});} }); }
+  // 배경용 미니 지구 — 중앙과 같은 지형(대륙/바다/빙하)을 가진 저세분 지구 (소품 없음)
+  function makeMiniEarth(score, detail){
+    const g=new THREE.IcosahedronGeometry(R, detail).toNonIndexed();
+    const p=g.attributes.position, V=p.count, colors=new Float32Array(V*3);
+    const nd=new THREE.Vector3();
+    const t=(score/100)*3, si=Math.min(Math.floor(t),2), sf=t-si;
+    for(let i=0;i<V;i++){
+      nd.set(p.getX(i),p.getY(i),p.getZ(i)).normalize();
+      const c=classify(nd), b=c.b, a=TAB[b][si], bb=TAB[b][si+1];
+      colors[i*3]=a.r+(bb.r-a.r)*sf; colors[i*3+1]=a.g+(bb.g-a.g)*sf; colors[i*3+2]=a.b+(bb.b-a.b)*sf;
+      const lift=liftAt(c.h, nd);
+      p.setXYZ(i, p.getX(i)*lift, p.getY(i)*lift, p.getZ(i)*lift);
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(colors,3));
+    g.computeVertexNormals();
+    return new THREE.Mesh(g, new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:0.92}));
+  }
+
+  // 배경 행성 1개 생성 (재사용 헬퍼)
+  function makeBgPlanet(i, pos){
+    const d=DEPARTMENTS[i];
+    const g=new THREE.Group();
+    const rad=0.5+ratioOf(d)*0.95;                // 참여율 → 크기 (0.5~1.45)
+    const mesh=makeMiniEarth(d.score, 4);
+    mesh.scale.setScalar(rad/2);                  // 시각 반지름 ≈ rad (그룹 scale=1 기준)
+    const pct=Math.round(ratioOf(d)*100);
+    const lab=makeLabel(`${d.name}  ${pct}%`); lab.position.set(0, rad+0.7, 0);
+    g.add(mesh,lab);
+    g.position.copy(pos);
+    g.userData={idx:i, spin:0.002+Math.random()*0.004, ph:Math.random()*6.28, baseY:pos.y};
+    SPACE.add(g);
+    return {group:g, mesh, label:lab, rad};
+  }
+  function buildSpace(){
+    for(const b of bgPlanets){ SPACE.remove(b.group); disposeGroup(b.group); }
+    bgPlanets=[];
+    const idxs=DEPARTMENTS.map((_,i)=>i).filter(i=>i!==selIdx);
+    const slots=makeSlots(idxs.length);
+    idxs.forEach((i,k)=> bgPlanets.push(makeBgPlanet(i, slots[k])) );
+  }
+
+  // ============================================================================
   //  prop fade
   // ============================================================================
   function ramp(v,lo,hi){const fade=13;if(v<lo-fade||v>hi+fade)return 0;let f=1;
@@ -702,17 +878,170 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   }
   apply(current);
   const slider=document.getElementById('slider');
-  slider.addEventListener('input',e=>target=+e.target.value);
+  slider.addEventListener('input',e=>{ target=+e.target.value; DEPARTMENTS[selIdx].score=+e.target.value; });
+
+  // ── 학과 선택 (클릭 행성 ↔ 중앙 지구 자리 맞교환 + 디테일 크로스페이드, 1.5초) ──
+  const deptNameEl=document.getElementById('dept');
+  const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
+  const ORIGIN=new THREE.Vector3(0,0,0), _p1=new THREE.Vector3(), _p2=new THREE.Vector3();
+  let centralScale=1, trans={active:false};
+
+  // 디테일 지구 전체 재질의 투명도 일괄 조절 (원래 opacity/transparent 보존)
+  const earthMats=[];
+  earthGroup.traverse(o=>{ if(o.material){ (Array.isArray(o.material)?o.material:[o.material])
+    .forEach(m=>earthMats.push({m, o0:(m.opacity===undefined?1:m.opacity), t0:!!m.transparent})); }});
+  function setEarthOpacity(f){
+    if(f>=1){ for(const e of earthMats){ e.m.opacity=e.o0; e.m.transparent=e.t0; } }
+    else    { for(const e of earthMats){ e.m.transparent=true; e.m.opacity=e.o0*f; } }
+  }
+
+  function updateDeptLabel(d){ deptNameEl.textContent=`${d.name} · 참여 ${Math.round(ratioOf(d)*100)}%`; }
+  function trySelect(x,y){
+    ndc.x=(x/innerWidth)*2-1; ndc.y=-(y/innerHeight)*2+1;
+    ray.setFromCamera(ndc,camera);
+    const hit=ray.intersectObjects(bgPlanets.map(b=>b.mesh),false)[0];
+    if(hit) selectDept(hit.object.parent.userData.idx);
+  }
+  function selectDept(newIdx){
+    if(newIdx===selIdx || trans.active) return;
+    const oldIdx=selIdx;
+    const k=bgPlanets.findIndex(b=>b.group.userData.idx===newIdx);
+    if(k<0) return;
+    const inEntry=bgPlanets.splice(k,1)[0];          // 클릭 행성(가벼움) → 중앙으로
+    const clicked=inEntry.group.position.clone();
+    inEntry.label.visible=false; inEntry.mesh.material.transparent=true;
+    const outEntry=makeBgPlanet(oldIdx, ORIGIN.clone()); // 옛 중앙(가벼움) → 클릭 자리로
+    outEntry.label.visible=false; outEntry.mesh.material.transparent=true; outEntry.mesh.material.opacity=0;
+    trans={
+      active:true, t:0, dur:1.5, repainted:false, clicked,
+      inEntry, outEntry, oldIdx, newIdx,
+      centralOld:centralScale, centralNew:0.78+ratioOf(DEPARTMENTS[newIdx])*0.4,
+      inRad:inEntry.rad, outRad:outEntry.rad,
+    };
+  }
+  function finalizeSwap(){
+    const t=trans;
+    selIdx=t.newIdx; centralScale=t.centralNew;
+    earthGroup.position.set(0,0,0); earthGroup.scale.setScalar(centralScale); setEarthOpacity(1);
+    SPACE.remove(t.inEntry.group); disposeGroup(t.inEntry.group);   // 들어온 구체 제거(지구가 대체)
+    // 빠져나간 구체 → 클릭 자리의 배경 행성으로 확정
+    const out=t.outEntry;
+    out.group.position.copy(t.clicked); out.group.scale.setScalar(1);
+    out.mesh.material.opacity=1; out.mesh.material.transparent=false; out.label.visible=true;
+    out.group.userData.baseY=t.clicked.y;
+    bgPlanets.push(out);
+    const d=DEPARTMENTS[selIdx];
+    current=target=d.score; apply(current);
+    slider.value=Math.round(d.score); updateDeptLabel(d);
+    trans.active=false;
+  }
+  // 초기화
+  centralScale=0.78+ratioOf(DEPARTMENTS[selIdx])*0.4;
+  earthGroup.scale.setScalar(centralScale);
+  updateDeptLabel(DEPARTMENTS[selIdx]);
+  slider.value=Math.round(DEPARTMENTS[selIdx].score);
+  target=DEPARTMENTS[selIdx].score;
+  buildSpace();
+
+  // ── 학과 추가 폼 ──
+  const addForm=document.getElementById('addForm'), addMsg=document.getElementById('addMsg');
+  document.getElementById('addToggle').addEventListener('click',()=>addForm.classList.toggle('show'));
+  document.getElementById('f-add').addEventListener('click',()=>{
+    addMsg.style.color='#e8a33a';
+    if(trans.active){ addMsg.textContent='전환 중입니다. 잠시 후 다시'; return; }
+    const name=document.getElementById('f-name').value.trim();
+    const students=parseInt(document.getElementById('f-students').value,10);
+    const part=parseInt(document.getElementById('f-part').value,10);
+    if(!name){ addMsg.textContent='학과명을 입력하세요'; return; }
+    if(!(students>0)){ addMsg.textContent='전체 학과생 수를 입력하세요'; return; }
+    if(!(part>=0)){ addMsg.textContent='참여 학과생 수를 입력하세요'; return; }
+    if(part>students){ addMsg.textContent='참여 학과생 ≤ 전체 학과생'; return; }
+    // 배출량은 계산엔진 연동 전이라 미입력 → 중립 상태로 추가
+    const d={id:'dept'+Date.now(), name, students, participants:part, co2Kg:null, score:NEUTRAL_SCORE};
+    DEPARTMENTS.push(d);
+    buildSpace();
+    addMsg.style.color='#5fd38a'; addMsg.textContent=`'${name}' 행성 추가됨 (데이터 대기)`;
+    ['f-name','f-students','f-part'].forEach(fid=>document.getElementById(fid).value='');
+  });
+
+  // ── 도감 (Collection / Dex) ──
+  // ⚠️ 항목 목록·비주얼은 이슈 #9 디자인 협의 중 → 임시 카탈로그(기존 로우폴리 자산 재활용).
+  //    해금 규칙(누적 절감 0.5/2/5/10kg마다 1종)은 CONTRACT.md §4-A 확정.
+  //    백엔드 PersonalResult.unlocks(string[]) 연동 시 applyUnlocks(ids) 호출.
+  //    id 네이밍 규칙(제안): dex_<카테고리>_<키>  (예: dex_animal_whale)
+  const DEX=[
+    {id:'dex_animal_whale',    name:'고래',     kg:0.5, make:makeWhale},
+    {id:'dex_plant_pine',      name:'침엽수',   kg:2,   make:makePine},
+    {id:'dex_energy_turbine',  name:'풍력터빈', kg:5,   make:makeTurbine},
+    {id:'dex_marine_boat',     name:'돛단배',   kg:10,  make:makeBoat},
+    {id:'dex_energy_windmill', name:'풍차',     kg:16,  make:makeWindmill},
+    {id:'dex_energy_solar',    name:'태양광',   kg:24,  make:makeSolar},
+    {id:'dex_build_cabin',     name:'통나무집', kg:34,  make:makeCabin},
+    {id:'dex_build_light',     name:'등대',     kg:46,  make:makeLight},
+  ];
+  const dexGrid=document.getElementById('dexGrid');
+
+  // 각 항목 3D 모델을 썸네일(PNG)로 1회 렌더
+  (function buildDexThumbs(){
+    const r2=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+    r2.setSize(140,140); r2.setPixelRatio(1.5); r2.outputEncoding=THREE.sRGBEncoding;
+    const sc=new THREE.Scene();
+    sc.add(new THREE.AmbientLight(0xffffff,0.75));
+    const dl=new THREE.DirectionalLight(0xffffff,0.95); dl.position.set(3,4,5); sc.add(dl);
+    const cam=new THREE.PerspectiveCamera(35,1,0.01,100);
+    const box=new THREE.Box3(), c=new THREE.Vector3(), s=new THREE.Vector3();
+    for(const it of DEX){
+      const m=it.make(); sc.add(m);
+      box.setFromObject(m); box.getCenter(c); box.getSize(s);
+      m.position.sub(c);
+      const rad=Math.max(s.x,s.y,s.z)*0.5||0.2, d=rad*3.2;
+      cam.position.set(d*0.5,d*0.45,d); cam.lookAt(0,0,0);
+      cam.near=Math.max(0.01,d*0.05); cam.far=d*12; cam.updateProjectionMatrix();
+      r2.render(sc,cam);
+      it.thumb=r2.domElement.toDataURL('image/png');
+      sc.remove(m); m.traverse(o=>{ if(o.geometry)o.geometry.dispose(); });
+    }
+    r2.dispose();
+    dexGrid.innerHTML='';
+    for(const it of DEX){
+      const card=document.createElement('div'); card.className='dex-card locked'; card.dataset.id=it.id;
+      card.innerHTML=`<div class="dex-thumb"><img src="${it.thumb}" alt="${it.name}"><span class="dex-lock">🔒</span></div>`
+        +`<div class="dex-name">${it.name}</div><div class="dex-kg">${it.kg}kg 해금</div>`;
+      dexGrid.appendChild(card); it.el=card;
+    }
+  })();
+
+  // 해금 상태
+  const unlocked=new Set();
+  function unlock(id){
+    if(unlocked.has(id)) return; unlocked.add(id);
+    const it=DEX.find(d=>d.id===id);
+    if(it&&it.el){ it.el.classList.remove('locked'); it.el.classList.add('justUnlocked');
+      setTimeout(()=>it.el.classList.remove('justUnlocked'),900); }
+  }
+  // 백엔드 연동 지점: PersonalResult.unlocks 배열을 그대로 전달
+  function applyUnlocks(ids){ (ids||[]).forEach(unlock); }
+  window.applyUnlocks=applyUnlocks;   // 추후 API 연동에서 호출
+
+  // 데모: 누적 절감량 슬라이더 → 마일스톤 해금
+  const dexKg=document.getElementById('dexKg'), dexKgVal=document.getElementById('dexKgVal');
+  dexKg.addEventListener('input',()=>{ const v=+dexKg.value; dexKgVal.textContent=v.toFixed(1);
+    DEX.forEach(it=>{ if(v>=it.kg) unlock(it.id); }); });
+
+  // 패널 토글
+  const dexPanel=document.getElementById('dexPanel');
+  document.getElementById('dexToggle').addEventListener('click',()=>dexPanel.classList.toggle('show'));
+  document.getElementById('dexClose').addEventListener('click',()=>dexPanel.classList.remove('show'));
 
   // drag rotate
-  let rotY=0,rotX=0.14,auto=true,drag=false,lx=0,ly=0,vY=0,vX=0;
+  let rotY=0,rotX=0.14,auto=true,drag=false,lx=0,ly=0,vY=0,vX=0,downX=0,downY=0,moved=0;
   const cv=renderer.domElement;
-  function dn(x,y){drag=true;auto=false;lx=x;ly=y;}
-  function mv(x,y){if(!drag)return;vY=(x-lx)*0.006;vX=(y-ly)*0.006;rotY+=vY;rotX=Math.max(-0.9,Math.min(0.9,rotX+vX));lx=x;ly=y;}
-  function up(){drag=false;}
+  function dn(x,y){drag=true;auto=false;lx=x;ly=y;downX=x;downY=y;moved=0;}
+  function mv(x,y){if(!drag)return;moved+=Math.abs(x-lx)+Math.abs(y-ly);vY=(x-lx)*0.006;vX=(y-ly)*0.006;rotY+=vY;rotX=Math.max(-0.9,Math.min(0.9,rotX+vX));lx=x;ly=y;}
+  function up(x,y){ if(drag && moved<6) trySelect(x,y); drag=false; }
   cv.addEventListener('mousedown',e=>dn(e.clientX,e.clientY));
   addEventListener('mousemove',e=>mv(e.clientX,e.clientY));
-  addEventListener('mouseup',up);
+  addEventListener('mouseup',e=>up(e.clientX,e.clientY));
   // 휠 줌
   cv.addEventListener('wheel',e=>{ e.preventDefault();
     camDist=Math.max(camMin,Math.min(camMax,camDist+e.deltaY*0.012)); updateCam();
@@ -728,7 +1057,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       camDist=Math.max(camMin,Math.min(camMax,camDist+(pinch-d)*0.02)); pinch=d; updateCam(); }
     else if(drag) mv(e.touches[0].clientX,e.touches[0].clientY);
   },{passive:true});
-  addEventListener('touchend',up);
+  addEventListener('touchend',e=>{const t=e.changedTouches&&e.changedTouches[0];up(t?t.clientX:downX,t?t.clientY:downY);});
 
   // loop
   let smk=0;
@@ -737,6 +1066,35 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     if(Math.abs(target-current)>0.05){current+=(target-current)*0.12;apply(current);}
     if(auto)rotY+=0.0015; else { if(!drag){vY*=0.93;vX*=0.93;rotY+=vY;rotX=Math.max(-0.9,Math.min(0.9,rotX+vX));} }
     earthGroup.rotation.y=rotY;earthGroup.rotation.x=rotX;
+    // 학과 맞교환 + 디테일 크로스페이드 (이동하며 무거움↔가벼움 자연 전환)
+    if(trans.active){
+      const T=trans;
+      T.t+=0.016/T.dur; const u=Math.min(T.t,1), e=u*u*(3-2*u);
+      // 두 경로는 중앙↔클릭, e=0.5에서 정확히 교차
+      _p1.lerpVectors(ORIGIN, T.clicked, e);   // 나가는 경로 (중앙→클릭)
+      _p2.lerpVectors(T.clicked, ORIGIN, e);   // 들어오는 경로 (클릭→중앙)
+      const outVis=2*T.centralOld+(T.outRad-2*T.centralOld)*e;  // 시각 반지름: 지구→bg
+      const inVis =T.inRad+(2*T.centralNew-T.inRad)*e;          //            bg→지구
+      // 가벼운 구체들
+      T.outEntry.group.position.copy(_p1); T.outEntry.group.scale.setScalar(outVis/T.outRad);
+      T.inEntry.group.position.copy(_p2);  T.inEntry.group.scale.setScalar(inVis/T.inRad);
+      // 크로스페이드: 전반=나가는 행성(지구→구), 후반=들어오는 행성(구→지구)
+      if(e<0.5){
+        T.outEntry.mesh.material.opacity=e/0.5;       // 구 0→1
+        T.inEntry.mesh.material.opacity=1;
+        earthGroup.position.copy(_p1); earthGroup.scale.setScalar(outVis/2);
+        setEarthOpacity(1-e/0.5);                     // 지구 1→0
+      } else {
+        if(!T.repainted){ T.repainted=true; selIdx=T.newIdx; current=target=DEPARTMENTS[T.newIdx].score; apply(current); }
+        T.outEntry.mesh.material.opacity=1;
+        T.inEntry.mesh.material.opacity=1-(e-0.5)/0.5; // 구 1→0
+        earthGroup.position.copy(_p2); earthGroup.scale.setScalar(inVis/2);
+        setEarthOpacity((e-0.5)/0.5);                  // 지구 0→1
+      }
+      if(u>=1) finalizeSwap();
+    } else {
+      earthGroup.scale.setScalar(centralScale);
+    }
     cloudGroup.rotation.y+=0.0006;
     smk+=0.016;
     for(const p of props){
@@ -747,6 +1105,8 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       if(p.type==='nuke'&&p.mesh._steam)p.mesh._steam.forEach((s,i)=>{s.position.y=s._b+Math.sin(smk*0.7+i)*0.02;s.rotation.y+=0.006;});
     }
     satOrbit.rotation.y+=0.002; moon.rotation.y+=0.0016;
+    // 흩어진 학과 행성 — 자전 + 살짝 떠다님
+    for(const b of bgPlanets){ const u=b.group.userData; b.mesh.rotation.y+=u.spin; u.ph+=0.01; b.group.position.y=u.baseY+Math.sin(u.ph)*0.18; }
     // 회전초 — 육지에서만, 바다로 가면 작아지며 사라짐
     for(const t of tumbleweeds){
       _q.setFromAxisAngle(t.axis,t.speed); t.pivot.quaternion.premultiply(_q);
