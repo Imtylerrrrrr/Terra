@@ -1126,23 +1126,24 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     return g;
   }
   const DEX=[
-    // 티어1 — 0.5kg (천연기념물 가축/토종개)
-    {id:'jindo_dog',     name:'진도개',         kg:0.5, heritage:53,  type:'quad', desc:'한국 대표 토종견'},
-    {id:'sapsali',       name:'삽살개',         kg:0.5, heritage:368, type:'quad', desc:'액운을 쫓는 전통 토종견'},
-    {id:'donggyeongi',   name:'경주개 동경이',  kg:0.5, heritage:540, type:'quad', desc:'꼬리가 짧은 경주 토종견'},
-    {id:'jeju_black_pig',name:'제주 흑돼지',    kg:0.5, heritage:550, type:'quad', desc:'제주 고유 재래 흑돼지'},
-    {id:'jeju_horse',    name:'제주 마',        kg:0.5, heritage:347, type:'quad', desc:'제주 조랑말'},
-    // 티어2 — 2kg (회복 중 야생동물)
-    {id:'otter',         name:'수달',           kg:2,   heritage:330, type:'quad', desc:'깨끗한 하천의 지표종'},
-    {id:'goral',         name:'산양',           kg:2,   heritage:217, type:'quad', desc:'바위산의 멸종위기 우제류'},
-    {id:'golden_bat',    name:'붉은박쥐',       kg:2,   heritage:452, type:'bat',  desc:'황금박쥐로 불리는 희귀 박쥐'},
-    // 티어3 — 5kg (멸종위기 대형 야생동물)
-    {id:'asiatic_black_bear', name:'반달가슴곰', kg:5,  heritage:329, type:'quad', desc:'지리산 복원의 상징종'},
-    {id:'musk_deer',     name:'사향노루',       kg:5,   heritage:216, type:'quad', desc:'송곳니가 발달한 희귀 노루'},
-    {id:'wolf',          name:'늑대',           kg:5,   heritage:129, type:'quad', desc:'한반도 토종 늑대'},
-    // 티어4 — 10kg (사실상 멸종·전설)
-    {id:'white_bellied_woodpecker', name:'크낙새', kg:10, heritage:197, type:'bird', desc:'대형 딱따구리, 남한 미관측'},
-    {id:'tiger_leopard_bear', name:'호랑이·표범·큰곰', kg:10, heritage:128, type:'quad', desc:'남한 실질적 멸종종 · 최고 보상'},
+    // 티어1 — 0.5kg (비교적 흔한 야생동물)
+    {id:'red_fox',      name:'여우',         kg:0.5, type:'quad', desc:'영리한 토종 여우'},
+    {id:'otter',        name:'수달',         kg:0.5, type:'quad', desc:'깨끗한 하천의 지표종'},
+    {id:'goral',        name:'산양',         kg:0.5, type:'quad', desc:'바위산의 우제류'},
+    {id:'sika_deer',    name:'대륙사슴',     kg:0.5, type:'quad', desc:'점박이 무늬의 사슴'},
+    // 티어2 — 2kg (회복 중)
+    {id:'least_weasel', name:'무산쇠족제비', kg:2, type:'quad', desc:'가장 작은 족제비'},
+    {id:'spotted_seal', name:'물범',         kg:2, type:'quad', desc:'바위 위 점박이물범'},
+    {id:'lynx',         name:'스라소니',     kg:2, type:'quad', desc:'귀 끝 깃털의 살쾡이'},
+    {id:'golden_bat',   name:'붉은박쥐',     kg:2, type:'bat',  desc:'황금박쥐로 불리는 희귀 박쥐'},
+    // 티어3 — 5kg (멸종위기 대형)
+    {id:'tube_nosed_bat',     name:'작은관코박쥐', kg:5, type:'bat',  desc:'관 모양 코의 희귀 박쥐'},
+    {id:'musk_deer',          name:'사향노루',     kg:5, type:'quad', desc:'송곳니가 발달한 희귀 노루'},
+    {id:'asiatic_black_bear', name:'반달가슴곰',   kg:5, type:'quad', desc:'지리산 복원의 상징종'},
+    {id:'wolf',               name:'늑대',         kg:5, type:'quad', desc:'한반도 토종 늑대'},
+    // 티어4 — 10kg (전설·최상위)
+    {id:'leopard', name:'표범',   kg:10, type:'quad', desc:'한반도 대형 고양잇과 맹수'},
+    {id:'tiger',   name:'호랑이', kg:10, type:'quad', desc:'숲의 제왕, 최고 보상'},
   ];
   DEX.forEach(it=> it.make=()=>makeCritter(it.type, tierColor(it.kg)));
   const dexGrid=document.getElementById('dexGrid');
@@ -1173,7 +1174,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       const card=document.createElement('div'); card.className='dex-card locked'; card.dataset.id=it.id;
       card.title=it.desc;
       card.innerHTML=`<div class="dex-thumb"><img src="${it.thumb}" alt="${it.name}"><span class="dex-lock">🔒</span></div>`
-        +`<div class="dex-name">${it.name}</div><div class="dex-kg">${it.kg}kg · 천연기념물 ${it.heritage}호</div>`;
+        +`<div class="dex-name">${it.name}</div><div class="dex-kg">${it.kg}kg 해금</div>`;
       dexGrid.appendChild(card); it.el=card;
     }
   })();
