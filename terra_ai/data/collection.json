@@ -1,0 +1,21 @@
+{
+  "_note": "도감 카탈로그 — 누적 절감 마일스톤(CONTRACT §4-A: 0.5/2/5/10 kg) 해금. PersonalResult.unlocks(string[])가 이 id와 1:1.",
+  "_source_of_truth": "프론트 3D 도감 DEX 배열(브랜치 feat/3d-dept-planets-dex, Earth)·이슈 #16. id/마일스톤(kg)/type/desc는 그쪽 UI와 일치시킨 미러. 비주얼·3D 에셋은 #16/#9에서 관리.",
+  "_milestones_kg": [0.5, 2, 5, 10],
+  "items": [
+    { "id": "red_fox",          "name": "여우",         "milestone_kg": 0.5, "type": "quad", "desc": "영리한 토종 여우" },
+    { "id": "otter",            "name": "수달",         "milestone_kg": 0.5, "type": "quad", "desc": "깨끗한 하천의 지표종" },
+    { "id": "goral",            "name": "산양",         "milestone_kg": 0.5, "type": "quad", "desc": "바위산의 우제류" },
+    { "id": "sika_deer",        "name": "대륙사슴",     "milestone_kg": 0.5, "type": "quad", "desc": "점박이 무늬의 사슴" },
+    { "id": "least_weasel",     "name": "무산쇠족제비", "milestone_kg": 2,   "type": "quad", "desc": "가장 작은 족제비" },
+    { "id": "spotted_seal",     "name": "물범",         "milestone_kg": 2,   "type": "quad", "desc": "바위 위 점박이물범" },
+    { "id": "lynx",             "name": "스라소니",     "milestone_kg": 2,   "type": "quad", "desc": "귀 끝 깃털의 살쾡이" },
+    { "id": "golden_bat",       "name": "붉은박쥐",     "milestone_kg": 2,   "type": "bat",  "desc": "황금박쥐로 불리는 희귀 박쥐" },
+    { "id": "tube_nosed_bat",   "name": "작은관코박쥐", "milestone_kg": 5,   "type": "bat",  "desc": "관 모양 코의 희귀 박쥐" },
+    { "id": "musk_deer",        "name": "사향노루",     "milestone_kg": 5,   "type": "quad", "desc": "송곳니가 발달한 희귀 노루" },
+    { "id": "asiatic_black_bear","name": "반달가슴곰",  "milestone_kg": 5,   "type": "quad", "desc": "지리산 복원의 상징종" },
+    { "id": "wolf",             "name": "늑대",         "milestone_kg": 5,   "type": "quad", "desc": "한반도 토종 늑대" },
+    { "id": "leopard",          "name": "표범",         "milestone_kg": 10,  "type": "quad", "desc": "한반도 대형 고양잇과 맹수" },
+    { "id": "tiger",            "name": "호랑이",       "milestone_kg": 10,  "type": "quad", "desc": "숲의 제왕, 최고 보상" }
+  ]
+}
