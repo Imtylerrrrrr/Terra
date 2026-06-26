@@ -7,7 +7,7 @@ POST /extract — 사진/텍스트 → 품목·수량(activities, CONTRACT §1).
 
 입력(JSON 본문):
   {"image_base64": "<b64>", "media_type": "image/jpeg"}   # 식판·영수증 사진(라이브 Claude API)
-  {"image_s3_key": "uploads/abc.jpg", "s3_bucket": "..."}  # S3 업로드 사진(CONTRACT §5). bucket 생략 시 env TERRA_UPLOAD_BUCKET
+  {"image_s3_key": "uploads/abc.jpg"}                      # S3 업로드 사진(CONTRACT §5). 버킷=env TERRA_UPLOAD_BUCKET 고정, media_type=확장자 추론
   {"text": "학식: 밥, 제육볶음, 김치"}                      # 텍스트(라이브 Claude API)
   {"fixture": "소불고기덮밥"}                               # 데모 결정적 폴백(라이브·키 불필요)
 출력: CONTRACT §1 — {"activities":[...], "confidence":..., "needs_review":...}
@@ -43,18 +43,38 @@ _FIXTURES = {
 }
 
 
-def _s3_image_bytes(key, bucket=None):
+# S3 이미지 입력 가드(요청크기 우회 방지). 확장자→media_type 추론 표.
+_MAX_IMAGE_BYTES = int(os.environ.get("TERRA_MAX_IMAGE_BYTES", 5 * 1024 * 1024))  # 5MB
+_S3_MEDIA = {".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+             ".webp": "image/webp", ".gif": "image/gif"}
+
+
+def _media_type_from_key(key, default="image/jpeg"):
+    """S3 key 확장자 → media_type (Claude 비전이 png/heic 등 오독하지 않게)."""
+    return _S3_MEDIA.get(pathlib.Path(key).suffix.lower(), default)
+
+
+def _s3_image_bytes(key):
     """S3 객체(업로드 사진) → 바이트. CONTRACT §5 이미지(S3 key) 입력 경로.
 
-    MOCK=1 → 다운로드 생략(extract_from_image_bytes가 mock 반환). boto3 는 Lambda 런타임 기본 제공.
+    버킷은 env TERRA_UPLOAD_BUCKET 고정(클라이언트 지정 불가 — 권한 스코프 밖 객체 접근 차단).
+    ContentLength 로 다운로드 전 사이즈 가드(API GW 한도 우회 방지). 조회 실패는 ValueError(→400).
+    MOCK=1 → 다운로드 생략. boto3 는 Lambda 런타임 기본 제공.
     """
     if os.environ.get("MOCK") == "1":
         return b""  # MOCK: 네트워크 없이 스키마 흐름만 (extract_from_image_bytes가 무시)
-    bucket = bucket or os.environ.get("TERRA_UPLOAD_BUCKET")
+    bucket = os.environ.get("TERRA_UPLOAD_BUCKET")
     if not bucket:
-        raise ValueError("S3 버킷 미지정 (s3_bucket 또는 env TERRA_UPLOAD_BUCKET)")
+        raise ValueError("S3 업로드 버킷 미설정 (env TERRA_UPLOAD_BUCKET)")
     import boto3   # Lambda 런타임 기본 포함 → requirements 불필요
-    obj = boto3.client("s3").get_object(Bucket=bucket, Key=key)
+    from botocore.exceptions import ClientError
+    try:
+        obj = boto3.client("s3").get_object(Bucket=bucket, Key=key)
+    except ClientError as e:
+        raise ValueError(f"S3 객체 조회 실패: {key} ({e.response['Error'].get('Code')})")
+    size = obj.get("ContentLength", 0)
+    if size > _MAX_IMAGE_BYTES:
+        raise ValueError(f"이미지 용량 초과: {size}B > {_MAX_IMAGE_BYTES}B (TERRA_MAX_IMAGE_BYTES)")
     return obj["Body"].read()
 
 
@@ -74,8 +94,8 @@ def _extract(body):
         img = base64.b64decode(body["image_base64"])
         return extract_from_image_bytes(img, body.get("media_type", "image/jpeg"))
     if body.get("image_s3_key"):
-        img = _s3_image_bytes(body["image_s3_key"], body.get("s3_bucket"))
-        return extract_from_image_bytes(img, body.get("media_type", "image/jpeg"))
+        key = body["image_s3_key"]
+        return extract_from_image_bytes(_s3_image_bytes(key), _media_type_from_key(key))
     raise ValueError("fixture · text · image_base64 · image_s3_key 중 하나 필요")
 
 

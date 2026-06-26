@@ -60,5 +60,12 @@ s3b = json.loads(s3r["body"])
 check("image_s3_key 경로 200 + activities",
       s3r["statusCode"] == 200 and isinstance(s3b.get("activities"), list) and len(s3b["activities"]) > 0)
 
+# 7) S3 media_type 확장자 추론 (png/jpeg/기본값)
+from terra_ai.api.extract_handler import _media_type_from_key
+check("확장자 추론: .png→image/png, .jpg→image/jpeg, 미지→기본",
+      _media_type_from_key("a/b.PNG") == "image/png"
+      and _media_type_from_key("x.jpg") == "image/jpeg"
+      and _media_type_from_key("x.heic") == "image/jpeg")
+
 print(f"\n{'전부 PASS ✅' if not fails else f'실패 {len(fails)}건: {fails}'}")
 sys.exit(1 if fails else 0)
