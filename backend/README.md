@@ -13,9 +13,23 @@ backend/
 │  ├─ factors.py           # 시드 계수 로더
 │  └─ factors.seed.json    # ⚠️ 임시 추정 계수 — 민지 정식값으로 '값만' 교체
 └─ handlers/               # API Gateway HTTP API 진입점 (CONTRACT §5)
-   ├─ compute_handler.py   # POST /compute
-   └─ campus_handler.py    # GET /campus/{campus_id}  (DB 조회는 TODO)
+   ├─ compute_handler.py   # POST /compute  (계산 + 저장)
+   └─ campus_handler.py    # GET /campus/{campus_id}  (저장소 → 집계)
 ```
+
+`store/` — 결과 저장 계층 (단일 테이블, CONTRACT §6):
+
+```
+backend/store/
+├─ base.py     # ResultStore 인터페이스(Protocol)
+├─ memory.py   # InMemoryResultStore (로컬/테스트)
+└─ dynamo.py   # DynamoResultStore (boto3, env TERRA_TABLE)
+```
+
+| PK | SK | 속성 |
+|---|---|---|
+| `CAMPUS#{campus_id}` | `RESULT#{dept_id}#{user_id}` | total_grams_co2e · tier |
+| `CAMPUS#{campus_id}` | `DEPT#{dept_id}` | name · total_students |
 
 ## 실행 / 테스트
 
@@ -33,6 +47,7 @@ r = compute({"activities": [{"type": "menu", "name": "제육덮밥"}]}, "u1", "c
 ```
 
 ## 남은 통합 작업 (주영)
-- `campus_handler._load_personal_results / _load_dept_meta` → DynamoDB 조회로 교체.
+- DynamoDB 테이블 프로비저닝(`TERRA_TABLE`) + API Gateway/Lambda 배포(SAM/CDK).
 - `unlocks`(도감 해금)는 누적 절감 이력이 필요 → DB 집계 단계에서 마일스톤(0.5/2/5/10kg) 적용.
 - 계수 정식값: 민지가 `factors.seed.json` 값 교체 (키·단위·형식 불변).
+- 학과 메타 적재: 관성 가상데이터 → `store.put_dept_meta(campus, dept, name, total_students)`.
