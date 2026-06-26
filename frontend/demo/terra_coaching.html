@@ -130,17 +130,17 @@
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .ai-name{font-size:24px;font-weight:700;margin-bottom:8px}
   .ai-intro{font-size:14px;color:var(--muted);line-height:1.6}
-  .tip-side{display:none}   /* 데스크톱: 말풍선 사용, tip-side 숨김 */
+  /* 말풍선 제거 · 실천 버튼 제거 · 팁은 마스코트 바로 왼쪽 빈공간에 텍스트로 */
+  .speech-bubble{display:none!important}
+  .cta{display:none!important}
+  .tip-side{display:flex;position:absolute;left:0;top:50%;transform:translateY(-50%);
+    width:38%;max-height:80%;align-items:center;justify-content:center;text-align:center;
+    color:#eaf5ee;font-size:14px;font-weight:700;line-height:1.6;
+    text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 6px rgba(0,0,0,.7);
+    opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:6}
+  .tip-side.show{opacity:1}
   @media (max-width:600px){
-    .brand{display:none}                  /* 모바일: TERRA. 숨김 */
-    .cta{display:none}                    /* 모바일: '이 제안들을 실천할게요!' 버튼 숨김 */
-    .speech-bubble{display:none!important} /* 모바일: 말풍선 제거 */
-    .tip-side{display:flex;position:absolute;left:1%;top:50%;transform:translateY(-50%);
-      width:40%;max-height:74%;align-items:center;justify-content:center;text-align:center;
-      color:#eaf5ee;font-size:12px;font-weight:700;line-height:1.5;
-      text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 6px rgba(0,0,0,.7);   /* 박스 없이 텍스트만(가독성용 그림자) */
-      opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:6}
-    .tip-side.show{opacity:1}
+    .tip-side{width:42%;font-size:12px;line-height:1.5}
   }
 
   .summary-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;
@@ -270,7 +270,6 @@
   <canvas id="fx"></canvas>
   <div class="topbar">
     <a class="back-btn" href="planet.html">← 행성으로</a>
-    <span class="brand">TERRA<b>.</b></span>
   </div>
 
   <div class="container">
@@ -280,7 +279,7 @@
         <img class="mascot-img" src="Gemini_Generated_Image_ye9ifzye9ifzye9i-Photoroom.png" alt="Terra 마스코트" onclick="showTip()">
         <div class="tip-side" id="tipSide" aria-live="polite"></div>
       </div>
-      <h1 class="ai-name">Terra AI Coach</h1>
+      <h1 class="ai-name">Terra AI Elf</h1>
       <p class="ai-intro">🌱당신의 캠퍼스 생활을 더 지속가능하게 만들어드리겠습니다 새싹!</p>
     </div>
 
