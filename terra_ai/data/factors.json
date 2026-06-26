@@ -1,0 +1,817 @@
+{
+  "meta": {
+    "version": "v2",
+    "owner": "민지 (AI·데이터 레인)",
+    "principle": "숫자는 공공데이터, 계산은 코드 (LLM 산수 금지)",
+    "built": "2026-06-26",
+    "built_from": [
+      "food_factors.csv",
+      "energy_transport_factors.csv",
+      "menu_recipes.csv",
+      "digital_factors.csv",
+      "product_factors.csv",
+      "app_categories.csv"
+    ],
+    "tier_thresholds_gco2e": {
+      "low_max": 700,
+      "high_min": 2500
+    },
+    "note": "CSV가 원천. 수정 후 scripts/build_factors.py로 재생성."
+  },
+  "food": {
+    "소고기": {
+      "factor_kgco2e_per_kg": 44.7,
+      "category": "육류",
+      "item_en": "beef",
+      "source": "한끼밥상(한국일보)국내연구종합: 소고기120g=5.365kgCO2e",
+      "verify": "국내값"
+    },
+    "돼지고기": {
+      "factor_kgco2e_per_kg": 7.0,
+      "category": "육류",
+      "item_en": "pork",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "닭고기": {
+      "factor_kgco2e_per_kg": 6.0,
+      "category": "육류",
+      "item_en": "chicken",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "양고기": {
+      "factor_kgco2e_per_kg": 24.0,
+      "category": "육류",
+      "item_en": "lamb",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "양식어류": {
+      "factor_kgco2e_per_kg": 5.1,
+      "category": "수산",
+      "item_en": "farmed_fish",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "치즈": {
+      "factor_kgco2e_per_kg": 21.0,
+      "category": "유제품",
+      "item_en": "cheese",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "우유": {
+      "factor_kgco2e_per_kg": 3.0,
+      "category": "유제품",
+      "item_en": "milk",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "달걀": {
+      "factor_kgco2e_per_kg": 4.5,
+      "category": "단백",
+      "item_en": "egg",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "두부": {
+      "factor_kgco2e_per_kg": 3.0,
+      "category": "단백",
+      "item_en": "tofu",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "쌀밥": {
+      "factor_kgco2e_per_kg": 1.0,
+      "category": "곡물",
+      "item_en": "cooked_rice",
+      "source": "한끼밥상(한국일보)국내연구종합: 쌀밥115g=115gCO2e",
+      "verify": "국내값"
+    },
+    "면류": {
+      "factor_kgco2e_per_kg": 1.4,
+      "category": "곡물",
+      "item_en": "noodle",
+      "source": "Poore&Nemecek2018(밀)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "빵": {
+      "factor_kgco2e_per_kg": 1.4,
+      "category": "곡물",
+      "item_en": "bread",
+      "source": "Poore&Nemecek2018(밀)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "일반채소": {
+      "factor_kgco2e_per_kg": 0.5,
+      "category": "채소",
+      "item_en": "vegetable",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "감자": {
+      "factor_kgco2e_per_kg": 0.3,
+      "category": "채소",
+      "item_en": "potato",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    },
+    "김치": {
+      "factor_kgco2e_per_kg": 0.9,
+      "category": "채소",
+      "item_en": "kimchi",
+      "source": "채소+양념조합추정",
+      "verify": "실측·문헌으로보정"
+    },
+    "과일": {
+      "factor_kgco2e_per_kg": 0.5,
+      "category": "과일",
+      "item_en": "fruit",
+      "source": "Poore&Nemecek2018(OWID)전지구평균",
+      "verify": "GIR식품계수로교체"
+    }
+  },
+  "energy_transport": {
+    "전력_KEITI": {
+      "unit": "kWh",
+      "factor_kgco2e_per_unit": 0.495106716,
+      "domain": "전력",
+      "item_en": "electricity_keiti",
+      "source": "KEITI 환경성적표지 평가계수(2021) 전기",
+      "verify": "공인값"
+    },
+    "전력_가정용체감": {
+      "unit": "kWh",
+      "factor_kgco2e_per_unit": 0.4781,
+      "domain": "전력",
+      "item_en": "electricity_household",
+      "source": "한국기후환경네트워크(kcen)가정용",
+      "verify": "공인값"
+    },
+    "전력_국가계수": {
+      "unit": "kWh",
+      "factor_kgco2e_per_unit": 0.4173,
+      "domain": "전력",
+      "item_en": "electricity_national",
+      "source": "GIR2023소비단(0.4173tCO2eq/MWh)",
+      "verify": "공인값"
+    },
+    "휘발유": {
+      "unit": "L",
+      "factor_kgco2e_per_unit": 2.085,
+      "domain": "연료",
+      "item_en": "gasoline",
+      "source": "KEITI 환경성적표지 평가계수(2021) 휘발유_육상수송",
+      "verify": "공인값"
+    },
+    "경유": {
+      "unit": "L",
+      "factor_kgco2e_per_unit": 2.582,
+      "domain": "연료",
+      "item_en": "diesel",
+      "source": "KEITI 환경성적표지 평가계수(2021) 경유_육상수송",
+      "verify": "공인값"
+    },
+    "LPG": {
+      "unit": "kg",
+      "factor_kgco2e_per_unit": 1.8677737,
+      "domain": "연료",
+      "item_en": "lpg",
+      "source": "KEITI 환경성적표지 평가계수(2021) LPG_상업공공",
+      "verify": "공인값"
+    },
+    "승용차_가솔린1인": {
+      "unit": "passenger_km",
+      "factor_kgco2e_per_unit": 0.168,
+      "domain": "교통",
+      "item_en": "car_gasoline",
+      "source": "KEITI 휘발유 2.085kgCO2/L÷평균연비12.4km/L 환산(1인)",
+      "verify": "여객계수로 교체 권장"
+    },
+    "시내버스": {
+      "unit": "passenger_km",
+      "factor_kgco2e_per_unit": 0.08,
+      "domain": "교통",
+      "item_en": "city_bus",
+      "source": "잠정(여객 인-km)",
+      "verify": "여객 배출계수 확보 필요"
+    },
+    "지하철전철": {
+      "unit": "passenger_km",
+      "factor_kgco2e_per_unit": 0.04,
+      "domain": "교통",
+      "item_en": "metro",
+      "source": "잠정(여객 인-km)",
+      "verify": "여객 배출계수 확보 필요"
+    },
+    "셔틀버스": {
+      "unit": "passenger_km",
+      "factor_kgco2e_per_unit": 0.05,
+      "domain": "교통",
+      "item_en": "shuttle_bus",
+      "source": "시내버스 준용 잠정",
+      "verify": "운행데이터로 보정"
+    },
+    "도보자전거": {
+      "unit": "passenger_km",
+      "factor_kgco2e_per_unit": 0.0,
+      "domain": "교통",
+      "item_en": "walk_bike",
+      "source": "직접배출 없음",
+      "verify": "확정"
+    }
+  },
+  "menu_recipes": {
+    "제육덮밥": [
+      {
+        "item": "돼지고기",
+        "grams": 120.0
+      },
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 60.0
+      }
+    ],
+    "김치찌개": [
+      {
+        "item": "돼지고기",
+        "grams": 60.0
+      },
+      {
+        "item": "두부",
+        "grams": 80.0
+      },
+      {
+        "item": "김치",
+        "grams": 100.0
+      },
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      }
+    ],
+    "비건비빔밥": [
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 150.0
+      },
+      {
+        "item": "두부",
+        "grams": 60.0
+      }
+    ],
+    "치킨마요덮밥": [
+      {
+        "item": "닭고기",
+        "grams": 100.0
+      },
+      {
+        "item": "달걀",
+        "grams": 50.0
+      },
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      }
+    ],
+    "소불고기정식": [
+      {
+        "item": "소고기",
+        "grams": 130.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 70.0
+      },
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      }
+    ],
+    "잔치국수": [
+      {
+        "item": "면류",
+        "grams": 200.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 50.0
+      }
+    ],
+    "비빔밥": [
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 150.0
+      },
+      {
+        "item": "달걀",
+        "grams": 50.0
+      },
+      {
+        "item": "두부",
+        "grams": 40.0
+      }
+    ],
+    "돈까스": [
+      {
+        "item": "돼지고기",
+        "grams": 120.0
+      },
+      {
+        "item": "빵",
+        "grams": 30.0
+      },
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 50.0
+      }
+    ],
+    "카레라이스": [
+      {
+        "item": "쌀밥",
+        "grams": 210.0
+      },
+      {
+        "item": "돼지고기",
+        "grams": 60.0
+      },
+      {
+        "item": "감자",
+        "grams": 60.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 80.0
+      }
+    ],
+    "라면": [
+      {
+        "item": "면류",
+        "grams": 120.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 30.0
+      },
+      {
+        "item": "달걀",
+        "grams": 50.0
+      }
+    ],
+    "김밥": [
+      {
+        "item": "쌀밥",
+        "grams": 200.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 80.0
+      },
+      {
+        "item": "달걀",
+        "grams": 30.0
+      },
+      {
+        "item": "돼지고기",
+        "grams": 20.0
+      }
+    ],
+    "샐러드": [
+      {
+        "item": "일반채소",
+        "grams": 150.0
+      },
+      {
+        "item": "닭고기",
+        "grams": 60.0
+      }
+    ],
+    "치즈버거": [
+      {
+        "item": "빵",
+        "grams": 80.0
+      },
+      {
+        "item": "소고기",
+        "grams": 80.0
+      },
+      {
+        "item": "치즈",
+        "grams": 20.0
+      },
+      {
+        "item": "일반채소",
+        "grams": 30.0
+      }
+    ]
+  },
+  "digital": {
+    "엔터테인먼트": {
+      "unit": "hour",
+      "factor_gco2e_per_unit": 36.0,
+      "mode": "screentime",
+      "source": "IEA 2020 영상스트리밍 1시간 ~36 gCO2e",
+      "verify": "공인추정"
+    },
+    "소셜": {
+      "unit": "hour",
+      "factor_gco2e_per_unit": 50.0,
+      "mode": "screentime",
+      "source": "YouTube 0.46g/분(~28g/h) 기준 단축영상(릴스·틱톡) 비중 보정",
+      "verify": "추정(상한 틱톡 5×)"
+    },
+    "게임": {
+      "unit": "hour",
+      "factor_gco2e_per_unit": 12.0,
+      "mode": "screentime",
+      "source": "로컬 모바일게임=기기전력 위주+경량데이터",
+      "verify": "추정"
+    },
+    "정보생산성": {
+      "unit": "hour",
+      "factor_gco2e_per_unit": 8.0,
+      "mode": "screentime",
+      "source": "경량 데이터+기기전력(검색 0.5g 참고)",
+      "verify": "추정"
+    },
+    "이메일": {
+      "unit": "건",
+      "factor_gco2e_per_unit": 4.0,
+      "mode": "discrete",
+      "source": "환경부 대한민국 정책브리핑",
+      "verify": "공인값"
+    },
+    "음성통화": {
+      "unit": "분",
+      "factor_gco2e_per_unit": 3.6,
+      "mode": "discrete",
+      "source": "환경부 대한민국 정책브리핑",
+      "verify": "공인값"
+    }
+  },
+  "product": [
+    {
+      "item_ko": "노브랜드 카모마일 베이비 물티슈 [100매x 6개]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 5.1525,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "노브랜드 도톰한 물티슈 [100매]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.6464,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "노브랜드 물티슈 캡형 [100매]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.4521,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)아이스컵 미디엄(M)190G_우신냉장",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.4931,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)아이스컵 라지(L)240G_우신냉장",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.6939,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)아이스컵 미디엄(M)190G_정화식품",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.4462,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)아이스컵 라지(L)240G_정화식품",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.6263,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스 지리산 맑은 샘물[500mL]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.099,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "오늘의차 옥수수수염차[500mL,PET]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.2142,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "오늘의차 황금보리[500mL,PET]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.216,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "오늘의차 아침헛개[500mL,PET]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.2096,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "진라면 순한맛(120g)",
+      "category": "식품",
+      "factor_kgco2e_per_unit": 0.1641,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "진라면 매운맛(120g)",
+      "category": "식품",
+      "factor_kgco2e_per_unit": 0.1574,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스) 뉴 공화춘 자장(대컵)",
+      "category": "식품",
+      "factor_kgco2e_per_unit": 0.2925,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스) 오모리 김치찌개라면(대컵)",
+      "category": "식품",
+      "factor_kgco2e_per_unit": 0.388,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스 지리산 맑은 샘물[2.0L]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.2708,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "스카트 에코종이물티슈 [70매]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.4724,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "광동 옥수수수염차[340ml]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.212,
+      "unit": "kgCO2/병",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "광동 옥수수수염차[500ml]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.2564,
+      "unit": "kgCO2/병",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "광동 옥수수수염차[1000ml]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.4844,
+      "unit": "kgCO2/병",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "광동 옥수수수염차[1500ml]",
+      "category": "음료",
+      "factor_kgco2e_per_unit": 0.5166,
+      "unit": "kgCO2/병",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "크리넥스 종이물티슈 [80매]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.5325,
+      "unit": "kgCO2/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)베이직물티슈[20매, 리필형]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.2157,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)보솜이 베이비케어 물티슈 [10매, 휴대형]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.1467,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)보솜이 베이비케어 물티슈 [20매, 휴대형]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.2872,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "유어스)보솜이 베이비케어 물티슈 [60매, 캡형]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.6247,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "스카트 에코 종이물티슈 70매(온라인) [리필형]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.379,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    },
+    {
+      "item_ko": "스카트 에코 종이물티슈 캡 70매 E-Pack [캡형]",
+      "category": "생활소비",
+      "factor_kgco2e_per_unit": 0.4264,
+      "unit": "kgCO2e/개",
+      "source": "KEITI 환경성적표지 유효 인증현황(2025.07)",
+      "verify": "공인값"
+    }
+  ],
+  "app_categories": {
+    "com.google.android.youtube": {
+      "app_ko": "유튜브",
+      "bucket": "엔터테인먼트"
+    },
+    "com.google.android.apps.youtube.music": {
+      "app_ko": "유튜브뮤직",
+      "bucket": "엔터테인먼트"
+    },
+    "com.netflix.mediaclient": {
+      "app_ko": "넷플릭스",
+      "bucket": "엔터테인먼트"
+    },
+    "com.cjenm.tving": {
+      "app_ko": "티빙",
+      "bucket": "엔터테인먼트"
+    },
+    "com.wavve.player": {
+      "app_ko": "웨이브",
+      "bucket": "엔터테인먼트"
+    },
+    "com.frograms.wplay": {
+      "app_ko": "왓챠",
+      "bucket": "엔터테인먼트"
+    },
+    "com.disney.disneyplus": {
+      "app_ko": "디즈니플러스",
+      "bucket": "엔터테인먼트"
+    },
+    "tv.twitch.android.app": {
+      "app_ko": "트위치",
+      "bucket": "엔터테인먼트"
+    },
+    "com.iloen.melon": {
+      "app_ko": "멜론",
+      "bucket": "엔터테인먼트"
+    },
+    "com.instagram.android": {
+      "app_ko": "인스타그램",
+      "bucket": "소셜"
+    },
+    "com.zhiliaoapp.musically": {
+      "app_ko": "틱톡",
+      "bucket": "소셜"
+    },
+    "com.kakao.talk": {
+      "app_ko": "카카오톡",
+      "bucket": "소셜"
+    },
+    "com.facebook.katana": {
+      "app_ko": "페이스북",
+      "bucket": "소셜"
+    },
+    "com.twitter.android": {
+      "app_ko": "X(트위터)",
+      "bucket": "소셜"
+    },
+    "com.snapchat.android": {
+      "app_ko": "스냅챗",
+      "bucket": "소셜"
+    },
+    "com.discord": {
+      "app_ko": "디스코드",
+      "bucket": "소셜"
+    },
+    "com.nhn.android.band": {
+      "app_ko": "밴드",
+      "bucket": "소셜"
+    },
+    "jp.naver.line.android": {
+      "app_ko": "라인",
+      "bucket": "소셜"
+    },
+    "com.riotgames.league.wildrift": {
+      "app_ko": "와일드리프트",
+      "bucket": "게임"
+    },
+    "com.pubg.imobile": {
+      "app_ko": "배틀그라운드모바일",
+      "bucket": "게임"
+    },
+    "com.miHoYo.GenshinImpactKR": {
+      "app_ko": "원신",
+      "bucket": "게임"
+    },
+    "com.supercell.brawlstars": {
+      "app_ko": "브롤스타즈",
+      "bucket": "게임"
+    },
+    "com.devsisters.ck": {
+      "app_ko": "쿠키런킹덤",
+      "bucket": "게임"
+    },
+    "com.nexon.bluearchive": {
+      "app_ko": "블루아카이브",
+      "bucket": "게임"
+    },
+    "com.android.chrome": {
+      "app_ko": "크롬",
+      "bucket": "정보생산성"
+    },
+    "com.nhn.android.search": {
+      "app_ko": "네이버",
+      "bucket": "정보생산성"
+    },
+    "com.kakao.map": {
+      "app_ko": "카카오맵",
+      "bucket": "정보생산성"
+    },
+    "com.google.android.gm": {
+      "app_ko": "지메일",
+      "bucket": "정보생산성"
+    },
+    "com.coupang.mobile": {
+      "app_ko": "쿠팡",
+      "bucket": "정보생산성"
+    },
+    "com.google.android.apps.docs": {
+      "app_ko": "구글문서",
+      "bucket": "정보생산성"
+    }
+  }
+}
