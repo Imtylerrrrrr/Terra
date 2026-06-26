@@ -26,7 +26,10 @@ import sys
 try:   # 모노레포: terra_ai 패키지 경유
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent))
     from terra_ai.bedrock.extract import extract_from_image_bytes, extract_from_text
-except ModuleNotFoundError:   # Lambda(SAM CodeUri=terra_ai/): 형제 패키지로
+except ModuleNotFoundError as e:   # Lambda(SAM CodeUri=terra_ai/): 형제 패키지로
+    if e.name and not e.name.startswith("terra_ai"):
+        raise   # terra_ai 외 의존성 누락(anthropic 등)은 폴백으로 숨기지 않고 표면화
+    print("[extract_handler] terra_ai 패키지 미탐지 → 형제 패키지(bedrock.*) 폴백", file=sys.stderr)
     sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
     from bedrock.extract import extract_from_image_bytes, extract_from_text
 

@@ -101,7 +101,7 @@ Resources:
     Properties:
       CodeUri: terra_ai/
       Handler: api.extract_handler.handler
-      Timeout: 30
+      Timeout: 29   # API GW HTTP API 통합 상한 30s보다 낮게 → Lambda가 먼저 깔끔히 종료(경계 레이스 방지)
       Events:
         Extract:
           Type: HttpApi
