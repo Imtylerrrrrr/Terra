@@ -130,6 +130,18 @@
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
   .ai-name{font-size:24px;font-weight:700;margin-bottom:8px}
   .ai-intro{font-size:14px;color:var(--muted);line-height:1.6}
+  .tip-side{display:none}   /* 데스크톱: 말풍선 사용, tip-side 숨김 */
+  @media (max-width:600px){
+    .brand{display:none}                  /* 모바일: TERRA. 숨김 */
+    .cta{display:none}                    /* 모바일: '이 제안들을 실천할게요!' 버튼 숨김 */
+    .speech-bubble{display:none!important} /* 모바일: 말풍선 제거 */
+    .tip-side{display:flex;position:absolute;left:1%;top:50%;transform:translateY(-50%);
+      width:40%;max-height:74%;align-items:center;justify-content:center;text-align:center;
+      color:#eaf5ee;font-size:12px;font-weight:700;line-height:1.5;
+      text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 6px rgba(0,0,0,.7);   /* 박스 없이 텍스트만(가독성용 그림자) */
+      opacity:0;transition:opacity .25s ease;pointer-events:none;z-index:6}
+    .tip-side.show{opacity:1}
+  }
 
   .summary-card{background:var(--panel);border:1px solid var(--line);border-radius:18px;
     padding:30px;margin-bottom:40px;backdrop-filter:blur(14px)}
@@ -169,8 +181,6 @@
   .quest-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
   .quest-title{font-size:14px;font-weight:700;color:#8fe6a8;font-family:'Galmuri11',monospace;
     text-shadow:1px 1px 0 #0a0f15;display:flex;align-items:center;gap:8px;line-height:1.4}
-  .quest-level{background:#1f5a3f;border:2px solid #2a7a52;
-    padding:3px 8px;font-size:11px;color:#aef0c4;font-weight:700;font-family:'Galmuri11',monospace}
   .quest-desc{color:#9cc5ad;font-size:12px;line-height:1.7;margin-bottom:12px;font-family:'Galmuri11',monospace}
   .quest-objective{background:#0a1812;border:2px solid #1f5a3f;
     padding:10px 12px;margin-bottom:10px}
@@ -268,6 +278,7 @@
       <div class="ai-avatar">
         <div class="speech-bubble" id="speechBubble"></div>
         <img class="mascot-img" src="Gemini_Generated_Image_ye9ifzye9ifzye9i-Photoroom.png" alt="Terra 마스코트" onclick="showTip()">
+        <div class="tip-side" id="tipSide" aria-live="polite"></div>
       </div>
       <h1 class="ai-name">Terra AI Coach</h1>
       <p class="ai-intro">🌱당신의 캠퍼스 생활을 더 지속가능하게 만들어드리겠습니다 새싹!</p>
@@ -291,9 +302,7 @@
           <div class="quest-title">
             <span>🍃</span>
             [에코 챌린지] 식단 개선하기
-          </div>
-          <div class="quest-level">Lv.1</div>
-        </div>
+          </div>        </div>
         <div class="quest-desc">
           오늘 드신 소불고기 대신 비건비빔밥을 선택하면 지구가 더 건강해져요!
         </div>
@@ -318,9 +327,7 @@
           <div class="quest-title">
             <span>🚇</span>
             [에코 챌린지] 대중교통 이용하기
-          </div>
-          <div class="quest-level">Lv.1</div>
-        </div>
+          </div>        </div>
         <div class="quest-desc">
           자가용 대신 지하철이나 버스를 타고 통학해보세요. (4.2km 기준)
         </div>
@@ -345,9 +352,7 @@
           <div class="quest-title">
             <span>⚡</span>
             [에코 챌린지] 전력 절약하기
-          </div>
-          <div class="quest-level">Lv.1</div>
-        </div>
+          </div>        </div>
         <div class="quest-desc">
           사용하지 않는 전자기기의 플러그를 뽑아두세요.
         </div>
@@ -371,9 +376,7 @@
           <div class="quest-title">
             <span>♻️</span>
             [에코 챌린지] 일회용품 줄이기
-          </div>
-          <div class="quest-level">Lv.1</div>
-        </div>
+          </div>        </div>
         <div class="quest-desc">
           텀블러와 에코백을 챙겨다니는 작은 습관이 큰 변화를 만들어요.
         </div>
@@ -397,9 +400,7 @@
           <div class="quest-title">
             <span>🌳</span>
             [에코 챌린지] 캠퍼스 나무 심기 참여
-          </div>
-          <div class="quest-level">Lv.2</div>
-        </div>
+          </div>        </div>
         <div class="quest-desc">
           학교 환경 동아리의 나무 심기 행사에 참여해보세요. 함께 만드는 푸른 캠퍼스!
         </div>
@@ -447,11 +448,16 @@
     let tipTimer = null;
     function showTip() {
       const bubble = document.getElementById('speechBubble');
+      const side = document.getElementById('tipSide');
       const tip = ecoTips[Math.floor(Math.random() * ecoTips.length)];
-      bubble.textContent = "🌱 " + tip;
-      bubble.classList.add('show');
+      const text = "🌱 " + tip;
+      if (bubble) { bubble.textContent = text; bubble.classList.add('show'); }   // 데스크톱: 말풍선
+      if (side)   { side.textContent = text;   side.classList.add('show'); }     // 모바일: 마스코트 왼쪽
       clearTimeout(tipTimer);
-      tipTimer = setTimeout(() => bubble.classList.remove('show'), 4000);
+      tipTimer = setTimeout(() => {
+        if (bubble) bubble.classList.remove('show');
+        if (side) side.classList.remove('show');
+      }, 4000);
 
       // 마스코트 통통 튀는 액션
       const mascot = document.querySelector('.mascot-img');
