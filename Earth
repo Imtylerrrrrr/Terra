@@ -125,12 +125,38 @@
   body[data-view="galaxy"] .controls,
   body[data-view="galaxy"] .readout,
   body[data-view="galaxy"] .addbox,
+  body[data-view="galaxy"] .avatar-btn,
   body[data-view="galaxy"] .dex-toggle,
   body[data-view="galaxy"] .dex-panel,
   body[data-view="galaxy"] .menu,
   body[data-view="galaxy"] .hint,
   body[data-view="galaxy"] .back-btn{display:none}
-  body[data-view="planets"] .galaxy-ui{display:none}
+  body[data-view="planets"] .galaxy-ui,
+  body[data-view="planets"] .dex-toggle,
+  body[data-view="planets"] .dex-panel{display:none}
+  body[data-view="avatar"] .galaxy-ui,
+  body[data-view="avatar"] .addbox,
+  body[data-view="avatar"] .avatar-btn{display:none}
+  .avatar-btn{position:fixed;top:22px;right:26px;z-index:7;padding:9px 14px;border:1px solid var(--line);
+    border-radius:10px;background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .avatar-btn:hover{color:#5fd38a}
+  .theme-modal{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;
+    background:rgba(4,6,11,.72);backdrop-filter:blur(6px)}
+  .theme-modal.show{display:flex}
+  .theme-box{width:min(560px,92vw);padding:28px;border-radius:18px;background:rgba(13,16,32,.96);
+    border:1px solid var(--line);text-align:center}
+  .theme-box h3{margin:0 0 6px;font-size:20px}
+  .theme-box p{margin:0 0 20px;color:var(--muted);font-size:13px}
+  .theme-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .theme-opt{display:flex;flex-direction:column;gap:6px;padding:18px 10px;border-radius:14px;cursor:pointer;
+    background:#141831;border:1px solid #2a2f4a;color:var(--ink);transition:all .2s}
+  .theme-opt:hover{border-color:#5fd38a;transform:translateY(-3px)}
+  .theme-opt b{font-size:16px}
+  .theme-opt span{font-size:11px;color:var(--muted)}
+  .theme-cancel{margin-top:18px;padding:8px 16px;border:1px solid var(--line);border-radius:10px;
+    background:transparent;color:var(--muted);cursor:pointer}
+  .theme-cancel:hover{color:var(--ink)}
   .addbox2{position:fixed;top:172px;left:26px;z-index:6;width:208px;display:flex;flex-direction:column;gap:10px}
   @media (max-width:520px){.score{font-size:62px}.readout{margin-top:52px}.topbar{padding:16px 18px}}
 </style>
@@ -189,6 +215,20 @@
       <div class="dex-hint">티어 해금 · 0.5·2·5·10kg (천연기념물 · 이슈 #16)</div>
     </div>
     <div class="dex-grid" id="dexGrid"></div>
+  </div>
+
+  <button class="avatar-btn" id="avatarBtn">🙂 내 아바타 행성</button>
+  <div class="theme-modal" id="themeModal">
+    <div class="theme-box">
+      <h3>내 아바타 행성 테마</h3>
+      <p>처음 만들 나만의 행성 분위기를 골라줘</p>
+      <div class="theme-opts">
+        <button class="theme-opt" data-theme="winter"><b>❄️ 겨울</b><span>빙하 · 눈 · 설산</span></button>
+        <button class="theme-opt" data-theme="desert"><b>🏜️ 사막</b><span>사막 · 선인장 · 오아시스</span></button>
+        <button class="theme-opt" data-theme="balance"><b>🌍 밸런스</b><span>평소의 지구</span></button>
+      </div>
+      <button class="theme-cancel" id="themeCancel">취소</button>
+    </div>
   </div>
 
   <div class="hint">드래그로 회전 · 휠/핀치로 확대·축소 · 주변 행성 클릭으로 학과 전환</div>
@@ -341,6 +381,7 @@
   };
   const _tox=HX(0x6fff4a);
   const _sc=new Float32Array(9*3); // 현재 단계의 바이옴별 색 캐시
+  let avatarTheme=null;            // 개인 아바타 테마: null(밸런스)·'winter'·'desert'
   function paintEarth(v){
     const t=(v/100)*3, i=Math.min(Math.floor(t),2), f=t-i;
     for(let b=0;b<9;b++){ const a=TAB[b][i],bb=TAB[b][i+1];
@@ -352,6 +393,8 @@
       if(b===3||b===4){ const sh=0.82+(1-Math.min(bh[k],0.2)*0.6)*0.18; r*=sh;g*=sh;bl*=sh; }
       if(toxAmt>0 && toxic[k]>0.55){ const m=Math.min((toxic[k]-0.55)*2,1)*toxAmt*0.85;
         r+=(tr-r)*m; g+=(tg-g)*m; bl+=(tb-bl)*m; }
+      if(avatarTheme==='winter'){ r=r*0.4+0.78*0.6; g=g*0.4+0.88*0.6; bl=bl*0.4+0.99*0.6; }   // 빙설
+      else if(avatarTheme==='desert' && b>=2){ r=r*0.4+0.82*0.6; g=g*0.45+0.62*0.55; bl=bl*0.5+0.30*0.5; }  // 땅만 모래
       const ci=k*3; colors[ci]=r; colors[ci+1]=g; colors[ci+2]=bl;
     }
     geo.attributes.color.needsUpdate=true;
@@ -934,7 +977,10 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   }
   apply(current);
   const slider=document.getElementById('slider');
-  slider.addEventListener('input',e=>{ if(!DEPARTMENTS[selIdx])return; target=+e.target.value; DEPARTMENTS[selIdx].score=+e.target.value; });
+  slider.addEventListener('input',e=>{ const v=+e.target.value; target=v;
+    if(view==='avatar') personalScore=v;                       // 아바타: 개인 행성 건강도
+    else if(DEPARTMENTS[selIdx]) DEPARTMENTS[selIdx].score=v;   // 학과: 해당 학과 건강도
+  });
 
   // ── 학과 선택 (클릭 행성 ↔ 중앙 지구 자리 맞교환 + 디테일 크로스페이드, 1.5초) ──
   const deptNameEl=document.getElementById('dept');
@@ -1239,7 +1285,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     campusMsg.style.color='#e8a33a';
     const name=document.getElementById('c-name').value.trim();
     if(!name){ campusMsg.textContent='캠퍼스 이름을 입력하세요'; return; }
-    CAMPUSES.push({ id:'campus'+Date.now(), name, departments:[] });
+    CAMPUSES.push({ campus_id:'campus'+Date.now(), name, departments:[] });
     rebuildGalaxies();
     campusMsg.style.color='#5fd38a'; campusMsg.textContent=`'${name}' 은하 추가됨 (진입 후 학과 추가)`;
     document.getElementById('c-name').value='';
@@ -1249,10 +1295,12 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   const fadeover=document.getElementById('fadeover');
   function setView(v){
     view=v; document.body.dataset.view=v;
-    const planet=(v==='planets');
-    earthGroup.visible=planet; SPACE.visible=planet; moon.visible=planet; satOrbit.visible=planet;
-    GALAXIES.visible=!planet;
-    camDist = planet?PLANET_DIST:GALAXY_DIST; updateCam();   // 뷰별 줌
+    const showEarth=(v==='planets'||v==='avatar');
+    earthGroup.visible=showEarth; moon.visible=showEarth; satOrbit.visible=showEarth;
+    SPACE.visible=(v==='planets');           // 학과 행성들은 행성 뷰에서만
+    GALAXIES.visible=(v==='galaxy');
+    camDist=(v==='galaxy')?GALAXY_DIST:PLANET_DIST; updateCam();
+    backBtn.textContent=(v==='avatar')?'← 학과 행성':'← 캠퍼스 은하';
   }
   function crossfadeTo(fn){
     fadeover.style.opacity='1';
@@ -1274,7 +1322,40 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     setView('planets');
     earthGroup.visible=has;   // 학과 없으면 중앙 행성 없음
   }
-  document.getElementById('backBtn').addEventListener('click',()=>crossfadeTo(()=>setView('galaxy')));
+  // ── 개인 아바타 행성 (학과 행성 → 개인) ──
+  const backBtn=document.getElementById('backBtn');
+  let personalTheme=null, personalScore=72;   // 테마: winter|desert|balance / 건강도
+  function themeLabel(t){ return t==='winter'?'겨울':t==='desert'?'사막':'밸런스'; }
+  function enterAvatar(theme){
+    personalTheme=theme;
+    avatarTheme=(theme==='balance')?null:theme;   // 밸런스=평소 지구(tint 없음)
+    centralScale=1.05;
+    earthGroup.position.set(0,0,0); earthGroup.scale.setScalar(centralScale); setEarthOpacity(1);
+    current=target=personalScore; apply(current);
+    deptNameEl.textContent='내 아바타 행성 · '+themeLabel(theme);
+    slider.value=Math.round(personalScore);
+    setView('avatar'); earthGroup.visible=true;
+  }
+  function backToDept(){
+    avatarTheme=null;
+    const d=DEPARTMENTS[selIdx];
+    if(d){ centralScale=0.78+ratioOf(d)*0.4; earthGroup.scale.setScalar(centralScale);
+      current=target=d.score; apply(current); updateDeptLabel(d); slider.value=Math.round(d.score); }
+    setView('planets'); earthGroup.visible=DEPARTMENTS.length>0;
+  }
+  // 진입 버튼 + 테마 모달
+  const themeModal=document.getElementById('themeModal');
+  document.getElementById('avatarBtn').addEventListener('click',()=>{
+    if(personalTheme) crossfadeTo(()=>enterAvatar(personalTheme));   // 이미 만든 행성 → 바로 진입
+    else themeModal.classList.add('show');
+  });
+  themeModal.querySelectorAll('.theme-opt').forEach(b=>{
+    b.addEventListener('click',()=>{ const t=b.dataset.theme; themeModal.classList.remove('show'); crossfadeTo(()=>enterAvatar(t)); });
+  });
+  document.getElementById('themeCancel').addEventListener('click',()=>themeModal.classList.remove('show'));
+
+  // 뒤로가기: 아바타→학과 / 학과→은하
+  backBtn.addEventListener('click',()=>{ if(view==='avatar') crossfadeTo(backToDept); else crossfadeTo(()=>setView('galaxy')); });
 
   // ── 배경 우주 디테일: 색을 가진 항성 · 별자리 · 반짝임 ──
   let twinkles=[], starShader=null;
@@ -1370,7 +1451,8 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   function pickAt(x,y){
     _ndc2.set((x/innerWidth)*2-1, -(y/innerHeight)*2+1); _ray2.setFromCamera(_ndc2,camera);
     if(view==='galaxy'){ const h=_ray2.intersectObjects(galaxyHits,false)[0]; return h?{group:h.object.parent, idx:h.object.userData.idx}:null; }
-    const h=_ray2.intersectObjects(bgPlanets.map(b=>b.mesh),false)[0]; return h?{group:h.object.parent, idx:h.object.parent.userData.idx}:null;
+    if(view==='planets'){ const h=_ray2.intersectObjects(bgPlanets.map(b=>b.mesh),false)[0]; return h?{group:h.object.parent, idx:h.object.parent.userData.idx}:null; }
+    return null;   // 아바타 뷰: 드래그=행성 회전만
   }
   function planePoint(x,y){
     _ndc2.set((x/innerWidth)*2-1, -(y/innerHeight)*2+1); _ray2.setFromCamera(_ndc2,camera);
