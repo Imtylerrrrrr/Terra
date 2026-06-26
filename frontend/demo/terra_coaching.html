@@ -26,7 +26,7 @@
   .container{max-width:900px;margin:0 auto;padding:40px 26px 60px}
 
   .coach-header{text-align:center;margin-bottom:30px}
-  .ai-avatar{width:440px;height:440px;margin:0 auto -40px;position:relative}
+  .ai-avatar{width:min(440px,86vw);aspect-ratio:1/1;height:auto;margin:0 auto -40px;position:relative}
   .mascot-img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;
     animation:float 4s ease-in-out infinite;filter:drop-shadow(0 0 35px rgba(150,110,210,.45)) drop-shadow(0 6px 14px rgba(80,50,130,.35));
     cursor:pointer;transition:transform .15s ease}
@@ -34,9 +34,9 @@
   .mascot-img.bounce{animation:mascotPop .5s ease}
   @keyframes mascotPop{0%{transform:scale(1)}30%{transform:scale(.88)}55%{transform:scale(1.08)}75%{transform:scale(.97)}100%{transform:scale(1)}}
 
-  .speech-bubble{position:absolute;top:-45px;left:215px;transform:translateY(10px) scale(.85);
+  .speech-bubble{position:absolute;top:-10%;left:49%;transform:translateY(10px) scale(.85);
     transform-origin:center bottom;
-    width:280px;aspect-ratio:1500/720;
+    width:64%;aspect-ratio:1500/720;
     background:url("speech-bubble2.png") center/contain no-repeat;
     display:flex;align-items:center;justify-content:center;text-align:center;
     padding:25% 16% 34% 16%;
@@ -98,10 +98,8 @@
     display:inline-flex;align-items:center;justify-content:center;
     cursor:pointer;transition:none;image-rendering:pixelated}
   .quest-checkbox:hover{border-color:#6fce8c;background:#142a1e}
-  .quest-checkbox.checked{background:#2a7a52;border-color:#6fce8c}
-  .quest-checkbox.checked::after{content:'✓';color:#fff;font-weight:700;font-size:12px}
   .quest-checkbox.checked{background:#5fd38a;border-color:#4a9d6f}
-  .quest-checkbox.checked::after{content:'✓';color:#fff;font-weight:700}
+  .quest-checkbox.checked::after{content:'✓';color:#fff;font-weight:700;font-size:12px}
   
   .quest-reward{display:flex;align-items:center;gap:8px;padding:10px;
     background:#0a1812;border:2px solid #1f5a3f}
@@ -195,6 +193,8 @@
       일일 에코 퀘스트
     </h2>
     
+    <!-- TODO(design→be): 아래 퀘스트/대안 메뉴 데이터는 데모용 하드코딩.
+         추후 CONTRACT §2-A best_alternative 응답에 바인딩하여 동적 렌더링으로 교체 -->
     <div class="steps">
       <div class="quest">
         <div class="quest-top">
