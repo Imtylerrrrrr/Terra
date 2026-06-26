@@ -1910,7 +1910,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       camDist=Math.max(camMin,Math.min(camMax,camDist+(pinch-d)*0.02)); pinch=d; updateCam(); }
     else { const x=e.touches[0].clientX, y=e.touches[0].clientY;
       if(Math.abs(x-lpX)+Math.abs(y-lpY)>8) clearTimeout(lpTimer);   // 움직이면 롱프레스 취소
-      if(drag) mv(x,y); }
+      if(dragObj||drag) mv(x,y); }   // 오브젝트 드래그(은하·행성 이동) 또는 빈 곳 회전
   },{passive:true});
   addEventListener('touchend',e=>{ clearTimeout(lpTimer);
     if(lpFired){ lpFired=false; drag=false; dragObj=null; return; }    // 롱프레스 삭제였으면 선택 무시
