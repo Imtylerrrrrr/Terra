@@ -18,7 +18,7 @@
 ## 4. 라이브 검증 — 민지/주영
 - [ ] `TERRA_API="<ApiUrl>" python3 terra_ai/scripts/live_check.py`
   - ① /extract 라이브(Bedrock) ② /extract fixture ③ /extract→/compute 종단 = **OK** 확인.
-- 실패 시: 403=2번 권한, ImportError=requirements/모델ID, 타임아웃=ExtractFunction Timeout(현재 30s).
+- 실패 시: 403=2번 권한, ImportError=requirements/모델ID, 타임아웃=ExtractFunction Timeout(현재 29s).
 
 ## 5. 데모 리허설 — 팀
 - [ ] 골든패스(식판→탄소→행성) 1회 소리내어 리허설(시간측정).

@@ -95,7 +95,7 @@ Resources:
   # 민지 AI 레인 — Bedrock 멀티모달 추출 (CONTRACT §5: POST /extract → §1 ExtractionResult)
   # CodeUri=terra_ai/ → terra_ai/requirements.txt(anthropic[bedrock]·boto3) 자동 설치.
   # ⚠️ Bedrock 호출엔 SafeRole 에 bedrock:InvokeModel 권한 필요(관리자 확인 항목).
-  #    Timeout 은 비전 추론 여유로 30s (Globals 10s 오버라이드). MOCK/fixture 경로는 AWS 불필요.
+  #    Timeout 29s (Globals 10s 오버라이드, API GW HTTP API 상한 30s보다 낮게). MOCK/fixture 경로는 AWS 불필요.
   ExtractFunction:
     Type: AWS::Serverless::Function
     Properties:
