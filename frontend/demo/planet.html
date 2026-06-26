@@ -61,8 +61,8 @@
 
   /* 은하 뷰: 캠퍼스 황폐/풍요 슬라이더 패널 */
   .gcontrols{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);width:min(680px,92vw);
-    background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:14px 22px 18px;
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:6}
+    background:var(--panel);border:none;border-radius:18px;padding:14px 22px 18px;
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:6;display:none}
   .gsel-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
   .gsel-row label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
   .gsel-row select{flex:1;padding:8px 10px;border-radius:10px;border:1px solid var(--line);
@@ -71,7 +71,7 @@
   .hint{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);font-size:10.5px;
     color:rgba(255,255,255,.32);letter-spacing:.06em;z-index:6;pointer-events:none}
 
-  .addbox{position:fixed;top:172px;left:26px;z-index:6;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+  .addbox{position:fixed;top:248px;left:26px;z-index:6;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
   .add-toggle{align-self:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
     color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);text-align:left;white-space:nowrap}
@@ -168,21 +168,19 @@
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   .logout-btn:hover{color:#e8896f;border-color:rgba(232,137,111,.5)}
   /* 왼쪽 세로 액션 스택: AI 코치(위) · 탄소 측정 · 정령 도감(아래) */
-  .side-actions{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:8;
-    display:flex;flex-direction:column;gap:12px;align-items:flex-start}
-  .coach-btn,.carbon-btn,.dex-page-btn{display:flex;align-items:center;gap:8px;
-    padding:12px 16px;border:1px solid rgba(95,211,138,.45);border-radius:12px;background:var(--panel);color:var(--ink);
-    font-weight:800;font-size:13px;cursor:pointer;text-decoration:none;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    box-shadow:0 8px 22px rgba(54,163,104,.28)}
-  .coach-btn{border-color:rgba(120,170,255,.45);box-shadow:0 8px 22px rgba(70,110,200,.28)}
-  .coach-btn:hover{color:#9cc0ff;border-color:#9cc0ff}
-  .carbon-btn:hover{color:#5fd38a;border-color:#5fd38a}
-  .dex-page-btn{border-color:rgba(170,130,255,.45);box-shadow:0 8px 22px rgba(110,80,200,.28)}
-  .dex-page-btn:hover{color:#c4a8ff;border-color:#c4a8ff}
-  .coach-btn .ci,.carbon-btn .ci,.dex-page-btn .ci{font-size:17px}
+  .side-actions{position:fixed;left:26px;top:72px;z-index:8;
+    display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+  /* 텍스트 링크 스타일: 보더/배경 없음 · hover 시 글씨 굵어짐 */
+  .coach-btn,.carbon-btn,.dex-page-btn{display:flex;align-items:center;justify-content:flex-start;
+    width:150px;padding:7px 4px;border:none;border-radius:0;background:none;box-shadow:none;color:var(--ink);
+    font-weight:600;font-size:15px;letter-spacing:.02em;cursor:pointer;text-decoration:none;
+    transition:color .15s ease,transform .15s ease}
+  .coach-btn:hover{color:#9cc0ff;font-weight:800}
+  .carbon-btn:hover{color:#5fd38a;font-weight:800}
+  .dex-page-btn:hover{color:#c4a8ff;font-weight:800}
   .side-toggle{display:none}   /* 데스크톱: 숨김 (3버튼 항상 노출) */
   @media (max-width:600px){
-    .side-actions{left:12px;gap:10px}
+    .side-actions{left:12px;gap:10px;top:104px}
     .coach-btn,.carbon-btn,.dex-page-btn{padding:9px 12px;font-size:12px;gap:6px}
     /* 모바일: 메뉴 토글(누르면 3버튼 펼침) */
     .side-toggle{display:flex;align-items:center;gap:6px;padding:9px 12px;border:1px solid rgba(95,211,138,.45);
@@ -207,7 +205,7 @@
   .theme-cancel{margin-top:18px;padding:8px 16px;border:1px solid var(--line);border-radius:10px;
     background:transparent;color:var(--muted);cursor:pointer}
   .theme-cancel:hover{color:var(--ink)}
-  .addbox2{position:fixed;top:172px;left:26px;z-index:6;width:208px;display:flex;flex-direction:column;gap:10px}
+  .addbox2{position:fixed;top:248px;left:26px;z-index:6;width:208px;display:flex;flex-direction:column;gap:10px}
   @media (max-width:600px){
     .tag{display:none}
     .brand{font-size:12px}
@@ -305,9 +303,9 @@
   <button class="logout-btn" id="logoutBtn">⎋ 로그아웃</button>
   <div class="side-actions" id="sideActions">
     <button class="side-toggle" id="sideToggle" aria-label="메뉴" aria-expanded="false">☰ 메뉴</button>
-    <a class="coach-btn" href="terra_coaching.html"><span class="ci" aria-hidden="true">🤖</span>AI 코치</a>
-    <a class="carbon-btn" href="carbon.html"><span class="ci" aria-hidden="true">🌿</span>탄소 측정</a>
-    <a class="dex-page-btn" href="terra_dex.html"><span class="ci" aria-hidden="true">📖</span>정령 도감</a>
+    <a class="coach-btn" href="terra_coaching.html">- AI 코치</a>
+    <a class="carbon-btn" href="carbon.html">- 탄소 측정</a>
+    <a class="dex-page-btn" href="terra_dex.html">- 정령 도감</a>
   </div>
   <div class="theme-modal" id="themeModal">
     <div class="theme-box">
