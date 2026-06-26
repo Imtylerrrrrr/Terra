@@ -45,5 +45,23 @@ check("문장 형식 유지", bool(r2["planet_line"]) and bool(r2["next_action"]
 # 3) 숫자 무결성 — coach는 절감량을 새로 만들지 않음(환각 차단)
 check("절감량은 입력 result에서만 파생", r["expected_saving_grams"] == 5736.0)
 
+# 4) 도감 넛지 — cumulative_saving_grams 주면 next_action에 다음 해금 결정적 추가
+base = {"total_grams_co2e": 1050.0, "tier": "mid",
+        "best_alternative": {"name": "비건비빔밥", "grams_co2e": 285.0, "saving_grams": 765.0}}
+rn = coach(base, "컴퓨터공학과", cumulative_saving_grams=200)
+check("넛지: 누적 0.2kg → next_action에 '여우 해금' 포함", "여우 해금" in rn["next_action"])
+check("넛지: 남은 양 '0.3kg' 표기", "0.3kg" in rn["next_action"])
+check("넛지 줘도 4필드 유지",
+      set(rn) == {"planet_line", "next_action", "expected_saving_grams", "tone"})
+
+# 5) 비파괴 — cumulative 미지정(기본 None)이면 넛지 없음(기존 동작 동일)
+rno = coach(base, "컴퓨터공학과")
+check("cumulative 미지정 → 넛지 없음(기존 next_action 그대로)",
+      "해금" not in rno["next_action"])
+
+# 6) 전종 해금 후엔 넛지 없음(next_milestone=None)
+rfull = coach(base, "컴퓨터공학과", cumulative_saving_grams=99999)
+check("전종 해금 시 넛지 없음", "해금" not in rfull["next_action"])
+
 print(f"\n{'전부 PASS ✅' if not fails else f'실패 {len(fails)}건: {fails}'}")
 sys.exit(1 if fails else 0)

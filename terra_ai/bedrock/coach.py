@@ -15,6 +15,14 @@ import os
 import re
 import sys
 
+try:   # 도감 넛지(누적 절감→다음 해금). 모노레포 패키지 경유
+    from terra_ai.gamify import next_milestone
+except ModuleNotFoundError:   # Lambda(CodeUri=terra_ai/): 형제 패키지로
+    try:
+        from gamify import next_milestone
+    except ModuleNotFoundError:
+        next_milestone = None
+
 SONNET = os.environ.get("TERRA_COACH_MODEL", "claude-sonnet-4-6")
 
 # tier → 톤 라벨(코드 결정 · 프론트 코칭 화면 스타일 분기용)
@@ -62,11 +70,25 @@ def _parse(text):
         return None
 
 
-def coach(result, user_dept="우리 학과"):
+def _milestone_nudge(cumulative_saving_grams):
+    """누적 절감(gCO2e) → 다음 도감 해금까지 넛지 한 줄. 숫자=코드(next_milestone).
+
+    카탈로그 미탑재(import 실패)·전종 해금이면 '' (넛지 없음).
+    """
+    if next_milestone is None:
+        return ""
+    nm = next_milestone(cumulative_saving_grams)
+    if not nm:
+        return ""
+    return f"앞으로 {nm['remaining_grams'] / 1000:.1f}kg 더 줄이면 {nm['name']} 해금!"
+
+
+def coach(result, user_dept="우리 학과", cumulative_saving_grams=None):
     """PersonalResult(§2-A) → 코칭 {planet_line, next_action, expected_saving_grams, tone}.
 
     숫자는 result(코드 계산)에서만 — expected_saving_grams = best_alternative.saving_grams.
     문장은 Sonnet 생성(실패·MOCK=1 → 규칙기반).
+    cumulative_saving_grams 주면 다음 도감 해금 넛지를 next_action에 결정적으로 덧붙임(숫자=코드).
     """
     total = float(result.get("total_grams_co2e", 0) or 0)
     tier = result.get("tier", "mid")
@@ -98,6 +120,11 @@ def coach(result, user_dept="우리 학과"):
             # silent 금지 — 라이브 경로가 가려지지 않게 stderr 경고 1줄(검증·디버깅용).
             print(f"[coach] Sonnet 호출 실패 → 규칙기반 폴백: {type(e).__name__}: {e}", file=sys.stderr)
 
+    if cumulative_saving_grams is not None:
+        nudge = _milestone_nudge(cumulative_saving_grams)
+        if nudge:
+            action = f"{action} {nudge}"
+
     return {
         "planet_line": planet,
         "next_action": action,
@@ -108,9 +135,14 @@ def coach(result, user_dept="우리 학과"):
 
 if __name__ == "__main__":
     # MOCK=1 python3 terra_ai/bedrock/coach.py  로 규칙기반 흐름 확인
+    # standalone 실행 시 terra_ai 패키지 경로 확보(넛지 import용)
+    import pathlib
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent))
+    from terra_ai.gamify import next_milestone  # noqa: F811  (None이었으면 재바인딩)
     demo = {
         "total_grams_co2e": 6021.0,
         "tier": "high",
         "best_alternative": {"name": "비건비빔밥", "grams_co2e": 285.0, "saving_grams": 5736.0},
     }
-    print(json.dumps(coach(demo, "컴퓨터공학과"), ensure_ascii=False, indent=2))
+    # cumulative_saving_grams=1800 → 다음 해금(2kg=무산쇠족제비)까지 0.2kg 넛지
+    print(json.dumps(coach(demo, "컴퓨터공학과", cumulative_saving_grams=1800), ensure_ascii=False, indent=2))
