@@ -47,10 +47,10 @@ class StoreRoundTripTest(unittest.TestCase):
         depts = {d["dept_id"]: d for d in cs_system["departments"]}
         self.assertEqual(depts["cs"]["participants"], 2)
         self.assertEqual(depts["cs"]["participation_rate"], round(2 / 200, 4))
-        # cs 평균 = (570 + 1155) / 2 = 862.5 → mid
-        self.assertAlmostEqual(depts["cs"]["avg_grams_co2e"], 862.5, places=1)
-        self.assertEqual(depts["cs"]["tier"], "mid")
-        self.assertEqual(depts["me"]["tier"], "high")  # 소불고기 8115
+        # cs 평균 = (285 + 1050) / 2 = 667.5 → low
+        self.assertAlmostEqual(depts["cs"]["avg_grams_co2e"], 667.5, places=1)
+        self.assertEqual(depts["cs"]["tier"], "low")
+        self.assertEqual(depts["me"]["tier"], "high")  # 소불고기 6021
 
         # 캠퍼스 = 3명 / 300명
         self.assertEqual(cs_system["participation_rate"], round(3 / 300, 4))
