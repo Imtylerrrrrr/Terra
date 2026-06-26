@@ -1,0 +1,26 @@
+/**
+ * Terra 디자인 토큰 — frontend-conventions §1.
+ * 색·간격·폰트는 여기 토큰으로만 사용 (리터럴 하드코딩 금지).
+ * 값의 단일 진실은 DESIGN.md (승빈 확정). 아래 빈 값은 placeholder.
+ */
+
+:root {
+  /* 기본 — TODO: 승빈/DESIGN.md 확정 */
+  --color-bg: ;            /* 캠퍼스 "우주" 배경 (다크 권장) */
+  --color-surface: ;       /* 카드·패널 */
+  --color-text: ;
+  --color-text-muted: ;
+  --color-accent: ;        /* 주요 액션/CTA */
+
+  /* 탄소 배출 단계 → 행성 비주얼 매핑 (의미 기반) — emissionVisual.ts 가 참조 */
+  --color-emission-low: ;
+  --color-emission-mid: ;
+  --color-emission-high: ;
+
+  /* 간격 — 4px 베이스 스케일 */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px;
+  --space-4: 16px; --space-5: 24px; --space-6: 32px;
+
+  --radius: 8px;           /* TODO 확정 */
+  --font-sans: ;           /* TODO 확정 */
+}

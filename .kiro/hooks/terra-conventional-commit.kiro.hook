@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Terra 커밋 (컨벤션)",
+  "description": "스테이징된 변경을 Terra 커밋 규칙(type(scope): 설명)에 맞춰 커밋. Claude commit-commands 플러그인 대체.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "현재 staged 변경(없으면 변경된 파일)을 검토하고 Terra 커밋 규칙에 따라 커밋해줘.\n\n규칙 (.kiro/steering/commit-convention.md · CONTRIBUTING.md):\n- 형식: `type(scope): 설명`\n- type: feat | fix | docs | style | refactor | chore\n- scope(생략 가능): ai · be · fe · 3d · data · design · infra · docs\n- 설명: 한글/영어 OK · 50자 이내 · 끝에 마침표 없음\n\n절차:\n1. `git status`와 `git diff --staged`로 무엇이 바뀌었는지 파악 (staged가 비어 있으면 사용자에게 `git add` 대상 확인).\n2. 변경 성격에 맞는 type·scope를 고르고 한 줄 제목 작성.\n3. main 브랜치면 작업 브랜치로 분기하도록 안내 (main 직접 커밋/푸시 금지 — pre-push 훅이 차단).\n4. `git commit -m \"type(scope): 설명\"` 실행. commit-msg 훅이 형식을 한 번 더 검증함.\n사용자가 명시적으로 요청할 때만 push/PR을 진행할 것."
+  }
+}

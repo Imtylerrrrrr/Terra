@@ -32,7 +32,7 @@ type(scope): 설명
 | `be` | Lambda·API Gateway·계산엔진·통합 | 주영 |
 | `fe` | Kiro 화면·입력 UX | 연성 |
 | `3d` | three.js 행성·캠퍼스 우주 | 연성 |
-| `data` | 가상 학생·식단·통학 데이터 | 관성 |
+| `data` | 가상 학생·식단·스크린타임·영수증·전력 데이터 | 관성 |
 | `design` | 화면 설계·비주얼·발표 | 승빈 |
 | `infra` | AWS 설정·배포 | 주영 |
 | `docs` | 프로젝트 문서 | 전원 |
@@ -117,6 +117,7 @@ git config core.hooksPath .githooks      # 커밋 형식 검증 + main 직접 pu
 | Kiro | `.kiro/steering/commit-convention.md` |
 
 AI에게 커밋을 시켜도 위 형식(`type(scope): 설명`)을 따르게 됩니다.
+Kiro는 **수동 훅 "Terra 커밋 (컨벤션)"**(`terra-conventional-commit`)으로도 같은 규칙 커밋을 도와줍니다 (Claude `commit-commands` 대체).
 또한 §3의 `core.hooksPath` 를 켜 두면 **AI가 만든 커밋도 `commit-msg` 훅이 형식을 한 번 더 검증**합니다(도구 무관 안전망).
 규칙을 바꾸면 **이 4개 파일(`CONTRIBUTING.md`·`CLAUDE.md`·`GEMINI.md`·Kiro steering)** 을 함께 수정하세요.
 
