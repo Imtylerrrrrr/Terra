@@ -444,7 +444,7 @@
       const pw = document.getElementById("login-pw").value;
       if (!id || !pw) { setMsg(loginMsg, "아이디와 비밀번호를 입력해 주세요.", false); return; }
       setMsg(loginMsg, "로그인 중…", true);
-      setTimeout(() => { window.location.href = "planet.html"; }, 500);
+      setTimeout(() => { window.location.href = "earth.html"; }, 500);
     });
 
     document.getElementById("signupForm").addEventListener("submit", (e) => {
