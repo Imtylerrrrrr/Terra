@@ -1,0 +1,35 @@
+{
+  "_note": "임시 추정 시드 계수 (주영 관리). 민지 정식 계수로 '값'만 교체 — 키/단위/형식 불변. CONTRACT.md §4-A.",
+  "_units": {
+    "food_factors": "gCO2e per gram",
+    "purchase_factors": "gCO2e per 개(qty)",
+    "screentime_factor": "gCO2e per 분(minute)",
+    "energy_factors": "gCO2e per kWh"
+  },
+  "menu_recipes": {
+    "제육덮밥":     [{ "item": "돼지고기", "grams": 120 }, { "item": "쌀밥", "grams": 210 }],
+    "비건비빔밥":   [{ "item": "쌀밥", "grams": 210 }, { "item": "채소", "grams": 150 }],
+    "소불고기덮밥": [{ "item": "소고기", "grams": 130 }, { "item": "쌀밥", "grams": 210 }],
+    "잔치국수":     [{ "item": "면", "grams": 200 }, { "item": "채소", "grams": 60 }]
+  },
+  "food_factors": {
+    "돼지고기": 7.0,
+    "소고기": 60.0,
+    "닭고기": 5.0,
+    "쌀밥": 1.5,
+    "면": 1.4,
+    "채소": 1.7
+  },
+  "purchase_factors": {
+    "아메리카노": 21.0,
+    "생수": 8.0
+  },
+  "screentime_factor": {
+    "스마트폰": 0.15,
+    "노트북": 0.5,
+    "PC": 0.5
+  },
+  "energy_factors": {
+    "전력_가정용체감": 440.0
+  }
+}
