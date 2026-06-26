@@ -95,3 +95,20 @@ git config commit.template .gitmessage
 ```
 
 > ⚠️ 이 설정은 clone마다 따로 — 각 팀원이 각자 자기 환경에서 1회 실행해야 적용됩니다.
+
+---
+
+## 4. AI 툴로 커밋할 때
+
+> `.gitmessage` 템플릿은 **사람이 직접 `git commit` 할 때만** 뜹니다.
+> AI 툴은 보통 `git commit -m "..."` 으로 바로 커밋해서 템플릿을 안 거치므로,
+> 같은 규칙을 각 AI가 자동으로 읽는 파일에도 넣어뒀습니다 (내용 동일):
+
+| AI 툴 | 자동으로 읽는 파일 |
+|---|---|
+| Claude (Code/Pro) | `CLAUDE.md` |
+| Gemini | `GEMINI.md` |
+| Kiro | `.kiro/steering/commit-convention.md` |
+
+AI에게 커밋을 시켜도 위 형식(`type(scope): 설명`)을 따르게 됩니다.
+규칙을 바꾸면 **이 4개 파일(`CONTRIBUTING.md`·`CLAUDE.md`·`GEMINI.md`·Kiro steering)** 을 함께 수정하세요.
