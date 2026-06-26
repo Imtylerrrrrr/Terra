@@ -11,17 +11,16 @@ from handlers.compute_handler import handler as compute_handler
 from store import InMemoryResultStore
 
 
-def _compute_event(user_id, dept_id, menu, campus_id="main"):
-    return {
-        "body": json.dumps(
-            {
-                "user_id": user_id,
-                "dept_id": dept_id,
-                "campus_id": campus_id,
-                "extraction": {"activities": [{"type": "menu", "name": menu}]},
-            }
-        )
+def _compute_event(user_id, dept_id, menu, campus_id="main", request_id=None):
+    payload = {
+        "user_id": user_id,
+        "dept_id": dept_id,
+        "campus_id": campus_id,
+        "extraction": {"activities": [{"type": "menu", "name": menu}]},
     }
+    if request_id is not None:
+        payload["request_id"] = request_id
+    return {"body": json.dumps(payload)}
 
 
 class StoreRoundTripTest(unittest.TestCase):
@@ -126,6 +125,70 @@ class UnlockProgressTest(unittest.TestCase):
         compute_handler(_compute_event("u1", "cs", "비건비빔밥"), store=self.store)
         results, _ = self.store.load_campus("main")
         self.assertEqual(len(results), 1)  # 개인 결과 1건만(USER# 제외)
+
+
+class IdempotencyTest(unittest.TestCase):
+    """리뷰 ②: 같은 request_id 재시도는 누적에 두 번 더해지지 않아야(멱등)."""
+
+    T123 = UnlockProgressTest.T1 + UnlockProgressTest.T2 + UnlockProgressTest.T3
+    T1234 = T123 + UnlockProgressTest.T4
+
+    def setUp(self):
+        self.store = InMemoryResultStore()
+
+    def test_same_request_id_is_idempotent(self):
+        ev = _compute_event("u1", "cs", "소불고기덮밥", request_id="req-1")
+        b1 = json.loads(compute_handler(ev, store=self.store)["body"])
+        b2 = json.loads(compute_handler(ev, store=self.store)["body"])  # 재시도(같은 키)
+
+        self.assertEqual(b1["unlocks"], self.T123)
+        self.assertEqual(b2["unlocks"], self.T123)  # 두 번째도 그대로(2배 X)
+        prog = self.store.load_user_progress("main", "u1")
+        self.assertAlmostEqual(prog["cumulative_saved_grams"], 5736.0, delta=1.0)
+
+    def test_distinct_request_ids_accumulate(self):
+        compute_handler(_compute_event("u1", "cs", "소불고기덮밥", request_id="req-1"), store=self.store)
+        b2 = json.loads(
+            compute_handler(_compute_event("u1", "cs", "소불고기덮밥", request_id="req-2"), store=self.store)["body"]
+        )
+        self.assertEqual(b2["unlocks"], self.T1234)  # 서로 다른 키 → 정상 누적(전종)
+        prog = self.store.load_user_progress("main", "u1")
+        self.assertAlmostEqual(prog["cumulative_saved_grams"], 5736.0 * 2, delta=1.0)
+
+
+class _LoadFailsStore:
+    """load_user_progress 만 일시 실패하는 래퍼(나머지는 inner 에 위임)."""
+
+    def __init__(self, inner):
+        self._inner = inner
+
+    def load_user_progress(self, *_a, **_k):
+        raise RuntimeError("transient load failure")
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
+class LoadFailureGuardTest(unittest.TestCase):
+    """리뷰 ①: 로드 실패 시 기존 누적/해금을 0부터 덮어쓰지 않아야 함."""
+
+    T123 = UnlockProgressTest.T1 + UnlockProgressTest.T2 + UnlockProgressTest.T3
+
+    def test_load_failure_preserves_existing_progress(self):
+        inner = InMemoryResultStore()
+        inner.save_user_progress("main", "u1", 9000.0, self.T123)  # 기존: 9kg·티어1~3
+
+        store = _LoadFailsStore(inner)
+        # 작은 절감 메뉴(제육 ≈765g). 버그 시 prev=0 → 누적 765 로 덮어써져 티어1만 남음.
+        res = compute_handler(_compute_event("u1", "design", "제육덮밥"), store=store)
+        body = json.loads(res["body"])
+
+        self.assertEqual(res["statusCode"], 200)  # 계산 결과는 여전히 반환
+        self.assertFalse(body["persisted"])  # 저장 실패 surface
+
+        prog = inner.load_user_progress("main", "u1")  # 기존 값 보존(덮어쓰기 X)
+        self.assertEqual(prog["cumulative_saved_grams"], 9000.0)
+        self.assertEqual(prog["unlocks"], self.T123)
 
 
 if __name__ == "__main__":

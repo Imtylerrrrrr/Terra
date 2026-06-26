@@ -19,6 +19,7 @@ from store import ResultStore, get_store
 from ._http import error, ok, parse_body
 
 _DEFAULT_CAMPUS = "main"
+_MAX_SEEN_REQUESTS = 200  # USER# 레코드에 보관할 멱등키 최대 개수(아이템 크기 방어)
 
 
 def _saving_grams(result: dict[str, Any]) -> float:
@@ -44,6 +45,7 @@ def handler(event: dict[str, Any], _context: Any = None, store: ResultStore | No
     dept_id = body.get("dept_id")
     extraction = body.get("extraction")
     campus_id = body.get("campus_id", _DEFAULT_CAMPUS)
+    request_id = body.get("request_id")  # 선택: 멱등키(재시도·중복 제출 시 누적 1회만)
 
     if not user_id or not dept_id:
         return error("missing_field", "user_id 와 dept_id 는 필수입니다.")
@@ -55,21 +57,36 @@ def handler(event: dict[str, Any], _context: Any = None, store: ResultStore | No
     # 도감 해금: 이전 누적 + 이번 절감 → 해금 id. 누적/해금은 호출측(여기) 책임(§2-A).
     saving = _saving_grams(result)
     persisted = True
+    load_ok = True
+    prev = 0.0
+    seen: list[str] = []
     try:
-        prev = float(store.load_user_progress(campus_id, user_id).get("cumulative_saved_grams", 0.0))
-    except Exception as exc:  # noqa: BLE001 - 로드 실패 시 0부터(하위호환), 응답으로 surface
-        prev = 0.0
+        prog = store.load_user_progress(campus_id, user_id)
+        prev = float(prog.get("cumulative_saved_grams", 0.0))
+        seen = list(prog.get("processed_requests", []))
+    except Exception as exc:  # noqa: BLE001 - 로드 실패 시 저장 스킵(아래), 응답으로 surface
+        load_ok = False
         persisted = False
         print(f"[compute] load_user_progress failed: {exc}")
 
-    cumulative = round(prev + saving, 1)
+    # 멱등: 이미 처리한 request_id면 이번 절감을 다시 더하지 않음(재시도·중복 제출 방어).
+    replay = bool(request_id) and request_id in seen
+    if replay:
+        cumulative = round(prev, 1)
+    else:
+        cumulative = round(prev + saving, 1)
+        if request_id:
+            seen = (seen + [request_id])[-_MAX_SEEN_REQUESTS:]  # 최근 N개만 유지
+
     unlocks = unlocked_ids(cumulative)
     result["unlocks"] = unlocks
 
     # 집계용 개인 결과 + 사용자 진행상태 저장 (best-effort: 실패해도 계산 결과는 반환)
     try:
         store.save_personal(campus_id, result)
-        store.save_user_progress(campus_id, user_id, cumulative, unlocks)
+        # 로드 실패 시 prev=0 → 기존 누적/해금을 덮어써 리셋하므로 스킵. 멱등 재시도는 변동 없어 스킵.
+        if load_ok and not replay:
+            store.save_user_progress(campus_id, user_id, cumulative, unlocks, seen)
     except Exception as exc:  # noqa: BLE001 - 저장 실패를 응답으로 surface
         persisted = False
         print(f"[compute] persist failed: {exc}")

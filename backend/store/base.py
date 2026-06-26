@@ -27,8 +27,10 @@ class ResultStore(Protocol):
     ) -> dict[str, Any]:
         """사용자별 도감 진행상태 조회.
 
-        반환: {"cumulative_saved_grams": float, "unlocks": list[str]}.
-        항목이 없으면 기본값 {"cumulative_saved_grams": 0.0, "unlocks": []}.
+        반환: {"cumulative_saved_grams": float, "unlocks": list[str],
+               "processed_requests": list[str]}.
+        항목이 없으면 누적 0.0·빈 배열들.
+        `processed_requests`: 멱등 처리한 request_id 목록(중복 누적 방지).
         """
         ...
 
@@ -38,8 +40,12 @@ class ResultStore(Protocol):
         user_id: str,
         cumulative_saved_grams: float,
         unlocks: list[str],
+        processed_requests: list[str] | None = None,
     ) -> None:
-        """사용자별 누적 절감·해금 도감 저장(upsert). SK=USER#{user_id}."""
+        """사용자별 누적 절감·해금 도감 저장(upsert). SK=USER#{user_id}.
+
+        `processed_requests`: 멱등 처리한 request_id 목록(없으면 빈 배열).
+        """
         ...
 
     def load_campus(

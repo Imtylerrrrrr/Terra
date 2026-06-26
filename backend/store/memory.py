@@ -37,10 +37,11 @@ class InMemoryResultStore:
     def load_user_progress(self, campus_id: str, user_id: str) -> dict[str, Any]:
         prog = self._progress.get(campus_id, {}).get(user_id)
         if prog is None:
-            return {"cumulative_saved_grams": 0.0, "unlocks": []}
+            return {"cumulative_saved_grams": 0.0, "unlocks": [], "processed_requests": []}
         return {
             "cumulative_saved_grams": float(prog.get("cumulative_saved_grams", 0.0)),
             "unlocks": list(prog.get("unlocks", [])),
+            "processed_requests": list(prog.get("processed_requests", [])),
         }
 
     def save_user_progress(
@@ -49,10 +50,12 @@ class InMemoryResultStore:
         user_id: str,
         cumulative_saved_grams: float,
         unlocks: list[str],
+        processed_requests: list[str] | None = None,
     ) -> None:
         self._progress.setdefault(campus_id, {})[user_id] = {
             "cumulative_saved_grams": round(float(cumulative_saved_grams), 1),
             "unlocks": list(unlocks),
+            "processed_requests": list(processed_requests or []),
         }
 
     def load_campus(

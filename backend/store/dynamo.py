@@ -63,10 +63,11 @@ class DynamoResultStore:
         resp = self._t().get_item(Key={"PK": _pk(campus_id), "SK": f"USER#{user_id}"})
         item = resp.get("Item")
         if not item:
-            return {"cumulative_saved_grams": 0.0, "unlocks": []}
+            return {"cumulative_saved_grams": 0.0, "unlocks": [], "processed_requests": []}
         return {
             "cumulative_saved_grams": float(item.get("cumulative_saved_grams", 0)),
             "unlocks": list(item.get("unlocks", [])),
+            "processed_requests": list(item.get("processed_requests", [])),
         }
 
     def save_user_progress(
@@ -75,6 +76,7 @@ class DynamoResultStore:
         user_id: str,
         cumulative_saved_grams: float,
         unlocks: list[str],
+        processed_requests: list[str] | None = None,
     ) -> None:
         self._t().put_item(
             Item={
@@ -84,6 +86,7 @@ class DynamoResultStore:
                 # float → Decimal (DynamoDB Number)
                 "cumulative_saved_grams": Decimal(str(round(float(cumulative_saved_grams), 1))),
                 "unlocks": list(unlocks),
+                "processed_requests": list(processed_requests or []),
             }
         )
 
