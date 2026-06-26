@@ -1538,9 +1538,9 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     }
     drag=false;
   }
-  cv.addEventListener('mousedown',e=>dn(e.clientX,e.clientY));
+  cv.addEventListener('mousedown',e=>{ if(e.button!==0)return; dn(e.clientX,e.clientY); });
   addEventListener('mousemove',e=>mv(e.clientX,e.clientY));
-  addEventListener('mouseup',e=>up(e.clientX,e.clientY));
+  addEventListener('mouseup',e=>{ if(e.button!==0)return; up(e.clientX,e.clientY); });
   // 우클릭 = 삭제 (은하 뷰: 캠퍼스 / 행성 뷰: 학과)
   cv.addEventListener('contextmenu',e=>{
     e.preventDefault();
