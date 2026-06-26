@@ -35,7 +35,7 @@ backend/store/
 
 ```bash
 cd backend
-python -m unittest discover -s tests -v   # 단위 테스트 (9건)
+python -m unittest discover -s tests -v   # 단위 테스트 (13건)
 ```
 
 엔진 직접 사용:

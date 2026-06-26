@@ -70,9 +70,25 @@ AWS 해커톤(무박 2일) 출품작입니다.
 
 ## 문서
 
-- [Terra_역할_플랜.md](./docs/Terra_역할_플랜.md) — 역할 분담 & 진행 플랜
+- [docs/CONTRACT.md](./docs/CONTRACT.md) — **JSON 단일 진실** (추출→엔진→3D · API 엔드포인트 · DynamoDB 스키마)
+- [backend/README.md](./backend/README.md) — 백엔드 계산엔진·저장계층·핸들러
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — 커밋·브랜치·PR 규칙
+- [docs/Terra_역할_플랜.md](./docs/Terra_역할_플랜.md) — 역할 분담 & 진행 플랜
 - `docs/Terra_아이디어노트_검증반영_v3.docx` — 아이디어 노트
 
 ## 상태
 
-🚧 해커톤 진행 중 — 제품 방향 확정(앱·도감/키우기·입력 4종·행성 3계층). 세부 스택·데이터 형식은 1일차 확정.
+🚧 해커톤 진행 중 — 제품 방향·JSON 계약·핵심 스택 확정. 코어 백엔드 로직과 프론트 계약 계층은 구현 완료, AWS 배포·AI 추출·3D 렌더링이 남음.
+
+**구현 완료**
+- [x] JSON 계약 확정 — [docs/CONTRACT.md](./docs/CONTRACT.md) §1~6 (추출·출력·tier·API·DynamoDB)
+- [x] 계산엔진 — `compute()`(개인)·`aggregate()`(집계), tier 700/2500, 임시 시드 계수 · 단위 테스트 13건 통과
+- [x] 저장 계층 — DynamoDB 단일 테이블(`TERRA_TABLE`) / InMemory 동일 인터페이스
+- [x] Lambda 핸들러 — `POST /compute` · `GET /campus/{id}`
+- [x] 프론트 — 도메인 타입(`contract.ts`) · 백엔드 API 클라이언트(`api.ts`: `postCompute`/`getCampus`) · React+Vite+TS 스캐폴딩
+
+**남은 작업**
+- [ ] AWS 배포 — SAM 템플릿 작성 + DynamoDB·Lambda·API Gateway 프로비저닝 (`samconfig.toml`만 준비됨)
+- [ ] AI 추출 — `POST /extract` (Bedrock 멀티모달, 민지 AI 모듈)
+- [ ] 3D 행성 렌더링 — three.js (캠퍼스계→학과→개인 3계층)
+- [ ] 정식 배출계수 — `factors.seed.json` 값 교체 (민지)
