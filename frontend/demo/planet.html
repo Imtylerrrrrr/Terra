@@ -87,7 +87,7 @@
   .add-form #f-add:hover{background:#74e09c}
   .add-msg{font-size:11px;color:#e8a33a;min-height:13px;letter-spacing:.02em}
 
-  .dex-toggle{position:fixed;top:22px;right:26px;z-index:7;padding:9px 14px;border:1px solid var(--line);
+  .dex-toggle{position:fixed;top:22px;right:140px;z-index:7;padding:9px 14px;border:1px solid var(--line);
     border-radius:10px;background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   .dex-toggle:hover{color:#5fd38a}
@@ -115,6 +115,19 @@
   .dex-kg{font-size:11px;color:#5fd38a;margin-top:2px}
   .dex-card.locked .dex-kg{color:var(--muted)}
   .dex-card.justUnlocked{border-color:#5fd38a;box-shadow:0 0 18px rgba(95,211,138,.55);transform:scale(1.05)}
+  /* 클릭/탭으로 추가 가능한 카드 — 해금된 카드만 포인터 + 눌림 피드백 */
+  .dex-card:not(.locked){cursor:pointer}
+  .dex-card:not(.locked):hover{border-color:#5fd38a;box-shadow:0 0 14px rgba(95,211,138,.35)}
+  .dex-card:not(.locked):active{transform:scale(.95)}
+  .dex-card.spawned{border-color:rgba(95,211,138,.5)}
+  .dex-card.spawned .dex-thumb::after{content:"행성에 있음";position:absolute;left:0;right:0;bottom:0;
+    font-size:9.5px;font-weight:700;color:#0c1020;background:rgba(95,211,138,.85);padding:2px 0;letter-spacing:.02em}
+  /* 추가 결과 토스트 */
+  .dex-toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(10px);z-index:12;
+    padding:10px 16px;border-radius:12px;background:rgba(10,15,21,.92);border:1px solid var(--line);
+    color:var(--ink);font-size:13px;font-weight:700;letter-spacing:.02em;pointer-events:none;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transition:opacity .25s,transform .25s}
+  .dex-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
   /* 화면 전환 페이드 */
   #fadeover{position:fixed;inset:0;background:#05080b;opacity:0;pointer-events:none;
@@ -144,10 +157,16 @@
   body[data-view="avatar"] .galaxy-ui,
   body[data-view="avatar"] .addbox,
   body[data-view="avatar"] .avatar-btn{display:none}
-  .avatar-btn{position:fixed;top:22px;right:26px;z-index:7;padding:9px 14px;border:1px solid var(--line);
+  .avatar-btn{position:fixed;top:22px;right:140px;z-index:7;padding:9px 14px;border:1px solid var(--line);
     border-radius:10px;background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   .avatar-btn:hover{color:#5fd38a}
+
+  /* 로그아웃 — 항상 우상단(모든 뷰) */
+  .logout-btn{position:fixed;top:22px;right:26px;z-index:7;padding:9px 14px;border:1px solid var(--line);
+    border-radius:10px;background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .logout-btn:hover{color:#e8896f;border-color:rgba(232,137,111,.5)}
   /* 왼쪽: 관성 탄소 측정 페이지로 이동 */
   .carbon-btn{position:fixed;left:26px;top:50%;transform:translateY(-50%);z-index:8;display:flex;align-items:center;gap:8px;
     padding:12px 16px;border:1px solid rgba(95,211,138,.45);border-radius:12px;background:var(--panel);color:var(--ink);
@@ -192,7 +211,8 @@
     .dept{font-size:13px;letter-spacing:.1em}
     .readout{margin-top:44px}
     .controls{width:94vw;bottom:14px;padding:12px 14px;border-radius:14px}
-    .avatar-btn,.dex-toggle{top:14px;right:14px;padding:7px 11px;font-size:12px}
+    .avatar-btn,.dex-toggle{top:14px;right:120px;padding:7px 11px;font-size:12px}
+    .logout-btn{top:14px;right:14px;padding:7px 11px;font-size:12px}
     .back-btn{top:14px;left:14px;padding:7px 11px;font-size:12px}
     .addbox{top:56px;bottom:auto;left:14px;width:180px}
     .addbox2{top:56px;left:14px;width:180px}
@@ -262,11 +282,14 @@
       <label>누적 절감량 <b id="dexKgVal">0.0</b> kg</label>
       <input id="dexKg" class="slider" type="range" min="0" max="12" step="0.1" value="0">
       <div class="dex-hint">티어 해금 · 0.5·2·5·10kg (천연기념물 · 이슈 #16)</div>
+      <div class="dex-hint">해금된 동물을 <b style="color:#5fd38a">탭</b>하거나 캔버스로 드래그하면 행성에 풀어놓기</div>
     </div>
     <div class="dex-grid" id="dexGrid"></div>
   </div>
+  <div class="dex-toast" id="dexToast"></div>
 
   <button class="avatar-btn" id="avatarBtn">🙂 내 아바타 행성</button>
+  <button class="logout-btn" id="logoutBtn">⎋ 로그아웃</button>
   <a class="carbon-btn" href="carbon.html"><span class="ci" aria-hidden="true">🌿</span>탄소 측정</a>
   <a class="coach-btn" href="terra_coaching.html"><span class="ci" aria-hidden="true">🤖</span>AI 코치</a>
   <div class="theme-modal" id="themeModal">
@@ -1253,6 +1276,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       card.draggable=true;                                        // 카드를 캔버스로 드래그
       card.addEventListener('dragstart',e=>{ if(card.classList.contains('locked')){e.preventDefault();return;}
         e.dataTransfer.setData('text/plain', it.id); });
+      card.addEventListener('click',()=>tryRelease(it));          // 클릭/탭으로도 추가(모바일 드래그 대체)
       dexGrid.appendChild(card); it.el=card;
     }
   })();
@@ -1364,7 +1388,28 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   const stageEl=document.getElementById('stage');
   stageEl.addEventListener('dragover',e=>e.preventDefault());
   stageEl.addEventListener('drop',e=>{ e.preventDefault();
-    const id=e.dataTransfer.getData('text/plain'); if(CREATURES[id]) spawnCreature(id); });
+    const id=e.dataTransfer.getData('text/plain');
+    if(CREATURES[id]){ spawnCreature(id); const it=DEX.find(d=>d.id===id); if(it&&it.el) it.el.classList.add('spawned'); } });
+
+  // 도감 카드 클릭/탭 → 추가 (모바일 드래그 대체) + 결과 토스트
+  const dexToastEl=document.getElementById('dexToast'); let _dexToastT=null;
+  function showDexToast(msg){
+    if(!dexToastEl) return;
+    dexToastEl.textContent=msg; dexToastEl.classList.add('show');
+    clearTimeout(_dexToastT); _dexToastT=setTimeout(()=>dexToastEl.classList.remove('show'),1800);
+  }
+  function tryRelease(it){
+    if(!it) return;
+    if(it.el && it.el.classList.contains('locked')){ showDexToast('🔒 '+it.kg+'kg 모으면 해금돼요'); return; }
+    if(!CREATURES[it.id]){ showDexToast(it.name+'는 아직 풀어놓을 수 없어요'); return; }
+    if(view!=='avatar'){ showDexToast('내 아바타 행성에서 풀어놓을 수 있어요'); return; }
+    if(creatures.find(c=>c.id===it.id) || spawning.has(it.id)){ showDexToast(it.name+'는 이미 행성에 있어요'); return; }
+    spawnCreature(it.id);
+    if(it.el) it.el.classList.add('spawned');
+    showDexToast(it.name+' 풀어놨어요 🐾');
+    // 모바일: 도감 패널이 화면을 덮으므로 닫아서 풀어놓은 동물이 보이게
+    if(window.innerWidth<=600) setTimeout(()=>dexPanel.classList.remove('show'),450);
+  }
 
   // 해금 상태
   const unlocked=new Set();
@@ -1701,6 +1746,11 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
 
   // 뒤로가기: 아바타→학과 / 학과→은하
   backBtn.addEventListener('click',()=>{ if(view==='avatar') crossfadeTo(backToDept); else crossfadeTo(()=>setView('galaxy')); });
+
+  // 로그아웃 → 로그인 화면으로
+  document.getElementById('logoutBtn').addEventListener('click',()=>{
+    if(confirm('로그아웃하시겠어요?')) location.href='index.html';
+  });
 
   // ── 배경 우주 디테일: 색을 가진 항성 · 별자리 · 반짝임 ──
   let twinkles=[], starShader=null;
