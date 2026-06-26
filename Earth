@@ -778,44 +778,42 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
 
   // ============================================================================
   //  학과 행성 (선택=중앙 풀디테일 / 나머지=우주에 흩뿌린 로우폴리)
-  //  ⚠️ students/participants/co2Kg 는 목업. 추후 계산엔진(탄소배출량)·DB 연동.
-  //    · score(건강도)  = 1인당 탄소배출량 역산 (배출↑ → 건강↓)
-  //    · 행성 크기       = 참여율 (참여 학과생 / 전체 학과생)
+  //  ⚠️ 목업. 필드명은 CONTRACT §2-B(AggregateResult)에 정렬 — 연동 시 remap 불필요.
+  //    · score(건강도)  = avg_grams_co2e(1인 평균 gCO2e) 역산 (배출↑ → 건강↓, §3 tier 참고)
+  //    · 행성 크기       = participation_rate = participants / total_students
   // ============================================================================
-  // ── 캠퍼스(은하) → 학과(행성) 2계층 데이터 ──
-  // ⚠️ 목업. 추후 계산엔진 AggregateResult(campus_system)·DB 연동.
   const CAMPUSES = [
-    { id:'main', name:'본 캠퍼스', departments:[
-      {id:'cse',    name:'컴퓨터공학과', students:1200, participants:760,  co2Kg:4560},
-      {id:'mech',   name:'기계공학과',   students:900,  participants:300,  co2Kg:2700},
-      {id:'biz',    name:'경영학과',     students:1500, participants:1050, co2Kg:4725},
-      {id:'design', name:'디자인학과',   students:600,  participants:480,  co2Kg:1440},
-      {id:'env',    name:'환경공학과',   students:500,  participants:460,  co2Kg:1104},
+    { campus_id:'main', name:'본 캠퍼스', departments:[
+      {dept_id:'cse',    name:'컴퓨터공학과', total_students:1200, participants:760,  avg_grams_co2e:1185},
+      {dept_id:'mech',   name:'기계공학과',   total_students:900,  participants:300,  avg_grams_co2e:2600},
+      {dept_id:'biz',    name:'경영학과',     total_students:1500, participants:1050, avg_grams_co2e:1500},
+      {dept_id:'design', name:'디자인학과',   total_students:600,  participants:480,  avg_grams_co2e:700},
+      {dept_id:'env',    name:'환경공학과',   total_students:500,  participants:460,  avg_grams_co2e:450},
     ]},
-    { id:'sci', name:'자연과학 캠퍼스', departments:[
-      {id:'phys', name:'물리학과',   students:400, participants:210, co2Kg:1260},
-      {id:'chem', name:'화학과',     students:450, participants:180, co2Kg:1440},
-      {id:'bio',  name:'생명과학과', students:500, participants:380, co2Kg:1330},
+    { campus_id:'sci', name:'자연과학 캠퍼스', departments:[
+      {dept_id:'phys', name:'물리학과',   total_students:400, participants:210, avg_grams_co2e:1300},
+      {dept_id:'chem', name:'화학과',     total_students:450, participants:180, avg_grams_co2e:2100},
+      {dept_id:'bio',  name:'생명과학과', total_students:500, participants:380, avg_grams_co2e:1000},
     ]},
-    { id:'art', name:'예술 캠퍼스', departments:[
-      {id:'music', name:'음악과', students:300, participants:240, co2Kg:720},
-      {id:'fine',  name:'미술과', students:280, participants:200, co2Kg:760},
-      {id:'dance', name:'무용과', students:200, participants:170, co2Kg:510},
+    { campus_id:'art', name:'예술 캠퍼스', departments:[
+      {dept_id:'music', name:'음악과', total_students:300, participants:240, avg_grams_co2e:600},
+      {dept_id:'fine',  name:'미술과', total_students:280, participants:200, avg_grams_co2e:800},
+      {dept_id:'dance', name:'무용과', total_students:200, participants:170, avg_grams_co2e:520},
     ]},
   ];
   let DEPARTMENTS = CAMPUSES[0].departments;   // 현재 진입한 캠퍼스의 학과들
   let selIdx = 0, activeCampusIdx = 0;
 
-  // 1인당 일일 탄소배출량(kg) → 건강도 0~100 (역산). 경계값은 임시.
-  const CO2_LO=2, CO2_HI=12;
+  // 1인 평균 배출량(gCO2e) → 건강도 0~100 (역산). 경계는 §3 tier(700/2500) 참고한 임시값.
+  const G_CLEAN=400, G_DIRTY=3000;
   const NEUTRAL_SCORE=66;   // 데이터 없는 신규 학과 기본 상태 (정상 경계)
-  function healthFromCo2(perCapita){
-    const t=(perCapita-CO2_LO)/(CO2_HI-CO2_LO);            // 0 청정 ~ 1 오염
+  function scoreFromGrams(g){
+    const t=(g-G_CLEAN)/(G_DIRTY-G_CLEAN);                 // 0 청정 ~ 1 오염
     return Math.round(100*(1-Math.min(Math.max(t,0),1)));
   }
-  function ratioOf(d){ return d.students>0 ? d.participants/d.students : 0; }
+  function ratioOf(d){ return d.total_students>0 ? d.participants/d.total_students : 0; }
   // 파생값(score) 초기 계산 — 모든 캠퍼스의 학과
-  CAMPUSES.forEach(c=>c.departments.forEach(d=>{ d.score = healthFromCo2(d.co2Kg / Math.max(d.participants,1)); }));
+  CAMPUSES.forEach(c=>c.departments.forEach(d=>{ d.score = scoreFromGrams(d.avg_grams_co2e); }));
 
   // 건강도 → 색 (멸망 갈색 → 사막 황 → 정상 청록 → 청정 녹)
   function healthColor(s){
@@ -1019,9 +1017,9 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     if(!(students>0)){ addMsg.textContent='전체 학과생 수를 입력하세요'; return; }
     if(!(part>=0)){ addMsg.textContent='참여 학과생 수를 입력하세요'; return; }
     if(part>students){ addMsg.textContent='참여 학과생 ≤ 전체 학과생'; return; }
-    // 배출량은 계산엔진 연동 전이라 미입력 → 중립 상태로 추가
+    // 배출량은 계산엔진 연동 전이라 미입력 → 중립 상태로 추가 (필드명 §2-B 정렬)
     const wasEmpty = DEPARTMENTS.length===0;
-    const d={id:'dept'+Date.now(), name, students, participants:part, co2Kg:null, score:NEUTRAL_SCORE};
+    const d={dept_id:'dept'+Date.now(), name, total_students:students, participants:part, avg_grams_co2e:null, score:NEUTRAL_SCORE};
     DEPARTMENTS.push(d);
     if(wasEmpty){
       // 빈 캠퍼스의 첫 학과 → 중앙 행성으로 승격
