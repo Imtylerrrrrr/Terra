@@ -1,7 +1,7 @@
-# 분류/추출 프롬프트 — Bedrock Claude **Haiku** (저전력·비전)
+# 분류/추출 프롬프트 — Claude **Haiku** (저전력·비전)
 
 역할: 입력을 **표준 카테고리로 정규화만** 한다. **숫자(탄소)는 절대 계산하지 않는다** — 계산은 엔진(주영)이.
-사진(식단·영수증)만 **Bedrock 비전**(Textract 안 씀). 스크린타임·전력은 구조화 수치 입력(비전 아님).
+사진(식단·영수증)만 **Claude API 비전**(Textract 안 씀). 스크린타임·전력은 구조화 수치 입력(비전 아님).
 출력 형식 단일 진실 = **docs/CONTRACT.md §1**. 추출 키는 엔진 계수 테이블 키와 일치해야 함.
 
 ## System
@@ -27,7 +27,8 @@
 ```
 - `type`: `menu` | `food` | `purchase` | `screentime` | `energy` (통학 transport 없음)
 - 단위: `food`=grams(g) · `purchase`=qty(**개·정수**) · `screentime`=minutes(분) · `energy`=kwh
-- 계수 키 예시: food=`돼지고기·소고기·닭고기·쌀밥·면·채소` · purchase=`아메리카노·생수` · screentime(기기)=`스마트폰·노트북·PC` · energy=`전력_가정용체감`
+- 계수 키 예시: food=`돼지고기·소고기·닭고기·쌀밥·면·채소` · purchase=`아메리카노·생수·라면·컵라면·옥수수수염차·물티슈·아이스컵` · screentime(기기)=`스마트폰·노트북·PC` · energy=`전력_가정용체감`
+- 영수증 품목은 **위 purchase 카테고리명으로 정규화**한다(예: "진라면"·"신라면"→`라면`, "오모리/육개장 큰사발"→`컵라면`, "삼다수/아이시스"→`생수`, "옥수수수염차/광동수염차"→`옥수수수염차`). 카테고리 밖이면 그 항목 빼고 `needs_review: true`.
 
 ## 입력별 규칙
 - **식단(사진)** → 비전으로 식판 인식 → 가능하면 `menu`, 특정 못하면 보이는 식재료를 `food` 다건.
@@ -45,6 +46,9 @@
 
 [영수증] 아메리카노 1 / 생수 1
 → `{"activities":[{"type":"purchase","item":"아메리카노","qty":1},{"type":"purchase","item":"생수","qty":1}],"confidence":0.7,"needs_review":false}`
+
+[편의점 영수증] 진라면 2 / 삼다수 500 1 / 광동 옥수수수염차 1
+→ `{"activities":[{"type":"purchase","item":"라면","qty":2},{"type":"purchase","item":"생수","qty":1},{"type":"purchase","item":"옥수수수염차","qty":1}],"confidence":0.75,"needs_review":false}`
 
 [흐릿/식별불가]
 → `{"activities":[],"confidence":0.0,"needs_review":true}`
