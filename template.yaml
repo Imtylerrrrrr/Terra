@@ -56,6 +56,29 @@ Resources:
         - AttributeName: SK
           KeyType: RANGE
 
+  # 업로드 사진 원본 저장 (CONTRACT §5: POST /extract 이미지(S3 key)).
+  # ⚠️ SafeRole 에 s3:GetObject(이 버킷) 권한 필요 — DynamoDB 권한과 함께 관리자 확인 항목.
+  #    프론트 업로드는 presigned URL 권장(후속). 데모는 fixture/text/base64 경로로 S3 없이도 동작.
+  UploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-uploads-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-demo-uploads
+            Status: Enabled
+            ExpirationInDays: 7   # 데모 업로드 원본 7일 후 자동 삭제(비용·정리)
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [PUT, GET]
+            AllowedOrigins: ["*"]
+            AllowedHeaders: ["*"]
+
   TerraHttpApi:
     Type: AWS::Serverless::HttpApi
     Properties:
@@ -114,6 +137,7 @@ Resources:
       Environment:
         Variables:
           ANTHROPIC_API_KEY: !Ref AnthropicApiKey   # Claude API 인증 (Globals의 TERRA_TABLE 와 머지됨)
+          TERRA_UPLOAD_BUCKET: !Ref UploadBucket     # S3 업로드 사진(image_s3_key) 읽기 대상
       Events:
         Extract:
           Type: HttpApi
@@ -129,3 +153,6 @@ Outputs:
   TableName:
     Description: DynamoDB 테이블명 (TERRA_TABLE)
     Value: !Ref TerraTable
+  UploadBucketName:
+    Description: 업로드 사진 S3 버킷 (TERRA_UPLOAD_BUCKET · /extract image_s3_key)
+    Value: !Ref UploadBucket
