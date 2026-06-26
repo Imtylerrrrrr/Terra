@@ -1,69 +1,96 @@
-# Terra JSON 계약 (1일차 최우선 — 민지·주영·연성 합의용)
+# Terra JSON 계약 v2 (입력 4종 · 행성 3계층 — README v2 반영)
 
-> 역할플랜·프론트컨벤션 둘 다 "JSON 형식 합의 = 1일차 최대 병목"이라고 못박음.
-> 이 파일이 **추출(민지) → 계산엔진(주영) → 3D 행성(연성)** 사이의 단일 진실.
-> 합의 후 프론트는 `types.ts`, 백엔드는 모델 클래스로 이 스키마를 박제.
+> 추출(민지) → 계산엔진(주영) → 3D 행성(연성) 사이의 단일 진실.
+> 변경(v1→v2): `transport` 제거, `product`(영수증)·`digital`(스크린타임) 추가, 행성 3계층 집계.
+> 입력 경로: 식단·영수증=**Bedrock 비전**(Textract X) · 스크린타임=**안드로이드 UsageStatsManager**(비전 아님) · 전력=수치.
 
 ## 1) 추출 출력 = 계산엔진 입력  (민지 → 주영)
 
-Bedrock 멀티모달이 식판/영수증/이동을 정규화한 결과. **숫자(탄소)는 없음** — 계산은 엔진이.
+입력 4종을 정규화. **숫자(탄소)는 없음** — 계산은 엔진이.
 
 ```json
 {
   "activities": [
-    { "type": "menu",      "name": "제육덮밥" },
-    { "type": "food",      "item": "돼지고기", "grams": 120 },
-    { "type": "transport", "item": "시내버스", "amount": 4.2 },
-    { "type": "energy",    "item": "전력_가정용체감", "amount": 1.5 }
+    { "type": "menu",    "name": "제육덮밥" },
+    { "type": "food",    "item": "돼지고기", "grams": 120 },
+    { "type": "product", "item": "아메리카노", "qty": 1, "krw": 4500 },
+    { "type": "digital", "item": "동영상스트리밍", "hours": 2 },
+    { "type": "energy",  "item": "전력_KEITI", "kwh": 1.5 }
   ],
   "confidence": 0.82,
   "needs_review": false
 }
 ```
 
-- `type`: `menu` | `food` | `transport` | `energy`
-- `name`/`item`: 반드시 `data/*.csv`에 존재하는 키 (menu_recipes / food_factors / energy_transport_factors)
-- `grams`(food, g) · `amount`(transport=인-km, energy=kWh)
-- `needs_review: true` → UI가 "확인 필요" 배지
+| 입력 | type | 수치 필드 | 계수 파일 |
+|---|---|---|---|
+| 식단 | `menu`/`food` | grams | menu_recipes / food_factors |
+| 영수증 | `product`(식음료는 food) | qty·krw | product_factors(+금액기반 대체) |
+| 스크린타임 | `digital` | hours | digital_factors |
+| 전력 | `energy` | kwh | energy_transport_factors |
 
-## 2) 계산엔진 출력 = 3D 행성 입력  (주영 → 연성)
+## 2) 통합 출력 = 3D 행성 입력  (민지 `resolve()` → 주영)
+
+엔진/Lambda는 §1 activities를 **`resolve()` 한 줄**로 처리 → 항목별 gCO2e + 합계:
+
+```python
+from terra_ai.resolve import resolve
+out = resolve(activities)
+```
+```json
+{
+  "total_grams_co2e": 2300.0,
+  "items": [
+    { "type": "menu",    "label": "제육덮밥",     "grams_co2e": 1080.0, "source": "...", "breakdown": [] },
+    { "type": "digital", "label": "엔터테인먼트", "grams_co2e": 78.1,   "source": "..." },
+    { "type": "product", "label": "진라면순한맛", "grams_co2e": 328.2,  "source": "...", "needs_review": false }
+  ],
+  "by_type": { "menu": 1080, "digital": 149, "product": 328, "energy": 743 }
+}
+```
+- 라우팅: menu/food/energy=엔진 · product=KB하이브리드(폴백 코드매칭) · digital=시간×계수. 숫자는 계수파일에서만(환각0).
+- **주영**: 이 결과에 `tier`(§4) 추가 + §3 집계·저장.
+
+### 코칭 (민지 `coach()`)
+```python
+from terra_ai.bedrock.coach import coach
+coach(out, user_dept="컴퓨터공학과")   # → {planet_line, next_action, expected_saving_grams, tone}
+```
+`best_alternative`(최저탄소 메뉴 대안)는 **코드 계산**, 문장만 Bedrock Sonnet(폴백=규칙기반).
+
+## 3) 행성 3계층 집계 (README 행성 규칙)
+
+개인 → 학과 → 캠퍼스 행성계. 각 노드:
 
 ```json
 {
-  "total_grams_co2e": 1185.0,
-  "tier": "mid",
-  "items": [
-    {
-      "name": "제육덮밥",
-      "total_grams_co2e": 1185.0,
-      "breakdown": [
-        { "label": "돼지고기", "grams_co2e": 840.0, "source": "Poore&Nemecek2018..." },
-        { "label": "쌀밥",     "grams_co2e": 315.0, "source": "..." }
-      ],
-      "sources": ["..."]
-    }
-  ],
-  "best_alternative": { "name": "비건비빔밥", "grams_co2e": 570.0, "saving_grams": 615.0 }
+  "level": "dept",
+  "id": "컴퓨터공학과",
+  "size_ratio": 0.42,
+  "avg_grams_co2e": 980.0,
+  "tier": "mid"
 }
 ```
 
-- `tier`: 행성 비주얼(색·숲·빙하) 매핑 키 — 아래 임계값
-- `best_alternative`: 코칭/매직모먼트용 — "내일 비건 시 −0.6kg"
+- **행성 크기 = `size_ratio`(참여율 = 참여인원/전체)**
+- **깨끗한 정도 = `avg_grams_co2e`(참여인원 평균) → `tier`로 색·숲·빙하 매핑**
+- 집계는 DynamoDB Streams(학과·캠퍼스 평균, README 🔵플러스)
 
-## 3) 행성 tier 임계값 (gCO2e / 1끼)  ← 민지가 계수로 산출, 재튜닝 가능
+## 4) tier 임계값 (gCO2e / 1건·끼 또는 노드 평균)
 
-엔진 실측 기준 (data/menu_recipes.csv):
-
-| tier | 범위 (gCO2e) | 예시 | 행성 상태 |
+| tier | 범위 | 예시 | 행성 |
 |---|---|---|---|
-| `low`  | ≤ 700      | 비건비빔밥 570 · 잔치국수 305 | 숲 무성·빙하 두꺼움 |
-| `mid`  | 700–2500   | 김치찌개 1065 · 치킨마요 1140 · 제육 1185 | 중간 |
-| `high` | > 2500     | **소불고기 8150** | 숲 시들·빙하 녹음 |
+| `low`  | ≤ 700      | 비건비빔밥 465 · 잔치국수 305 | 숲 무성·빙하 두꺼움 |
+| `mid`  | 700–2500   | 김치찌개 960 · 제육 1080 | 중간 |
+| `high` | > 2500     | **소불고기 6056** | 숲 시들·빙하 녹음 |
 
-> 데모 킬샷: **소불고기 8,150g vs 비건비빔밥 570g = 14배.** 행성이 눈에 띄게 변함.
-> 프론트컨벤션 §5의 `--color-emission-low/mid/high` 토큰이 이 tier에 1:1 매핑.
+> 데모 킬샷: 소불고기 6,056g vs 비건비빔밥 465g = **13배**.
+> 프론트컨벤션 §5 `--color-emission-low/mid/high` 토큰이 tier에 1:1.
 
-## 4) 합의 체크리스트 (1일차)
-- [ ] 주영: 엔진이 이 출력 형태로 반환 (현재 `carbon_engine.compute()`가 거의 일치 — `tier`/`best_alternative`만 추가)
-- [ ] 민지: 추출 LLM이 `activities` 스키마로만 출력 (classify.md 준수)
-- [ ] 연성: `tier` → 행성 색/상태, `best_alternative` → 코칭 말풍선
+## 5) 도감(키우기) — 선택
+배출↓·참여↑ 시 동물·풍력발전소 등 unlock(도감 수집). **unlock 규칙은 프론트**, 계산엔진은 `tier`·`avg_grams_co2e`만 제공.
+
+## 6) 1일차 합의 체크리스트
+- [ ] 주영: 엔진/Lambda가 `resolve()` 호출 → `tier` 추가 + §3 집계 노드(`size_ratio`·`avg_grams_co2e`·`tier`)
+- [ ] 민지: 추출/매핑이 §1 `activities`(menu/food/product/digital/energy) 산출 — ✅ resolve()·coach() 제공
+- [ ] 연성: `size_ratio`→크기, `tier`→색, `coach()`→코칭 말풍선, unlock→도감
