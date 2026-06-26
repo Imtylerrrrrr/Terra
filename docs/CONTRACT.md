@@ -27,9 +27,9 @@ Bedrock 멀티모달이 식판·영수증·스크린타임·전력을 정규화�
 - `type`: `menu` | `food` | `purchase` | `screentime` | `energy`  (※ 통학 `transport` 제거 — 입력 4종으로 변경)
   - `menu` 식단 메뉴명 · `food` 식단 품목+grams · `purchase` 영수증 품목+qty · `screentime` 사용시간(분) · `energy` 전력(kWh)
 - `name`/`item`: 반드시 계수 테이블 키 (menu_recipes / food_factors / **purchase_factors** / **screentime_factor** / energy_factors)
-- 단위: `grams`(food, g) · `qty`(purchase, 개 — 금액기반 ₩ 계수도 가능, **확인 필요**) · `minutes`(screentime, 분) · `kwh`(energy, kWh)
+- 단위: `grams`(food, g) · `qty`(purchase, **개수·정수**) · `minutes`(screentime, 분) · `kwh`(energy, kWh)
+  - 영수증 계수는 **개당 기준(₩ 금액기반 아님)** 으로 통일 — 금액기반은 코어 제외(후순위 옵션).
 - `needs_review: true` → UI가 "확인 필요" 배지
-- ⚠️ **스크린타임·영수증 계수는 확인 필요** (공공/추정 출처 — 민지)
 
 ## 2) 계산엔진 출력 (주영 → 연성)
 
@@ -57,7 +57,7 @@ Bedrock 멀티모달이 식판·영수증·스크린타임·전력을 정규화�
 ```
 - `tier`: 개인 행성 비주얼(색·숲·빙하) — §3 임계값
 - `best_alternative`: 코칭/매직모먼트용 — "내일 비건 시 −0.6kg"
-- `unlocks`: 탄소 절감 시 모으는 **도감** 항목(동물·풍력발전소 등) — **해금 규칙 확인 필요**
+- `unlocks`: 해금된 **도감** 항목 id 배열(`string[]`). **해금 규칙(확정)**: 누적 절감량 마일스톤 — 0.5 / 2 / 5 / 10 kg CO2e 누적 절감마다 1종 해금. (항목 목록·비주얼은 디자인 협의 — §4-B)
 
 ### 2-B) 집계 결과 = **학과 / 캠퍼스 행성** 입력
 행성 **크기 = 참여율**, **깨끗한 정도 = 참여 인원 평균 배출량(tier)**.
@@ -98,7 +98,29 @@ Bedrock 멀티모달이 식판·영수증·스크린타임·전력을 정규화�
 > 데모 킬샷: **소불고기 8,150g vs 비건비빔밥 570g = 14배.** 행성이 눈에 띄게 변함.
 > 프론트컨벤션 §5의 `--color-emission-low/mid/high` 토큰이 이 tier에 1:1 매핑.
 
-## 4) 합의 체크리스트 (1일차)
-- [ ] 주영: 엔진이 **개인 결과(2-A) + 집계 결과(2-B)** 둘 다 반환 (현재 `carbon_engine.compute()`에 `tier`·`best_alternative`·집계/참여율 추가)
-- [ ] 민지: 추출 LLM이 `activities` **5-type 스키마**로만 출력(classify.md 준수) + 스크린타임·영수증 계수 확보
-- [ ] 연성: 개인 `tier`→개인 행성 / `participation_rate`→학과·캠퍼스 행성 **크기** / `avg_grams_co2e`→**깨끗함** / `best_alternative`→코칭 / `unlocks`→도감
+## 4) 결정 사항 & 합의 필요
+
+### 4-A) 결정 (주영 확정 — 그대로 구현)
+- 입력 4종 · 5-type 추출 스키마 · 출력 2-A/2-B 형식 = 위 §1·§2 그대로.
+- `qty` = 개수·정수, 영수증 계수는 **개당 기준**(금액기반 후순위).
+- `unlocks` 해금 규칙 = 누적 절감 마일스톤 **0.5 / 2 / 5 / 10 kg**.
+- 개인 행성 tier 임계값 = §3(**700 / 2500**) 그대로 사용.
+- API 엔드포인트 계약 = §5.
+- 프론트 타입(`frontend/src/types/contract.ts`)이 이 문서와 1:1 — **백엔드 모델도 동일 필드로 맞춤**.
+- **계수 정책(확정)**: 민지 정식 계수 전까지 엔진은 **임시 추정 시드 계수**(주영 관리)로 동작 — 시드 예: 스크린타임 스마트폰 `0.15`·노트북 `0.5` gCO2e/분, 미매핑 `purchase` 품목은 `needs_review=true`. 민지가 **계수 값만** 정식 교체(키·단위·형식 불변).
+- **집계 tier 임계값(확정 초기값)**: 개인과 동일(**700 / 2500**)로 시작 → 데이터 분포 확인 후 **상수만** 재튜닝(형식·코드 불변).
+
+### 4-B) 외부 트래킹
+- 🟡 도감 **항목 목록·비주얼**(디자인 협의) → GitHub **[이슈 #9](https://github.com/Imtylerrrrrr/Terra/issues/9)** (승빈·연성). 해금 *규칙*은 4-A 확정, *내용물*만 이슈에서.
+
+## 5) API 엔드포인트 계약 (주영 확정)
+
+| 메서드 · 경로 | 요청 바디 | 응답 | 담당 |
+|---|---|---|---|
+| `POST /extract` | 이미지(S3 key) 또는 텍스트 | §1 `ExtractionResult` | 민지 (Bedrock) |
+| `POST /compute` | `{ user_id, dept_id, extraction: §1 }` | §2-A `PersonalResult` | 주영 (엔진) |
+| `GET /campus/{campus_id}` | — | §2-B `AggregateResult` | 주영 (집계) |
+
+- 인프라: **API Gateway HTTP API + Lambda**, JSON 입출력.
+- 인증: 코어는 `user_id`를 바디/헤더로 전달. Cognito(플러스) 붙으면 토큰 `sub`로 대체.
+- 에러 응답: `{ "error": { "code": string, "message": string } }` + 적절한 HTTP status.
