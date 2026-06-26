@@ -1220,9 +1220,14 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       const img=card.querySelector('img');
       img.onerror=()=>{ img.onerror=null; img.src=it.thumb; };   // 이미지 파일 없으면 실루엣 폴백
       img.src=`../../assets/dex/${it.id}.png`;                          // 있으면 일러스트 사용
-      card.draggable=true;                                        // 카드를 캔버스로 드래그
+      card.draggable=true;                                        // 카드를 캔버스로 드래그(데스크톱)
       card.addEventListener('dragstart',e=>{ if(card.classList.contains('locked')){e.preventDefault();return;}
         e.dataTransfer.setData('text/plain', it.id); });
+      card.addEventListener('click',()=>{                         // 모바일/앱: 드래그가 안 되므로 탭하면 바로 생성
+        if(card.classList.contains('locked')) return;
+        spawnCreature(it.id);
+        if(view==='avatar') dexPanel.classList.remove('show');    // 생성된 행성이 보이도록 패널 닫기
+      });
       dexGrid.appendChild(card); it.el=card;
     }
   })();
