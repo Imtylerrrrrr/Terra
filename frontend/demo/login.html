@@ -79,6 +79,92 @@
     @keyframes twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.65; } }
     @keyframes drift { to { transform: translate(60px, 40px); } }
 
+    /* ===== 우주 보강 요소 (휑함 보완) ===== */
+    /* 색감용 추가 성운 (청록) */
+    .nebula.d { width: 360px; height: 360px; background: radial-gradient(circle, #3fa9c4, transparent 70%); top: 6%; left: -130px; opacity: 0.15; }
+
+    /* 촘촘한 미세 별 레이어 */
+    .stars.l4 {
+      background-image:
+        radial-gradient(1px 1px at 8% 22%, #fff, transparent),
+        radial-gradient(1px 1px at 24% 64%, #d8ffe9, transparent),
+        radial-gradient(1px 1px at 44% 18%, #fff, transparent),
+        radial-gradient(1px 1px at 62% 48%, #c4f5d3, transparent),
+        radial-gradient(1px 1px at 76% 84%, #fff, transparent),
+        radial-gradient(1px 1px at 92% 36%, #b8ffe0, transparent),
+        radial-gradient(1px 1px at 14% 90%, #fff, transparent),
+        radial-gradient(1px 1px at 54% 76%, #fff, transparent);
+      background-size: 200px 200px;
+      opacity: 0.5;
+      animation: twinkle 6s ease-in-out infinite 0.8s, drift 240s linear infinite;
+    }
+
+    /* 은은히 흐르는 우주 먼지 */
+    .cosmic-dust {
+      position: absolute; inset: -20%;
+      background-image:
+        radial-gradient(2px 2px at 30% 40%, rgba(174, 240, 196, 0.5), transparent),
+        radial-gradient(1.5px 1.5px at 70% 70%, rgba(143, 230, 168, 0.4), transparent),
+        radial-gradient(2.5px 2.5px at 50% 20%, rgba(196, 245, 211, 0.32), transparent),
+        radial-gradient(1.5px 1.5px at 18% 80%, rgba(143, 230, 168, 0.32), transparent);
+      background-size: 520px 520px;
+      opacity: 0.5;
+      animation: dustfloat 70s linear infinite;
+    }
+    @keyframes dustfloat { to { transform: translate(-90px, -130px); } }
+
+    /* 거대 가스행성 (깊이감) */
+    .gas-giant {
+      position: absolute;
+      left: -170px; bottom: -190px;
+      width: 470px; height: 470px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #1a4254, #0e2a38 55%, #07151d 100%);
+      box-shadow: inset -34px -38px 90px rgba(0, 0, 0, 0.6), 0 0 130px rgba(63, 169, 196, 0.16);
+      opacity: 0.5;
+      animation: floatA 26s ease-in-out infinite;
+    }
+    .gas-giant::before { /* 가스 띠 */
+      content: ""; position: absolute; inset: 26% 7%;
+      border-radius: 50%;
+      background: repeating-linear-gradient(0deg, rgba(95, 196, 136, 0.07) 0 9px, transparent 9px 22px);
+      mix-blend-mode: screen;
+    }
+    .gas-giant::after { /* 링 */
+      content: ""; position: absolute; inset: -8% -26%;
+      border: 3px solid rgba(95, 196, 136, 0.14);
+      border-top-color: rgba(143, 230, 168, 0.3);
+      border-radius: 50%; transform: rotate(28deg);
+    }
+
+    /* 메인 행성 주위 위성 궤도 */
+    .orbit {
+      position: absolute; right: -90px; top: -80px;
+      width: 280px; height: 280px;
+      animation: orbitSpin 22s linear infinite;
+    }
+    .orbit .sat {
+      position: absolute; top: 50%; left: -14px; margin-top: -6px;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #eafff2, #6fae89);
+      box-shadow: 0 0 14px rgba(143, 230, 168, 0.75);
+    }
+    @keyframes orbitSpin { to { transform: rotate(360deg); } }
+
+    /* 하단 오로라 글로우 */
+    .aurora {
+      position: absolute; left: 50%; bottom: -130px; transform: translateX(-50%);
+      width: 150vw; height: 340px;
+      background: radial-gradient(ellipse at center, rgba(95, 196, 136, 0.22), rgba(63, 169, 196, 0.1) 45%, transparent 70%);
+      filter: blur(34px);
+      animation: auroraPulse 9s ease-in-out infinite;
+    }
+    @keyframes auroraPulse {
+      0%, 100% { opacity: 0.5; transform: translateX(-50%) scaleY(1); }
+      50% { opacity: 0.9; transform: translateX(-50%) scaleY(1.14); }
+    }
+
     /* 행성 + 달 */
     .planet {
       position: absolute;
@@ -205,6 +291,12 @@
       animation: fade 0.3s ease;
     }
     @keyframes fade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .auth-card::before {
+      content: ""; position: absolute; inset: -40px;
+      z-index: -1; border-radius: 40px;
+      background: radial-gradient(ellipse at center, rgba(95, 196, 136, 0.18), rgba(63, 169, 196, 0.06) 55%, transparent 72%);
+      filter: blur(22px); pointer-events: none;
+    }
 
     .brand-zone {
       position: relative;
@@ -290,8 +382,9 @@
 
     /* 모션 민감 사용자 배려 */
     @media (prefers-reduced-motion: reduce) {
-      .stars, .stars.l1, .stars.l2, .stars.l3,
-      .planet, .moon, .shooting, .auth-card, .astro-wrap {
+      .stars, .stars.l1, .stars.l2, .stars.l3, .stars.l4,
+      .planet, .moon, .shooting, .auth-card, .astro-wrap,
+      .gas-giant, .orbit, .cosmic-dust, .aurora {
         animation: none !important;
       }
       .shooting { display: none; }
@@ -300,13 +393,19 @@
 </head>
 <body>
   <div class="bg" aria-hidden="true">
-    <div class="stars l1"></div>
-    <div class="stars l2"></div>
-    <div class="stars l3"></div>
+    <div class="aurora"></div>
     <div class="nebula a"></div>
     <div class="nebula b"></div>
     <div class="nebula c"></div>
+    <div class="nebula d"></div>
+    <div class="gas-giant"></div>
+    <div class="stars l1"></div>
+    <div class="stars l2"></div>
+    <div class="stars l3"></div>
+    <div class="stars l4"></div>
+    <div class="cosmic-dust"></div>
     <div class="planet"></div>
+    <div class="orbit"><span class="sat"></span></div>
     <div class="moon"></div>
 
     <!-- 로우폴리 우주비행사 (새싹 헬멧) — 클릭하면 탄소 팁 -->
