@@ -10,9 +10,9 @@
 
 ## 1) 추출 출력 = 계산엔진 입력  (민지 → 주영)
 
-Bedrock 멀티모달이 식판·영수증·스크린타임·전력을 정규화한 결과. **숫자(탄소)는 없음** — 계산은 엔진이.
+Claude API 멀티모달이 식판·영수증·스크린타임·전력을 정규화한 결과. **숫자(탄소)는 없음** — 계산은 엔진이.
 
-**입력 경로(#14):** 식단·영수증 = **Bedrock 비전**(Textract 아님) · 스크린타임 = **안드로이드 UsageStatsManager**(비전 아님 — 앱별 사용시간을 분 단위 수치로) · 전력 = **수치 입력**.
+**입력 경로(#14):** 식단·영수증 = **Claude API 비전**(Textract 아님) · 스크린타임 = **안드로이드 UsageStatsManager**(비전 아님 — 앱별 사용시간을 분 단위 수치로) · 전력 = **수치 입력**.
 
 ```json
 {
@@ -65,7 +65,7 @@ Bedrock 멀티모달이 식판·영수증·스크린타임·전력을 정규화�
 
 > 🔗 **2-A 보조) 민지 AI 헬퍼 — #14 통합 (제공 예정 · 백엔드 엔진과 별도 모듈):**
 > - `resolve(activities)`: §1 activities → §2-A 항목별 gCO2e+합계를 한 번에 산출하는 AI측 헬퍼. 반환에 선택 필드 `by_type`(타입별 합계, 예 `{ "menu": 1080, "screentime": 149, "purchase": 328, "energy": 743 }`) 포함 가능. **주영**이 결과에 `tier`(§3) 추가·저장.
-> - `coach(result, user_dept)`: 코칭 출력 `{ planet_line, next_action, expected_saving_grams, tone }`. `best_alternative`는 **코드 계산**, 문장만 Bedrock Sonnet(폴백=규칙기반).
+> - `coach(result, user_dept)`: 코칭 출력 `{ planet_line, next_action, expected_saving_grams, tone }`. `best_alternative`는 **코드 계산**, 문장만 Claude API Sonnet(폴백=규칙기반).
 >   - 필드 정의(프론트 #26 바인딩용): `planet_line`(행성 상태 한 줄·string)·`next_action`(다음 행동 한 줄·string)·`expected_saving_grams`(number = `best_alternative.saving_grams`, 대안 없으면 0)·`tone`(**enum: `celebratory`(low)·`encouraging`(mid)·`gentle`(high)** — tier에서 코드 결정, UI 스타일 분기용).
 > - ⚠️ 위 헬퍼·필드는 아직 main 미구현(민지 AI 모듈 제공 예정). 현재 백엔드 진입점은 §5 `POST /compute`(`compute()`)·`GET /campus`(`aggregate()`).
 
@@ -127,7 +127,7 @@ Bedrock 멀티모달이 식판·영수증·스크린타임·전력을 정규화�
 
 | 메서드 · 경로 | 요청 바디 | 응답 | 담당 |
 |---|---|---|---|
-| `POST /extract` | 이미지(S3 key) 또는 텍스트 | §1 `ExtractionResult` | 민지 (Bedrock) |
+| `POST /extract` | 이미지(S3 key) 또는 텍스트 | §1 `ExtractionResult` | 민지 (Claude API) |
 | `POST /compute` | `{ user_id, dept_id, extraction: §1, campus_id? }` | §2-A `PersonalResult` (+ `persisted`) | 주영 (엔진) |
 | `GET /campus/{campus_id}` | — | §2-B `AggregateResult` | 주영 (집계) |
 
