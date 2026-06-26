@@ -168,7 +168,7 @@
 
   <button class="back-btn" id="backBtn">← 캠퍼스 은하</button>
   <div class="galaxy-title galaxy-ui">캠퍼스 은하</div>
-  <div class="galaxy-sub galaxy-ui">은하를 클릭해 캠퍼스로 진입</div>
+  <div class="galaxy-sub galaxy-ui">은하를 클릭해 캠퍼스로 진입 · 우클릭으로 삭제</div>
 
   <div class="topbar"><span class="brand">TERRA<b>.</b></span>
     <span class="tag">탄소 중립 지구 · Living Low-Poly Earth</span></div>
@@ -231,7 +231,7 @@
     </div>
   </div>
 
-  <div class="hint">드래그로 회전 · 휠/핀치로 확대·축소 · 주변 행성 클릭으로 학과 전환</div>
+  <div class="hint">드래그로 회전·이동 · 휠로 확대·축소 · 클릭으로 진입 · 우클릭으로 삭제</div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
@@ -1371,6 +1371,30 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       current=target=d.score; apply(current); updateDeptLabel(d); slider.value=Math.round(d.score); }
     setView('planets'); earthGroup.visible=DEPARTMENTS.length>0;
   }
+  // 우클릭 삭제 대상 처리
+  function deleteCampus(idx){
+    const c=CAMPUSES[idx]; if(!c) return;
+    if(!confirm(`'${c.name}' 은하(캠퍼스)를 삭제할까요?`)) return;
+    CAMPUSES.splice(idx,1);
+    rebuildGalaxies();
+  }
+  function deleteDept(idx){
+    const d=DEPARTMENTS[idx]; if(!d) return;
+    if(!confirm(`'${d.name}' 학과 행성을 삭제할까요?`)) return;
+    const wasCentral=(idx===selIdx);
+    DEPARTMENTS.splice(idx,1);
+    if(idx<selIdx) selIdx--;
+    if(DEPARTMENTS.length===0){ selIdx=0; buildSpace(); earthGroup.visible=false; deptNameEl.textContent='학과 없음 · ＋ 학과 추가'; return; }
+    if(wasCentral){
+      selIdx=Math.max(0, Math.min(selIdx, DEPARTMENTS.length-1));
+      const nd=DEPARTMENTS[selIdx];
+      centralScale=0.78+ratioOf(nd)*0.4; earthGroup.visible=true;
+      earthGroup.position.set(0,0,0); earthGroup.scale.setScalar(centralScale); setEarthOpacity(1);
+      current=target=nd.score; apply(current); updateDeptLabel(nd); slider.value=Math.round(nd.score);
+    }
+    buildSpace();
+  }
+
   // 진입 버튼 + 테마 모달
   const themeModal=document.getElementById('themeModal');
   document.getElementById('avatarBtn').addEventListener('click',()=>{
@@ -1516,6 +1540,16 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   cv.addEventListener('mousedown',e=>dn(e.clientX,e.clientY));
   addEventListener('mousemove',e=>mv(e.clientX,e.clientY));
   addEventListener('mouseup',e=>up(e.clientX,e.clientY));
+  // 우클릭 = 삭제 (은하 뷰: 캠퍼스 / 행성 뷰: 학과)
+  cv.addEventListener('contextmenu',e=>{
+    e.preventDefault();
+    if(trans.active||view==='avatar') return;
+    _ndc2.set((e.clientX/innerWidth)*2-1, -(e.clientY/innerHeight)*2+1); _ray2.setFromCamera(_ndc2,camera);
+    if(view==='galaxy'){ const h=_ray2.intersectObjects(galaxyHits,false)[0]; if(h) deleteCampus(h.object.userData.idx); return; }
+    const hb=_ray2.intersectObjects(bgPlanets.map(b=>b.mesh),false)[0];
+    if(hb){ deleteDept(hb.object.parent.userData.idx); return; }
+    if(earthGroup.visible){ const he=_ray2.intersectObject(earthGroup,true)[0]; if(he) deleteDept(selIdx); }
+  });
   // 휠 줌
   cv.addEventListener('wheel',e=>{ e.preventDefault();
     camDist=Math.max(camMin,Math.min(camMax,camDist+e.deltaY*0.012)); updateCam();
