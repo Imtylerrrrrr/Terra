@@ -40,6 +40,7 @@
     }
     /* 배경 우주 */
     .bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    #galaxyCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 
     .nebula { position: absolute; border-radius: 50%; filter: blur(90px); }
     .nebula.a { width: 380px; height: 380px; background: radial-gradient(circle, var(--green-bright), transparent 70%); top: -100px; left: -100px; opacity: 0.26; }
@@ -398,7 +399,7 @@
     <div class="nebula b"></div>
     <div class="nebula c"></div>
     <div class="nebula d"></div>
-    <div class="gas-giant"></div>
+    <canvas id="galaxyCanvas"></canvas>
     <div class="stars l1"></div>
     <div class="stars l2"></div>
     <div class="stars l3"></div>
@@ -509,6 +510,84 @@
     <p class="auth-link"><a href="#" id="toLogin">← 로그인으로 돌아가기</a></p>
   </div>
   </div>
+
+  <script>
+    /* ===== 우주 나선 은하 배경 (캠퍼스 은하 뷰 느낌) ===== */
+    (function(){
+      const cv = document.getElementById('galaxyCanvas');
+      if(!cv || !cv.getContext) return;
+      const ctx = cv.getContext('2d');
+      const DPR = Math.min(2, window.devicePixelRatio || 1);
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let galaxies = [];
+
+      function makeTex(R, arms, twist, count){
+        const oc = document.createElement('canvas');
+        oc.width = oc.height = R * 2;
+        const o = oc.getContext('2d');
+        const cx = R, cy = R;
+        const cg = o.createRadialGradient(cx, cy, 0, cx, cy, R * 0.45);
+        cg.addColorStop(0, 'rgba(255,255,255,0.95)');
+        cg.addColorStop(0.3, 'rgba(210,250,232,0.45)');
+        cg.addColorStop(1, 'rgba(150,220,200,0)');
+        o.fillStyle = cg; o.fillRect(0, 0, R * 2, R * 2);
+        for(let i = 0; i < count; i++){
+          const t = Math.pow(Math.random(), 0.55);
+          const r = t * R * 0.96;
+          const arm = Math.floor(Math.random() * arms);
+          const ang = (arm / arms) * Math.PI * 2 + t * twist + (Math.random() - 0.5) * (0.6 * (1 - t) + 0.1);
+          const x = cx + Math.cos(ang) * r;
+          const y = cy + Math.sin(ang) * r;
+          const a = (1 - t) * 0.85 * (0.35 + Math.random() * 0.65);
+          let col;
+          if(t < 0.18) col = 'rgba(255,255,255,' + a + ')';
+          else if(t < 0.5) col = 'rgba(205,248,226,' + (a * 0.9) + ')';
+          else col = 'rgba(135,212,202,' + (a * 0.8) + ')';
+          const s = t < 0.3 ? Math.random() * 1.3 + 0.6 : Math.random() * 0.9 + 0.3;
+          o.fillStyle = col; o.fillRect(x, y, s, s);
+        }
+        return oc;
+      }
+
+      function build(){
+        cv.width = Math.floor(innerWidth * DPR);
+        cv.height = Math.floor(innerHeight * DPR);
+        const u = Math.min(innerWidth, innerHeight);
+        const defs = [
+          { fx: 0.17, fy: 0.24, rs: 0.32, arms: 2, twist: 5.4, count: 1500, flat: 0.42, tilt: -0.5, spin: 0.0006 },
+          { fx: 0.85, fy: 0.80, rs: 0.26, arms: 3, twist: 4.6, count: 1100, flat: 0.46, tilt: 1.0, spin: -0.0005 },
+          { fx: 0.24, fy: 0.72, rs: 0.17, arms: 2, twist: 6.2, count: 650, flat: 0.50, tilt: 0.5, spin: 0.0008 },
+        ];
+        galaxies = defs.map(d => {
+          const R = Math.max(40, Math.round(u * d.rs));
+          return { x: innerWidth * d.fx, y: innerHeight * d.fy, R: R, flatten: d.flat,
+            tilt: d.tilt, spin: d.spin, spinA: Math.random() * 6, tex: makeTex(R, d.arms, d.twist, d.count) };
+        });
+      }
+
+      function draw(){
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        ctx.clearRect(0, 0, innerWidth, innerHeight);
+        ctx.globalCompositeOperation = 'lighter';
+        for(const g of galaxies){
+          if(!reduce) g.spinA += g.spin;
+          ctx.save();
+          ctx.translate(g.x, g.y);
+          ctx.rotate(g.tilt);
+          ctx.scale(1, g.flatten);
+          ctx.rotate(g.spinA);
+          ctx.drawImage(g.tex, -g.R, -g.R);
+          ctx.restore();
+        }
+        ctx.globalCompositeOperation = 'source-over';
+        if(!reduce) requestAnimationFrame(draw);
+      }
+
+      build();
+      draw();
+      let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { build(); if(reduce) draw(); }, 250); });
+    })();
+  </script>
 
   <script>
     const loginCard = document.getElementById("loginCard");
