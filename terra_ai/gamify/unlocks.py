@@ -59,11 +59,14 @@ def next_milestone(cumulative_saving_grams: float) -> dict[str, Any] | None:
     for it in _catalog():
         threshold = _grams(it["milestone_kg"])
         if saving < threshold:
+            # 같은 마일스톤을 공유하는 종 수(0.5kg=4종 등) — 넛지가 복수 해금을 정확히 알리도록.
+            count = sum(1 for x in _catalog() if x["milestone_kg"] == it["milestone_kg"])
             return {
                 "id": it["id"],
                 "name": it["name"],
                 "milestone_kg": it["milestone_kg"],
                 "remaining_grams": round(threshold - saving, 1),
+                "count": count,
             }
     return None
 
