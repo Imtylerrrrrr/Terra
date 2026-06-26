@@ -35,6 +35,8 @@ if EPD.exists():
         if f is None:
             continue
         name, cat, unit = r["인증제품명"].strip(), r["제품군"].strip(), r["탄소발자국-단위"].strip()
+        if cat in ("생산재", "에너지사용"):   # 산업자재(콘크리트 등) 제외 — 영수증=소비재만 (KB 노이즈↓)
+            continue
         docs.append({
             "content": f"{name} ({cat}) 탄소발자국 {f} {unit}",
             "metadata": {"kind": "product", "item": name, "category": cat,

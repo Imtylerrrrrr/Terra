@@ -34,9 +34,13 @@ def _client():
 
 
 def _parse_json(text):
-    """LLM 응답에서 첫 JSON 객체만 안전 추출."""
+    """LLM 응답에서 JSON만 안전 추출 (마크다운 코드펜스 제거)."""
+    text = re.sub(r"```(?:json)?|```", "", text)
     m = re.search(r"\{.*\}", text, re.S)
-    return json.loads(m.group(0)) if m else {"activities": [], "needs_review": True}
+    try:
+        return json.loads(m.group(0)) if m else {"activities": [], "needs_review": True}
+    except json.JSONDecodeError:
+        return {"activities": [], "needs_review": True}
 
 
 def extract_from_image(image_path, media_type="image/jpeg"):
