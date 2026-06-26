@@ -45,7 +45,7 @@
   .controls{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);width:min(680px,92vw);
     background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 22px 20px;
     backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-    box-shadow:0 20px 60px rgba(0,0,0,.45);z-index:6;display:none}
+    box-shadow:0 20px 60px rgba(0,0,0,.45);z-index:6}
   .ends{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.14em;
     text-transform:uppercase;color:var(--muted);margin-bottom:12px}
   .ends .l{color:#c98a5a}.ends .r{color:#6fce8c}
@@ -62,7 +62,7 @@
   /* 은하 뷰: 캠퍼스 황폐/풍요 슬라이더 패널 */
   .gcontrols{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);width:min(680px,92vw);
     background:var(--panel);border:none;border-radius:18px;padding:14px 22px 18px;
-    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:6;display:none}
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:6}
   .gsel-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
   .gsel-row label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
   .gsel-row select{flex:1;padding:8px 10px;border-radius:10px;border:1px solid var(--line);
@@ -98,7 +98,11 @@
   .dex-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:15px;margin-bottom:14px}
   .dex-close{background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
   .dex-close:hover{color:var(--ink)}
-  .dex-demo{display:none;flex-direction:column;gap:8px;margin-bottom:16px}
+  .dex-demo{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  /* 운영자 모드: 평소엔 드래그 조정 패널들 숨김 · body.operator면 원래대로 노출(뷰별 규칙은 그대로 적용) */
+  body:not(.operator) .controls,
+  body:not(.operator) .gcontrols,
+  body:not(.operator) .dex-demo{display:none}
   .dex-demo label{font-size:12px;color:var(--muted)}
   .dex-demo label b{color:#5fd38a;font-size:14px}
   .dex-hint{font-size:10.5px;color:rgba(255,255,255,.35)}
@@ -237,6 +241,10 @@
 </style>
 </head>
 <body>
+  <script>
+    // 운영자 모드: index.html에서 우주비행사 3번 클릭으로 켜진 플래그를 읽어 드래그 조정 패널 노출
+    try { if (localStorage.getItem('terra_operator') === '1') document.body.classList.add('operator'); } catch (e) {}
+  </script>
   <div id="loader"><div class="spin"></div><p>테라가 지구 설계중…</p></div>
   <div id="stage"></div>
   <div id="fadeover"></div>

@@ -169,7 +169,8 @@
       position: absolute;
       right: 30px; top: 96px;
       width: 84px;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: pointer;
       animation: floatAstro 38s ease-in-out infinite;
     }
     .astro-wrap:hover, .astro-wrap.talking { animation-play-state: paused; }
@@ -346,6 +347,10 @@
       }
       .shooting { display: none; }
     }
+
+    /* 우주비행사 클릭 활성화: 위에 깔린 장식 레이어가 클릭을 가로채지 않도록 통과시키고, 카드만 클릭 유지 */
+    .brand-zone, .auth-wrap { pointer-events: none; }
+    .auth-card { pointer-events: auto; }
   </style>
 </head>
 <body>
@@ -539,6 +544,30 @@
     // 일정 시간마다 자동으로 메시지 표시
     setTimeout(speakCarbon, 1500);
     setInterval(speakCarbon, 8000);
+
+    // 운영자 모드: 우주비행사를 3번 클릭하면 토글 (planet.html에서 드래그 조정 슬라이더 노출/숨김)
+    let opClicks = 0, opClickTimer;
+    astroWrap.addEventListener("click", () => {
+      opClicks++;
+      clearTimeout(opClickTimer);
+      opClickTimer = setTimeout(() => { opClicks = 0; }, 1500);   // 1.5초 안에 3번 연속 클릭
+      if (opClicks < 3) return;
+      opClicks = 0;
+      let on = false;
+      try {
+        on = localStorage.getItem("terra_operator") === "1";
+        if (on) { localStorage.removeItem("terra_operator"); on = false; }
+        else { localStorage.setItem("terra_operator", "1"); on = true; }
+      } catch (e) {}
+      astroBubble.textContent = on
+        ? "🛠️ 운영자 모드 ON — 행성에서 조정 슬라이더가 보입니다"
+        : "운영자 모드 OFF";
+      astroBubble.classList.remove("show");
+      void astroBubble.offsetWidth;
+      astroBubble.classList.add("show");
+      clearTimeout(astroTimer);
+      astroTimer = setTimeout(() => astroBubble.classList.remove("show"), 5000);
+    });
   </script>
 </body>
 </html>
