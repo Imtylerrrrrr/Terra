@@ -23,8 +23,12 @@ import os
 import pathlib
 import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent))
-from terra_ai.bedrock.extract import extract_from_image_bytes, extract_from_text
+try:   # 모노레포: terra_ai 패키지 경유
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent.parent))
+    from terra_ai.bedrock.extract import extract_from_image_bytes, extract_from_text
+except ModuleNotFoundError:   # Lambda(SAM CodeUri=terra_ai/): 형제 패키지로
+    sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
+    from bedrock.extract import extract_from_image_bytes, extract_from_text
 
 # 데모 폴백 fixture (계약 §1). '_' 접두 메타키는 제외.
 _FIXTURES = {
