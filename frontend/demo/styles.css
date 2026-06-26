@@ -111,6 +111,8 @@ body {
   display: flex; align-items: center; justify-content: center;
 }
 .back-btn:hover { background: rgba(95, 196, 136, 0.35); }
+/* hidden 속성이 display:flex에 덮이지 않도록 — 홈 화면에선 확실히 숨김(카테고리에선 표시) */
+.back-btn[hidden] { display: none; }
 /* 측정 페이지 → Earth(나의 행성)로 돌아가기 (헤더 우측, 내부 화면 전환용 ‹ 와 별개) */
 .earth-back {
   margin-left: auto;
