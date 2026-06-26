@@ -1,0 +1,14 @@
+
+# ── Terra 커밋 양식 ────────────────────────────────
+# <type>(<scope>): <설명>
+#   · 50자 이내 · 끝에 마침표 X · 한글/영어 둘 다 OK
+#
+# type   feat  새 기능 / fix  버그 / docs  문서
+#        style 포맷(동작X) / refactor 리팩터(동작동일) / chore 잡일
+# scope  ai be fe 3d data design infra docs   (생략 가능)
+#
+# 본문(선택): 빈 줄 후 "왜 / 무엇이 바뀌는지"
+#
+# 예) feat(be): 계산엔진 배출량 산출 API 추가
+#     fix(ai): fix missing quantity in extraction
+# ───────────────────────────────────────────────────
