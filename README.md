@@ -22,17 +22,28 @@ AWS 해커톤(무박 2일) 출품작입니다.
 - 행성 **크기 = 인원당 참여 비율(참여율)**
 - 행성 **깨끗한 정도 = 참여 인원의 평균(배출량 평균)**
 
-## 기술 스택 (후보 · 현장 확정)
+## 기술 스택 (AWS-max · 현장 확정)
 
-| 영역 | 1순위 | 비고 |
-|---|---|---|
-| AI | Amazon Bedrock (Claude 멀티모달) | 대회 요건(AWS) |
-| 백엔드 | AWS Lambda (서버리스) | + API Gateway |
-| DB | DynamoDB / Supabase | 협의 |
-| 계수·RAG | Bedrock Knowledge Base | 식품·전력 등 계수 |
-| 앱/프론트 | Kiro 스캐폴딩 + 앱 | three.js 3D 탑재 방식 확인 필요 |
-| 3D | three.js (로우폴리) | 행성계·행성·도감 |
-| 데이터 | 공공 배출계수 + AI 가상데이터 | 하이브리드 |
+> 원칙: 브라우저에서 도는 three.js만 빼고 **백엔드·AI·데이터·호스팅은 전부 AWS 서비스**로 채운다 (대회 점수 = AWS 활용도).
+
+| 층 | 서비스 | 역할 | AWS |
+|---|---|---|:---:|
+| 호스팅 | Amplify Hosting (or S3 + CloudFront) | 웹앱 배포·CDN | ✅ |
+| 프론트 렌더링 | three.js + React/Vite | 3D 행성·도감 (브라우저 실행) | — |
+| 인증 | Cognito | 로그인·학과 소속 관리 | ✅ |
+| API 입구 | API Gateway (HTTP API) | 프론트 ↔ 백엔드 | ✅ |
+| 백엔드 로직 | Lambda (서버리스) | 입력 처리 + 계산엔진 + 조회 | ✅ |
+| AI 추출 | Amazon Bedrock (Claude 멀티모달) | 식단·영수증 사진 → 품목·수량 | ✅ |
+| 계수 RAG | Bedrock Knowledge Base | 배출계수 매핑(식품·전력) | ✅ |
+| DB | DynamoDB | 사용자·학과·캠퍼스·배출량·도감 | ✅ |
+| 파일 저장 | S3 | 업로드 사진 원본 + 계수 데이터셋 | ✅ |
+| 로그·모니터링 | CloudWatch | Lambda 로그·지표(자동) | ✅ |
+| 데이터 | 공공 배출계수 + AI 가상데이터 | 하이브리드 | — |
+
+**🟢 코어(무조건 데모):** S3 · Lambda · API Gateway · Bedrock · Bedrock KB · DynamoDB → 입력→추출→계산→저장→3D 한 사이클.
+**🔵 플러스(여유 시 점수+):** Cognito · Step Functions · DynamoDB Streams(학과 평균 집계) · SQS/EventBridge(비동기) · SAM/CDK(IaC).
+
+> ⚠️ 플러스 욕심내다 코어 안 돌면 0점 — **코어 한 사이클 먼저**. 사진 추출은 Bedrock 멀티모달로 통일(Textract와 중복 주의).
 
 ## 팀 & 역할
 
