@@ -1,7 +1,5 @@
 {
   "enabledPlugins": {
-    "aws-serverless@claude-plugins-official": true,
-    "databases-on-aws@claude-plugins-official": true,
     "github@claude-plugins-official": true,
     "commit-commands@claude-plugins-official": true
   }

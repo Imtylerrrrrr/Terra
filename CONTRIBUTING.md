@@ -122,21 +122,19 @@ AI에게 커밋을 시켜도 위 형식(`type(scope): 설명`)을 따르게 됩�
 
 ---
 
-## 5. AI 도구 공통 MCP (AWS·GitHub)
+## 5. AI 도구 공통 MCP (GitHub)
 
-각 도구가 자기 설정 파일을 자동으로 읽습니다 — **별도 명령 없이** AWS·GitHub MCP가 붙습니다(같은 서버, 도구만 다름):
+각 도구가 자기 설정 파일을 자동으로 읽어 **별도 명령 없이** `github` MCP(PR·이슈)가 붙습니다:
 
-| AI 툴 | MCP 설정 파일 | 비고 |
-|---|---|---|
-| Claude | `.claude/settings.json` (플러그인) | `git config core.hooksPath` 처럼 자동 |
-| Gemini | `.gemini/settings.json` | 워크스페이스 설정 |
-| Kiro | `.kiro/settings/mcp.json` | 워크스페이스 설정 |
+| AI 툴 | MCP 설정 파일 |
+|---|---|
+| Claude | `.claude/settings.json` (`github` 플러그인) |
+| Gemini | `.gemini/settings.json` |
+| Kiro | `.kiro/settings/mcp.json` |
 
-붙는 서버(3개): `aws-serverless-mcp`(Lambda·API GW) · `awsknowledge`(AWS 문서 RAG, 무인증) · `github`(PR·이슈).
+**준비물:** GitHub 토큰을 환경변수 `GITHUB_PERSONAL_ACCESS_TOKEN`(repo 권한)에 넣기.
+설정 파일엔 토큰을 직접 안 넣고 `${GITHUB_PERSONAL_ACCESS_TOKEN}` 로 치환 → 커밋해도 안전.
 
-**각자 한 번만 준비하면 됩니다 (도구 공통):**
-- `uvx` 설치 — `pip install uv` 또는 `brew install uv` (AWS serverless 서버 실행용)
-- AWS 자격증명 — `aws configure` (`~/.aws`)
-- GitHub 토큰 — 환경변수 `GITHUB_PERSONAL_ACCESS_TOKEN` (repo 권한). 미설정 시 `github` MCP만 안 붙고 나머진 정상.
-
-> 설정 파일에는 토큰을 직접 넣지 않습니다(`${GITHUB_PERSONAL_ACCESS_TOKEN}` 치환) — 커밋해도 안전.
+> **AWS MCP는 백엔드/AWS 담당(주영)만** 개인 설정으로 씁니다 — 공유 안 함.
+> 개인 설정: Claude `.claude/settings.local.json`(git 무시) 의 `aws-serverless`·`databases-on-aws` 플러그인.
+> 필요 시 `uvx`(uv) 설치 + `aws configure` 만 하면 됩니다.

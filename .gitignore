@@ -45,6 +45,9 @@ data/tmp/
 .idea/
 *.swp
 
+# ── AI 도구 개인 설정 (커밋 금지 — 각자 환경) ──
+.claude/settings.local.json
+
 # ── OS ──
 .DS_Store
 Thumbs.db
