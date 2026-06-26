@@ -1,0 +1,22 @@
+#!/bin/sh
+# Terra pre-push hook — main 보호 (main은 항상 시연 가능 · 작업 브랜치 → PR → 주영 머지)
+# AI 무관: 어떤 도구로 push 하든 동일하게 main 직접 push를 막는다.
+#
+# 적용(각자 1회): git config core.hooksPath .githooks
+# 통합 담당이 불가피하게 직접 push 해야 하면: git push --no-verify
+
+protected="refs/heads/main"
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "$protected" ]; then
+    echo "✗ main 으로 직접 push가 차단되었습니다." >&2
+    echo "  규칙: main은 항상 시연 가능 상태 — 작업 브랜치에서 PR 만들고 주영이 머지." >&2
+    echo "  예) git checkout -b feat/be-calc-engine && git push -u origin feat/be-calc-engine" >&2
+    echo "  (자세히: CONTRIBUTING.md)" >&2
+    echo "" >&2
+    echo "  정말 필요하면: git push --no-verify" >&2
+    exit 1
+  fi
+done
+
+exit 0

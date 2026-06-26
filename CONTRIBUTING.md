@@ -85,14 +85,20 @@ git push -u origin feat/be-calc-engine
 
 ---
 
-## 3. 커밋 템플릿 설정 (각자 1회만)
+## 3. 최초 설정 (각자 1회만)
 
-`git commit` 시 에디터에 양식이 자동으로 떠서 규칙을 안 봐도 됩니다.
-clone 후 한 번만 실행하세요:
+clone 후 한 번만 실행하면 커밋 양식 자동 표시 + 규칙 자동 검증이 켜집니다:
 
 ```bash
-git config commit.template .gitmessage
+git config commit.template .gitmessage   # git commit 시 에디터에 양식 표시
+git config core.hooksPath .githooks      # 커밋 형식 검증 + main 직접 push 차단
 ```
+
+- `commit.template` — 사람이 `git commit` 할 때 에디터에 양식이 뜸
+- `core.hooksPath` — `.githooks/` 의 git 훅을 켬. **AI 툴(`-m`)·손커밋 모두**에 적용:
+  - `commit-msg`: `type(scope): 설명` 형식이 아니면 커밋 거부 (끝 마침표 금지·50자 경고 포함)
+  - `pre-push`: `main` 으로 직접 push 차단 (작업 브랜치 → PR → 주영 머지)
+  - 우회가 꼭 필요할 때만: `git commit --no-verify` / `git push --no-verify`
 
 > ⚠️ 이 설정은 clone마다 따로 — 각 팀원이 각자 자기 환경에서 1회 실행해야 적용됩니다.
 
@@ -111,4 +117,24 @@ git config commit.template .gitmessage
 | Kiro | `.kiro/steering/commit-convention.md` |
 
 AI에게 커밋을 시켜도 위 형식(`type(scope): 설명`)을 따르게 됩니다.
+또한 §3의 `core.hooksPath` 를 켜 두면 **AI가 만든 커밋도 `commit-msg` 훅이 형식을 한 번 더 검증**합니다(도구 무관 안전망).
 규칙을 바꾸면 **이 4개 파일(`CONTRIBUTING.md`·`CLAUDE.md`·`GEMINI.md`·Kiro steering)** 을 함께 수정하세요.
+
+---
+
+## 5. AI 도구 공통 MCP (GitHub)
+
+각 도구가 자기 설정 파일을 자동으로 읽어 **별도 명령 없이** `github` MCP(PR·이슈)가 붙습니다:
+
+| AI 툴 | MCP 설정 파일 |
+|---|---|
+| Claude | `.claude/settings.json` (`github` 플러그인) |
+| Gemini | `.gemini/settings.json` |
+| Kiro | `.kiro/settings/mcp.json` |
+
+**준비물:** GitHub 토큰을 환경변수 `GITHUB_PERSONAL_ACCESS_TOKEN`(repo 권한)에 넣기.
+설정 파일엔 토큰을 직접 안 넣고 `${GITHUB_PERSONAL_ACCESS_TOKEN}` 로 치환 → 커밋해도 안전.
+
+> **AWS MCP는 백엔드/AWS 담당(주영)만** 개인 설정으로 씁니다 — 공유 안 함.
+> 개인 설정: Claude `.claude/settings.local.json`(git 무시) 의 `aws-serverless`·`databases-on-aws` 플러그인.
+> 필요 시 `uvx`(uv) 설치 + `aws configure` 만 하면 됩니다.
