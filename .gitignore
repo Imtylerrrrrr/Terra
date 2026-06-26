@@ -55,3 +55,10 @@ Thumbs.db
 # ── 임시 파일 (docx 잠금 등) ──
 ~$*.docx
 *.tmp
+
+# ── 로컬 원본 자산·작업 노트 (런타임 사본은 assets/ 에 유지) ──
+/Fox.glb
+/로우폴리/
+/동 14종/
+/dustjd.md
+.claude/launch.json
