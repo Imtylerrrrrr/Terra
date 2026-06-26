@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Terra 계산엔진 API — POST /compute, GET /campus/{id} (Lambda + API Gateway HTTP API)
+  + DynamoDB 단일 테이블. CONTRACT.md §5·§6.
+
+# ⚠️ 보안: HTTP API 에 authorizer 없음 → 엔드포인트가 공개(미인증)입니다.
+#    코어 데모 기준. 운영/플러스에서는 Cognito JWT Authorizer 를 붙여 user_id 를 토큰 sub 로 대체.
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 10
+    MemorySize: 256
+    Environment:
+      Variables:
+        TERRA_TABLE: !Ref TerraTable
+
+Parameters:
+  StageName:
+    Type: String
+    Default: prod
+
+Resources:
+  TerraTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-terra"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+
+  TerraHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref StageName
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+        AllowHeaders:
+          - "*"
+
+  ComputeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: handlers.compute_handler.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TerraTable
+      Events:
+        Compute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraHttpApi
+            Path: /compute
+            Method: POST
+
+  CampusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: handlers.campus_handler.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref TerraTable
+      Events:
+        Campus:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraHttpApi
+            Path: /campus/{campus_id}
+            Method: GET
+
+Outputs:
+  ApiUrl:
+    Description: HTTP API base URL (프론트가 호출)
+    Value: !Sub "https://${TerraHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${StageName}"
+  TableName:
+    Description: DynamoDB 테이블명 (TERRA_TABLE)
+    Value: !Ref TerraTable

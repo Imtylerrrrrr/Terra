@@ -46,6 +46,20 @@ r = compute({"activities": [{"type": "menu", "name": "제육덮밥"}]}, "u1", "c
 # → {"total_grams_co2e": 1155.0, "tier": "mid", "items": [...], ...}
 ```
 
+## 배포 (SAM)
+
+루트 `template.yaml` — Lambda(`/compute`, `/campus/{id}`) + DynamoDB 단일 테이블 + HTTP API.
+
+```bash
+# SAM CLI 필요: brew install aws-sam-cli
+sam build
+sam deploy --guided   # 최초 1회 (이후 sam deploy)
+```
+
+- 출력 `ApiUrl` → 프론트가 호출할 베이스 URL.
+- `TERRA_TABLE` 환경변수는 템플릿이 자동 주입.
+- ⚠️ HTTP API에 authorizer 없음 = **공개(미인증) 엔드포인트**. 코어 데모용이며, 운영/플러스는 Cognito JWT Authorizer로 보호.
+
 ## 남은 통합 작업 (주영)
 - DynamoDB 테이블 프로비저닝(`TERRA_TABLE`) + API Gateway/Lambda 배포(SAM/CDK).
 - `unlocks`(도감 해금)는 누적 절감 이력이 필요 → DB 집계 단계에서 마일스톤(0.5/2/5/10kg) 적용.
