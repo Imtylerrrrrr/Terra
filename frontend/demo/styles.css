@@ -26,7 +26,9 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
-body { overflow-x: hidden; }
+/* full-bleed 헤더(100vw)의 가로 넘침만 제거.
+   clip은 스크롤 컨테이너를 만들지 않아(overflow-y auto 승격 없음) sticky에 영향 없음 */
+html { overflow-x: clip; }
 
 body {
   font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
