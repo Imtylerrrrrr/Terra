@@ -38,8 +38,8 @@ class ComputeTest(unittest.TestCase):
     def test_pork_is_mid_and_breakdown(self):
         r = compute(self._menu("제육덮밥"), "u1", "cs", self.f)
         self.assertEqual(r["tier"], "mid")
-        # 돼지고기 120g×7 + 쌀밥 210g×1.5 = 840 + 315 = 1155
-        self.assertAlmostEqual(r["total_grams_co2e"], 1155.0, places=1)
+        # 돼지고기 120g×7 + 쌀밥 210g×1.0 = 840 + 210 = 1050
+        self.assertAlmostEqual(r["total_grams_co2e"], 1050.0, places=1)
         labels = {b["label"] for item in r["items"] for b in item["breakdown"]}
         self.assertEqual(labels, {"돼지고기", "쌀밥"})
 
@@ -51,15 +51,15 @@ class ComputeTest(unittest.TestCase):
     def test_multi_type_activities(self):
         extraction = {
             "activities": [
-                {"type": "food", "item": "닭고기", "grams": 100},     # 500
+                {"type": "food", "item": "닭고기", "grams": 100},     # 600
                 {"type": "purchase", "item": "아메리카노", "qty": 2},   # 42
                 {"type": "screentime", "item": "스마트폰", "minutes": 300},  # 45
-                {"type": "energy", "item": "전력_가정용체감", "kwh": 1.5},   # 660
+                {"type": "energy", "item": "전력_가정용체감", "kwh": 1.5},   # 717.2
             ],
             "needs_review": False,
         }
         r = compute(extraction, "u1", "cs", self.f)
-        self.assertAlmostEqual(r["total_grams_co2e"], 500 + 42 + 45 + 660, places=1)
+        self.assertAlmostEqual(r["total_grams_co2e"], 600 + 42 + 45 + 717.2, places=1)
         self.assertEqual(len(r["items"]), 4)
 
     def test_unmapped_key_sets_needs_review(self):

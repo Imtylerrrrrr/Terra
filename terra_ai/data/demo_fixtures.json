@@ -1,0 +1,28 @@
+{
+  "_note": "데모 폴백 fixture — 라이브 Bedrock 실패 시 결정적 추출 결과(계약 §1). 메뉴·키는 backend/carbon_engine/factors.seed.json과 일치해야 엔진이 계산함.",
+  "소불고기덮밥": {
+    "activities": [{ "type": "menu", "name": "소불고기덮밥" }],
+    "confidence": 0.83,
+    "needs_review": false
+  },
+  "비건비빔밥": {
+    "activities": [{ "type": "menu", "name": "비건비빔밥" }],
+    "confidence": 0.88,
+    "needs_review": false
+  },
+  "제육덮밥": {
+    "activities": [{ "type": "menu", "name": "제육덮밥" }],
+    "confidence": 0.82,
+    "needs_review": false
+  },
+  "하루치": {
+    "activities": [
+      { "type": "menu",       "name": "제육덮밥" },
+      { "type": "purchase",   "item": "아메리카노", "qty": 1 },
+      { "type": "screentime", "item": "스마트폰", "minutes": 320 },
+      { "type": "energy",     "item": "전력_가정용체감", "kwh": 1.5 }
+    ],
+    "confidence": 0.80,
+    "needs_review": false
+  }
+}

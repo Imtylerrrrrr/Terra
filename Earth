@@ -41,6 +41,8 @@
     font-variant-numeric:tabular-nums;text-shadow:0 6px 30px rgba(0,0,0,.55);transition:color .25s}
   .status{margin-top:6px;font-size:13px;letter-spacing:.32em;text-transform:uppercase;
     font-weight:700;transition:color .25s}
+  .dept{font-size:15px;letter-spacing:.22em;font-weight:700;color:#cdd6dd;margin-bottom:6px;
+    text-shadow:0 2px 12px rgba(0,0,0,.6)}
 
   .controls{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);width:min(680px,92vw);
     background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px 22px 20px;
@@ -60,12 +62,87 @@
   .ticks span{flex:1}.ticks span:nth-child(2),.ticks span:nth-child(3){text-align:center}.ticks span:last-child{text-align:right}
   .hint{position:fixed;left:50%;bottom:8px;transform:translateX(-50%);font-size:10.5px;
     color:rgba(255,255,255,.32);letter-spacing:.06em;z-index:6;pointer-events:none}
+
+  .addbox{position:fixed;top:172px;left:26px;z-index:6;width:208px;display:flex;flex-direction:column;gap:10px}
+  .add-toggle{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);
+    color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);text-align:left}
+  .add-toggle:hover{color:#5fd38a}
+  .add-form{display:none;flex-direction:column;gap:8px;padding:14px;background:var(--panel);
+    border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .add-form.show{display:flex}
+  .add-form input{padding:8px 10px;border-radius:8px;border:1px solid #2a2f4a;background:#141831;
+    color:var(--ink);font-size:13px;width:100%}
+  .add-form input::placeholder{color:#6b7280}
+  .add-form #f-add{padding:9px;border:none;border-radius:8px;background:#5fd38a;color:#06210f;
+    font-weight:800;font-size:13px;cursor:pointer}
+  .add-form #f-add:hover{background:#74e09c}
+  .add-msg{font-size:11px;color:#e8a33a;min-height:13px;letter-spacing:.02em}
+
+  .dex-toggle{position:fixed;top:22px;right:26px;z-index:7;padding:9px 14px;border:1px solid var(--line);
+    border-radius:10px;background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .dex-toggle:hover{color:#5fd38a}
+  .dex-panel{position:fixed;top:0;right:0;height:100%;width:340px;max-width:86vw;z-index:8;transform:translateX(100%);
+    transition:transform .35s ease;background:rgba(10,15,21,.93);border-left:1px solid var(--line);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;padding:20px}
+  .dex-panel.show{transform:translateX(0)}
+  .dex-head{display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:15px;margin-bottom:14px}
+  .dex-close{background:none;border:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer}
+  .dex-close:hover{color:var(--ink)}
+  .dex-demo{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  .dex-demo label{font-size:12px;color:var(--muted)}
+  .dex-demo label b{color:#5fd38a;font-size:14px}
+  .dex-hint{font-size:10.5px;color:rgba(255,255,255,.35)}
+  .dex-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;overflow-y:auto;padding-right:4px}
+  .dex-card{background:#141831;border:1px solid #232844;border-radius:12px;padding:10px;text-align:center;transition:all .3s}
+  .dex-thumb{position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;
+    background:radial-gradient(circle at 50% 38%,#1c2440,#0c1020)}
+  .dex-thumb img{width:100%;height:100%;object-fit:contain;transition:filter .3s,opacity .3s}
+  .dex-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+  .dex-card.locked .dex-thumb img{filter:grayscale(1) brightness(.35);opacity:.6}
+  .dex-card:not(.locked) .dex-lock{display:none}
+  .dex-name{margin-top:8px;font-size:13px;font-weight:700}
+  .dex-card.locked .dex-name{color:var(--muted)}
+  .dex-kg{font-size:11px;color:#5fd38a;margin-top:2px}
+  .dex-card.locked .dex-kg{color:var(--muted)}
+  .dex-card.justUnlocked{border-color:#5fd38a;box-shadow:0 0 18px rgba(95,211,138,.55);transform:scale(1.05)}
+
+  /* 화면 전환 페이드 */
+  #fadeover{position:fixed;inset:0;background:#05080b;opacity:0;pointer-events:none;
+    transition:opacity .38s ease;z-index:30}
+  /* 은하 뷰 UI */
+  .galaxy-title{position:fixed;top:0;left:0;right:0;text-align:center;margin-top:64px;
+    font-size:40px;font-weight:800;letter-spacing:.04em;z-index:5;pointer-events:none;
+    text-shadow:0 6px 30px rgba(0,0,0,.55)}
+  .galaxy-sub{position:fixed;top:0;left:0;right:0;text-align:center;margin-top:118px;
+    font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);z-index:5;pointer-events:none}
+  .back-btn{position:fixed;top:22px;left:26px;z-index:7;padding:9px 14px;border:1px solid var(--line);
+    border-radius:10px;background:var(--panel);color:var(--ink);font-weight:700;font-size:13px;cursor:pointer;
+    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .back-btn:hover{color:#5fd38a}
+  /* 뷰별 표시 토글 */
+  body[data-view="galaxy"] .controls,
+  body[data-view="galaxy"] .readout,
+  body[data-view="galaxy"] .addbox,
+  body[data-view="galaxy"] .dex-toggle,
+  body[data-view="galaxy"] .dex-panel,
+  body[data-view="galaxy"] .menu,
+  body[data-view="galaxy"] .hint,
+  body[data-view="galaxy"] .back-btn{display:none}
+  body[data-view="planets"] .galaxy-ui{display:none}
+  .addbox2{position:fixed;top:172px;left:26px;z-index:6;width:208px;display:flex;flex-direction:column;gap:10px}
   @media (max-width:520px){.score{font-size:62px}.readout{margin-top:52px}.topbar{padding:16px 18px}}
 </style>
 </head>
 <body>
   <div id="loader"><div class="spin"></div><p>테라가 지구 설계중…</p></div>
   <div id="stage"></div>
+  <div id="fadeover"></div>
+
+  <button class="back-btn" id="backBtn">← 캠퍼스 은하</button>
+  <div class="galaxy-title galaxy-ui">캠퍼스 은하</div>
+  <div class="galaxy-sub galaxy-ui">은하를 클릭해 캠퍼스로 진입</div>
 
   <div class="topbar"><span class="brand">TERRA<b>.</b></span>
     <span class="tag">탄소 중립 지구 · Living Low-Poly Earth</span></div>
@@ -76,14 +153,45 @@
     <div class="menu-item">- 나</div>
   </div>
 
-  <div class="readout"><div class="score" id="score">62</div><div class="status" id="status">회복 중</div></div>
+  <div class="addbox">
+    <button class="add-toggle" id="addToggle">+ 학과 추가</button>
+    <div class="add-form" id="addForm">
+      <input id="f-name" type="text" placeholder="학과명" maxlength="14" aria-label="학과명">
+      <input id="f-students" type="number" min="1" placeholder="전체 학과생 수" aria-label="전체 학과생 수">
+      <input id="f-part" type="number" min="0" placeholder="참여 학과생 수" aria-label="참여 학과생 수">
+      <button id="f-add">행성 추가</button>
+      <div class="add-msg" id="addMsg"></div>
+    </div>
+  </div>
+
+  <div class="readout"><div class="dept" id="dept">컴퓨터공학과</div><div class="score" id="score">62</div><div class="status" id="status">회복 중</div></div>
 
   <div class="controls">
     <div class="ends"><span class="l">◀ 황폐</span><span class="r">풍요 ▶</span></div>
     <input id="slider" class="slider" type="range" min="0" max="100" value="62" step="1">
     <div class="ticks"><span>0 · 멸망</span><span>33 · 사막화</span><span>66 · 정상</span><span>100 · 청정</span></div>
   </div>
-  <div class="hint">드래그로 회전 · 휠/핀치로 확대·축소</div>
+  <div class="addbox2 galaxy-ui" id="campusAddbox">
+    <button class="add-toggle" id="campusToggle">+ 캠퍼스 추가</button>
+    <div class="add-form" id="campusForm">
+      <input id="c-name" type="text" placeholder="캠퍼스 이름" maxlength="16" aria-label="캠퍼스 이름">
+      <button id="c-add">은하 추가</button>
+      <div class="add-msg" id="campusMsg"></div>
+    </div>
+  </div>
+
+  <button class="dex-toggle" id="dexToggle">📖 도감</button>
+  <div class="dex-panel" id="dexPanel">
+    <div class="dex-head"><span>📖 도감 — 탄소 절감 수집</span><button class="dex-close" id="dexClose">×</button></div>
+    <div class="dex-demo">
+      <label>누적 절감량 <b id="dexKgVal">0.0</b> kg</label>
+      <input id="dexKg" class="slider" type="range" min="0" max="12" step="0.1" value="0">
+      <div class="dex-hint">티어 해금 · 0.5·2·5·10kg (천연기념물 · 이슈 #16)</div>
+    </div>
+    <div class="dex-grid" id="dexGrid"></div>
+  </div>
+
+  <div class="hint">드래그로 회전 · 휠/핀치로 확대·축소 · 주변 행성 클릭으로 학과 전환</div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
@@ -93,7 +201,8 @@
   // ============================================================================
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, innerWidth/innerHeight, 0.1, 200);
-  let camDist = 9.8; const camMin=5.5, camMax=20;
+  let camDist = 9.8; const camMin=5.5, camMax=30;
+  const GALAXY_DIST=22, PLANET_DIST=9.8;   // 뷰별 기본 줌 (은하=더 축소, 행성=원래)
   function updateCam(){ camera.position.set(0, camDist*0.07, camDist); camera.lookAt(0,0,0); }
   updateCam();
   const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
@@ -220,8 +329,8 @@
   const HX = h=>new THREE.Color(h);
   //               0멸망      33사막     66정상     100청정
   const TAB = {
-    0:[HX(0x35492a),HX(0x3e4a36),HX(0x2c6280),HX(0x256d92)], // deep ocean: 썩은녹→파랑
-    1:[HX(0x42603a),HX(0x4e6042),HX(0x4894a6),HX(0x3aa0b6)], // shallow:   썩은녹→청록
+    0:[HX(0x35492a),HX(0x3e4a36),HX(0x123f63),HX(0x0c5285)], // deep ocean: 썩은녹→짙은 네이비블루
+    1:[HX(0x42603a),HX(0x4e6042),HX(0x1c6b8e),HX(0x2090b4)], // shallow:   썩은녹→밝은 청록
     2:[HX(0x564c34),HX(0xa89868),HX(0xb8ad84),HX(0xb2a67c)], // beach
     3:[HX(0x524630),HX(0xa08850),HX(0x5f9050),HX(0x5c9c50)], // plain (진한 초록)
     4:[HX(0x42392a),HX(0x8a7c50),HX(0x437440),HX(0x3e7e44)], // forest
@@ -668,6 +777,129 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   const moon=new THREE.Mesh(new THREE.IcosahedronGeometry(0.32,1),M(0xd7d9de,1));moon.position.set(5,3.2,-3);scene.add(moon);
 
   // ============================================================================
+  //  학과 행성 (선택=중앙 풀디테일 / 나머지=우주에 흩뿌린 로우폴리)
+  //  ⚠️ 목업. 필드명은 CONTRACT §2-B(AggregateResult)에 정렬 — 연동 시 remap 불필요.
+  //    · score(건강도)  = avg_grams_co2e(1인 평균 gCO2e) 역산 (배출↑ → 건강↓, §3 tier 참고)
+  //    · 행성 크기       = participation_rate = participants / total_students
+  // ============================================================================
+  const CAMPUSES = [
+    { campus_id:'main', name:'본 캠퍼스', departments:[
+      {dept_id:'cse',    name:'컴퓨터공학과', total_students:1200, participants:760,  avg_grams_co2e:1185},
+      {dept_id:'mech',   name:'기계공학과',   total_students:900,  participants:300,  avg_grams_co2e:2600},
+      {dept_id:'biz',    name:'경영학과',     total_students:1500, participants:1050, avg_grams_co2e:1500},
+      {dept_id:'design', name:'디자인학과',   total_students:600,  participants:480,  avg_grams_co2e:700},
+      {dept_id:'env',    name:'환경공학과',   total_students:500,  participants:460,  avg_grams_co2e:450},
+    ]},
+    { campus_id:'sci', name:'자연과학 캠퍼스', departments:[
+      {dept_id:'phys', name:'물리학과',   total_students:400, participants:210, avg_grams_co2e:1300},
+      {dept_id:'chem', name:'화학과',     total_students:450, participants:180, avg_grams_co2e:2100},
+      {dept_id:'bio',  name:'생명과학과', total_students:500, participants:380, avg_grams_co2e:1000},
+    ]},
+    { campus_id:'art', name:'예술 캠퍼스', departments:[
+      {dept_id:'music', name:'음악과', total_students:300, participants:240, avg_grams_co2e:600},
+      {dept_id:'fine',  name:'미술과', total_students:280, participants:200, avg_grams_co2e:800},
+      {dept_id:'dance', name:'무용과', total_students:200, participants:170, avg_grams_co2e:520},
+    ]},
+  ];
+  let DEPARTMENTS = CAMPUSES[0].departments;   // 현재 진입한 캠퍼스의 학과들
+  let selIdx = 0, activeCampusIdx = 0;
+
+  // 1인 평균 배출량(gCO2e) → 건강도 0~100 (역산). 경계는 §3 tier(700/2500) 참고한 임시값.
+  const G_CLEAN=400, G_DIRTY=3000;
+  const NEUTRAL_SCORE=66;   // 데이터 없는 신규 학과 기본 상태 (정상 경계)
+  function scoreFromGrams(g){
+    const t=(g-G_CLEAN)/(G_DIRTY-G_CLEAN);                 // 0 청정 ~ 1 오염
+    return Math.round(100*(1-Math.min(Math.max(t,0),1)));
+  }
+  function ratioOf(d){ return d.total_students>0 ? d.participants/d.total_students : 0; }
+  // 파생값(score) 초기 계산 — 모든 캠퍼스의 학과
+  CAMPUSES.forEach(c=>c.departments.forEach(d=>{ d.score = scoreFromGrams(d.avg_grams_co2e); }));
+
+  // 건강도 → 색 (멸망 갈색 → 사막 황 → 정상 청록 → 청정 녹)
+  function healthColor(s){
+    const C=h=>new THREE.Color(h);
+    if(s<33) return C(0x7a4f38).lerp(C(0xc9a24a), s/33);
+    if(s<66) return C(0xc9a24a).lerp(C(0x2f7fa8), (s-33)/33);
+    return C(0x2f7fa8).lerp(C(0x4fd08a), (s-66)/34);
+  }
+
+  // 학과 수에 맞춰 자동 분산되는 슬롯
+  // 좌·우 영역에 위아래로 분산 → 중앙 지구에 안 가리고 화면 안에 머묾
+  function makeSlots(n){
+    const out=[], m=Math.ceil(n/2), ymax=2.4;
+    for(let k=0;k<n;k++){
+      const side=(k%2===0)?1:-1, tier=Math.floor(k/2);
+      const yy = m<=1 ? 0 : (-ymax + 2*ymax*(tier/(m-1)));
+      const x = side*(4.6 + (tier%2)*0.9);
+      const z = -1.5 - tier*1.3;               // 약간 뒤로(시차) → 화면 여유 ↑
+      out.push(new THREE.Vector3(x, yy, z));
+    }
+    return out;
+  }
+
+  // 이름표 스프라이트 — 텍스트 길이에 맞춰 캔버스/스프라이트 크기 자동 (잘림 방지)
+  function makeLabel(text){
+    const fontPx=30, pad=18, SS=2;
+    const font=`bold ${fontPx}px "Malgun Gothic","Apple SD Gothic Neo",sans-serif`;
+    const mctx=document.createElement('canvas').getContext('2d'); mctx.font=font;
+    const w=Math.ceil(mctx.measureText(text).width)+pad*2, h=fontPx+pad;
+    const cv=document.createElement('canvas'); cv.width=w*SS; cv.height=h*SS;
+    const ctx=cv.getContext('2d'); ctx.scale(SS,SS);
+    ctx.font=font; ctx.fillStyle='#eaf0f4'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(0,0,0,.7)'; ctx.shadowBlur=8;
+    ctx.fillText(text, w/2, h/2);
+    const tex=new THREE.CanvasTexture(cv); tex.minFilter=THREE.LinearFilter;
+    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false}));
+    const baseH=0.62; sp.scale.set(baseH*(w/h), baseH, 1);   // 가로세로 비율 유지
+    return sp;
+  }
+
+  const SPACE = new THREE.Group(); scene.add(SPACE);
+  let bgPlanets=[];
+  function disposeGroup(g){ g.traverse(o=>{ if(o.geometry)o.geometry.dispose();
+    if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map)m.map.dispose(); m.dispose();});} }); }
+  // 배경용 미니 지구 — 중앙과 같은 지형(대륙/바다/빙하)을 가진 저세분 지구 (소품 없음)
+  function makeMiniEarth(score, detail){
+    const g=new THREE.IcosahedronGeometry(R, detail).toNonIndexed();
+    const p=g.attributes.position, V=p.count, colors=new Float32Array(V*3);
+    const nd=new THREE.Vector3();
+    const t=(score/100)*3, si=Math.min(Math.floor(t),2), sf=t-si;
+    for(let i=0;i<V;i++){
+      nd.set(p.getX(i),p.getY(i),p.getZ(i)).normalize();
+      const c=classify(nd), b=c.b, a=TAB[b][si], bb=TAB[b][si+1];
+      colors[i*3]=a.r+(bb.r-a.r)*sf; colors[i*3+1]=a.g+(bb.g-a.g)*sf; colors[i*3+2]=a.b+(bb.b-a.b)*sf;
+      const lift=liftAt(c.h, nd);
+      p.setXYZ(i, p.getX(i)*lift, p.getY(i)*lift, p.getZ(i)*lift);
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(colors,3));
+    g.computeVertexNormals();
+    return new THREE.Mesh(g, new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:0.92}));
+  }
+
+  // 배경 행성 1개 생성 (재사용 헬퍼)
+  function makeBgPlanet(i, pos){
+    const d=DEPARTMENTS[i];
+    const g=new THREE.Group();
+    const rad=0.5+ratioOf(d)*0.95;                // 참여율 → 크기 (0.5~1.45)
+    const mesh=makeMiniEarth(d.score, 4);
+    mesh.scale.setScalar(rad/2);                  // 시각 반지름 ≈ rad (그룹 scale=1 기준)
+    const pct=Math.round(ratioOf(d)*100);
+    const lab=makeLabel(`${d.name}  ${pct}%`); lab.position.set(0, rad+0.7, 0);
+    g.add(mesh,lab);
+    g.position.copy(pos);
+    g.userData={idx:i, spin:0.002+Math.random()*0.004, ph:Math.random()*6.28, baseY:pos.y};
+    SPACE.add(g);
+    return {group:g, mesh, label:lab, rad};
+  }
+  function buildSpace(){
+    for(const b of bgPlanets){ SPACE.remove(b.group); disposeGroup(b.group); }
+    bgPlanets=[];
+    const idxs=DEPARTMENTS.map((_,i)=>i).filter(i=>i!==selIdx);
+    const slots=makeSlots(idxs.length);
+    idxs.forEach((i,k)=> bgPlanets.push(makeBgPlanet(i, slots[k])) );
+  }
+
+  // ============================================================================
   //  prop fade
   // ============================================================================
   function ramp(v,lo,hi){const fade=13;if(v<lo-fade||v>hi+fade)return 0;let f=1;
@@ -702,17 +934,478 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   }
   apply(current);
   const slider=document.getElementById('slider');
-  slider.addEventListener('input',e=>target=+e.target.value);
+  slider.addEventListener('input',e=>{ if(!DEPARTMENTS[selIdx])return; target=+e.target.value; DEPARTMENTS[selIdx].score=+e.target.value; });
 
-  // drag rotate
-  let rotY=0,rotX=0.14,auto=true,drag=false,lx=0,ly=0,vY=0,vX=0;
+  // ── 학과 선택 (클릭 행성 ↔ 중앙 지구 자리 맞교환 + 디테일 크로스페이드, 1.5초) ──
+  const deptNameEl=document.getElementById('dept');
+  const ray=new THREE.Raycaster(), ndc=new THREE.Vector2();
+  const ORIGIN=new THREE.Vector3(0,0,0), _p1=new THREE.Vector3(), _p2=new THREE.Vector3();
+  let centralScale=1, trans={active:false};
+
+  // 디테일 지구 전체 재질의 투명도 일괄 조절 (원래 opacity/transparent 보존)
+  const earthMats=[];
+  earthGroup.traverse(o=>{ if(o.material){ (Array.isArray(o.material)?o.material:[o.material])
+    .forEach(m=>earthMats.push({m, o0:(m.opacity===undefined?1:m.opacity), t0:!!m.transparent})); }});
+  function setEarthOpacity(f){
+    if(f>=1){ for(const e of earthMats){ e.m.opacity=e.o0; e.m.transparent=e.t0; } }
+    else    { for(const e of earthMats){ e.m.transparent=true; e.m.opacity=e.o0*f; } }
+  }
+
+  function updateDeptLabel(d){ deptNameEl.textContent=`${d.name} · 참여 ${Math.round(ratioOf(d)*100)}%`; }
+  function trySelect(x,y){
+    ndc.x=(x/innerWidth)*2-1; ndc.y=-(y/innerHeight)*2+1;
+    ray.setFromCamera(ndc,camera);
+    if(view==='galaxy'){
+      const gh=ray.intersectObjects(galaxyHits,false)[0];
+      if(gh) crossfadeTo(()=>enterCampus(gh.object.userData.idx));
+      return;
+    }
+    const hit=ray.intersectObjects(bgPlanets.map(b=>b.mesh),false)[0];
+    if(hit) selectDept(hit.object.parent.userData.idx);
+  }
+  function selectDept(newIdx){
+    if(newIdx===selIdx || trans.active) return;
+    const oldIdx=selIdx;
+    const k=bgPlanets.findIndex(b=>b.group.userData.idx===newIdx);
+    if(k<0) return;
+    const inEntry=bgPlanets.splice(k,1)[0];          // 클릭 행성(가벼움) → 중앙으로
+    const clicked=inEntry.group.position.clone();
+    inEntry.label.visible=false; inEntry.mesh.material.transparent=true;
+    const outEntry=makeBgPlanet(oldIdx, ORIGIN.clone()); // 옛 중앙(가벼움) → 클릭 자리로
+    outEntry.label.visible=false; outEntry.mesh.material.transparent=true; outEntry.mesh.material.opacity=0;
+    trans={
+      active:true, t:0, dur:1.5, repainted:false, clicked,
+      inEntry, outEntry, oldIdx, newIdx,
+      centralOld:centralScale, centralNew:0.78+ratioOf(DEPARTMENTS[newIdx])*0.4,
+      inRad:inEntry.rad, outRad:outEntry.rad,
+    };
+  }
+  function finalizeSwap(){
+    const t=trans;
+    selIdx=t.newIdx; centralScale=t.centralNew;
+    earthGroup.position.set(0,0,0); earthGroup.scale.setScalar(centralScale); setEarthOpacity(1);
+    SPACE.remove(t.inEntry.group); disposeGroup(t.inEntry.group);   // 들어온 구체 제거(지구가 대체)
+    // 빠져나간 구체 → 클릭 자리의 배경 행성으로 확정
+    const out=t.outEntry;
+    out.group.position.copy(t.clicked); out.group.scale.setScalar(1);
+    out.mesh.material.opacity=1; out.mesh.material.transparent=false; out.label.visible=true;
+    out.group.userData.baseY=t.clicked.y;
+    bgPlanets.push(out);
+    const d=DEPARTMENTS[selIdx];
+    current=target=d.score; apply(current);
+    slider.value=Math.round(d.score); updateDeptLabel(d);
+    trans.active=false;
+  }
+  // 초기화
+  centralScale=0.78+ratioOf(DEPARTMENTS[selIdx])*0.4;
+  earthGroup.scale.setScalar(centralScale);
+  updateDeptLabel(DEPARTMENTS[selIdx]);
+  slider.value=Math.round(DEPARTMENTS[selIdx].score);
+  target=DEPARTMENTS[selIdx].score;
+  buildSpace();
+
+  // ── 학과 추가 폼 ──
+  const addForm=document.getElementById('addForm'), addMsg=document.getElementById('addMsg');
+  document.getElementById('addToggle').addEventListener('click',()=>addForm.classList.toggle('show'));
+  document.getElementById('f-add').addEventListener('click',()=>{
+    addMsg.style.color='#e8a33a';
+    if(trans.active){ addMsg.textContent='전환 중입니다. 잠시 후 다시'; return; }
+    const name=document.getElementById('f-name').value.trim();
+    const students=parseInt(document.getElementById('f-students').value,10);
+    const part=parseInt(document.getElementById('f-part').value,10);
+    if(!name){ addMsg.textContent='학과명을 입력하세요'; return; }
+    if(!(students>0)){ addMsg.textContent='전체 학과생 수를 입력하세요'; return; }
+    if(!(part>=0)){ addMsg.textContent='참여 학과생 수를 입력하세요'; return; }
+    if(part>students){ addMsg.textContent='참여 학과생 ≤ 전체 학과생'; return; }
+    // 배출량은 계산엔진 연동 전이라 미입력 → 중립 상태로 추가 (필드명 §2-B 정렬)
+    const wasEmpty = DEPARTMENTS.length===0;
+    const d={dept_id:'dept'+Date.now(), name, total_students:students, participants:part, avg_grams_co2e:null, score:NEUTRAL_SCORE};
+    DEPARTMENTS.push(d);
+    if(wasEmpty){
+      // 빈 캠퍼스의 첫 학과 → 중앙 행성으로 승격
+      selIdx=0; centralScale=0.78+ratioOf(d)*0.4;
+      earthGroup.visible=true; earthGroup.position.set(0,0,0); earthGroup.scale.setScalar(centralScale); setEarthOpacity(1);
+      current=target=d.score; apply(current); updateDeptLabel(d); slider.value=Math.round(d.score);
+    }
+    buildSpace();
+    addMsg.style.color='#5fd38a'; addMsg.textContent=`'${name}' 행성 추가됨 (데이터 대기)`;
+    ['f-name','f-students','f-part'].forEach(fid=>document.getElementById(fid).value='');
+  });
+
+  // ── 도감 (Collection / Dex) — 이슈 #16: 천연기념물 종 · 4티어 마일스톤 ──
+  //    해금: 누적 절감이 티어 임계치(0.5/2/5/10kg)를 넘으면 해당 티어 종 해금.
+  //    백엔드 PersonalResult.unlocks(string[])는 아래 id와 1:1. heritage는 메타데이터.
+  //    동물 전용 모델 부재 → 이슈 메모대로 로우폴리 실루엣(덩어리), 티어색으로 희귀도 표현.
+  const TIER_COLOR={0.5:'#b9925f', 2:'#5fb0a0', 5:'#9a6fd0', 10:'#e6c14a'};
+  function tierColor(kg){ return TIER_COLOR[kg]||'#9aa0b0'; }
+  function makeCritter(type, hex){
+    const g=new THREE.Group(), m=new THREE.MeshStandardMaterial({color:hex,roughness:1,flatShading:true});
+    if(type==='bird'){
+      const body=new THREE.Mesh(new THREE.SphereGeometry(0.12,7,6),m); body.scale.set(1.4,1,1); body.position.y=0.16; g.add(body);
+      const head=new THREE.Mesh(new THREE.SphereGeometry(0.07,6,5),m); head.position.set(0.16,0.23,0); g.add(head);
+      const beak=new THREE.Mesh(new THREE.ConeGeometry(0.022,0.09,4),m); beak.rotation.z=-Math.PI/2; beak.position.set(0.25,0.23,0); g.add(beak);
+      const tail=new THREE.Mesh(new THREE.ConeGeometry(0.05,0.16,4),m); tail.rotation.z=Math.PI/2; tail.position.set(-0.18,0.14,0); g.add(tail);
+      for(const s of [-1,1]){ const l=new THREE.Mesh(new THREE.CylinderGeometry(0.012,0.012,0.1,4),m); l.position.set(0,0.05,s*0.04); g.add(l); }
+    } else if(type==='bat'){
+      const body=new THREE.Mesh(new THREE.SphereGeometry(0.08,6,5),m); body.scale.set(1,1.3,1); body.position.y=0.18; g.add(body);
+      for(const s of [-1,1]){
+        const w=new THREE.Mesh(new THREE.BoxGeometry(0.24,0.012,0.13),m); w.position.set(s*0.17,0.2,0); w.rotation.z=s*0.28; g.add(w);
+        const ear=new THREE.Mesh(new THREE.ConeGeometry(0.022,0.06,4),m); ear.position.set(s*0.03,0.3,0); g.add(ear);
+      }
+    } else { // 네발짐승 실루엣
+      const body=new THREE.Mesh(new THREE.BoxGeometry(0.28,0.13,0.13),m); body.position.y=0.16; g.add(body);
+      const head=new THREE.Mesh(new THREE.BoxGeometry(0.11,0.11,0.11),m); head.position.set(0.19,0.2,0); g.add(head);
+      const snout=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.06,0.07),m); snout.position.set(0.27,0.17,0); g.add(snout);
+      const tail=new THREE.Mesh(new THREE.CylinderGeometry(0.01,0.022,0.14,4),m); tail.rotation.z=Math.PI/3; tail.position.set(-0.18,0.22,0); g.add(tail);
+      for(const sx of [-1,1]) for(const sz of [-1,1]){ const leg=new THREE.Mesh(new THREE.CylinderGeometry(0.022,0.022,0.16,5),m); leg.position.set(sx*0.1,0.07,sz*0.05); g.add(leg); }
+      for(const s of [-1,1]){ const ear=new THREE.Mesh(new THREE.ConeGeometry(0.028,0.06,4),m); ear.position.set(0.17,0.28,s*0.038); g.add(ear); }
+    }
+    return g;
+  }
+  const DEX=[
+    // 티어1 — 0.5kg (천연기념물 가축/토종개)
+    {id:'jindo_dog',     name:'진도개',         kg:0.5, heritage:53,  type:'quad', desc:'한국 대표 토종견'},
+    {id:'sapsali',       name:'삽살개',         kg:0.5, heritage:368, type:'quad', desc:'액운을 쫓는 전통 토종견'},
+    {id:'donggyeongi',   name:'경주개 동경이',  kg:0.5, heritage:540, type:'quad', desc:'꼬리가 짧은 경주 토종견'},
+    {id:'jeju_black_pig',name:'제주 흑돼지',    kg:0.5, heritage:550, type:'quad', desc:'제주 고유 재래 흑돼지'},
+    {id:'jeju_horse',    name:'제주 마',        kg:0.5, heritage:347, type:'quad', desc:'제주 조랑말'},
+    // 티어2 — 2kg (회복 중 야생동물)
+    {id:'otter',         name:'수달',           kg:2,   heritage:330, type:'quad', desc:'깨끗한 하천의 지표종'},
+    {id:'goral',         name:'산양',           kg:2,   heritage:217, type:'quad', desc:'바위산의 멸종위기 우제류'},
+    {id:'golden_bat',    name:'붉은박쥐',       kg:2,   heritage:452, type:'bat',  desc:'황금박쥐로 불리는 희귀 박쥐'},
+    // 티어3 — 5kg (멸종위기 대형 야생동물)
+    {id:'asiatic_black_bear', name:'반달가슴곰', kg:5,  heritage:329, type:'quad', desc:'지리산 복원의 상징종'},
+    {id:'musk_deer',     name:'사향노루',       kg:5,   heritage:216, type:'quad', desc:'송곳니가 발달한 희귀 노루'},
+    {id:'wolf',          name:'늑대',           kg:5,   heritage:129, type:'quad', desc:'한반도 토종 늑대'},
+    // 티어4 — 10kg (사실상 멸종·전설)
+    {id:'white_bellied_woodpecker', name:'크낙새', kg:10, heritage:197, type:'bird', desc:'대형 딱따구리, 남한 미관측'},
+    {id:'tiger_leopard_bear', name:'호랑이·표범·큰곰', kg:10, heritage:128, type:'quad', desc:'남한 실질적 멸종종 · 최고 보상'},
+  ];
+  DEX.forEach(it=> it.make=()=>makeCritter(it.type, tierColor(it.kg)));
+  const dexGrid=document.getElementById('dexGrid');
+
+  // 각 항목 3D 모델을 썸네일(PNG)로 1회 렌더
+  (function buildDexThumbs(){
+    const r2=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
+    r2.setSize(140,140); r2.setPixelRatio(1.5); r2.outputEncoding=THREE.sRGBEncoding;
+    const sc=new THREE.Scene();
+    sc.add(new THREE.AmbientLight(0xffffff,0.75));
+    const dl=new THREE.DirectionalLight(0xffffff,0.95); dl.position.set(3,4,5); sc.add(dl);
+    const cam=new THREE.PerspectiveCamera(35,1,0.01,100);
+    const box=new THREE.Box3(), c=new THREE.Vector3(), s=new THREE.Vector3();
+    for(const it of DEX){
+      const m=it.make(); sc.add(m);
+      box.setFromObject(m); box.getCenter(c); box.getSize(s);
+      m.position.sub(c);
+      const rad=Math.max(s.x,s.y,s.z)*0.5||0.2, d=rad*3.2;
+      cam.position.set(d*0.5,d*0.45,d); cam.lookAt(0,0,0);
+      cam.near=Math.max(0.01,d*0.05); cam.far=d*12; cam.updateProjectionMatrix();
+      r2.render(sc,cam);
+      it.thumb=r2.domElement.toDataURL('image/png');
+      sc.remove(m); m.traverse(o=>{ if(o.geometry)o.geometry.dispose(); });
+    }
+    r2.dispose();
+    dexGrid.innerHTML='';
+    for(const it of DEX){
+      const card=document.createElement('div'); card.className='dex-card locked'; card.dataset.id=it.id;
+      card.title=it.desc;
+      card.innerHTML=`<div class="dex-thumb"><img src="${it.thumb}" alt="${it.name}"><span class="dex-lock">🔒</span></div>`
+        +`<div class="dex-name">${it.name}</div><div class="dex-kg">${it.kg}kg · 천연기념물 ${it.heritage}호</div>`;
+      dexGrid.appendChild(card); it.el=card;
+    }
+  })();
+
+  // 해금 상태
+  const unlocked=new Set();
+  function unlock(id){
+    if(unlocked.has(id)) return; unlocked.add(id);
+    const it=DEX.find(d=>d.id===id);
+    if(it&&it.el){ it.el.classList.remove('locked'); it.el.classList.add('justUnlocked');
+      setTimeout(()=>it.el.classList.remove('justUnlocked'),900); }
+  }
+  // 백엔드 연동 지점: PersonalResult.unlocks 배열을 그대로 전달
+  function applyUnlocks(ids){ (ids||[]).forEach(unlock); }
+  window.applyUnlocks=applyUnlocks;   // 추후 API 연동에서 호출
+
+  // 데모: 누적 절감량 슬라이더 → 마일스톤 해금
+  const dexKg=document.getElementById('dexKg'), dexKgVal=document.getElementById('dexKgVal');
+  dexKg.addEventListener('input',()=>{ const v=+dexKg.value; dexKgVal.textContent=v.toFixed(1);
+    DEX.forEach(it=>{ if(v>=it.kg) unlock(it.id); }); });
+
+  // 패널 토글
+  const dexPanel=document.getElementById('dexPanel');
+  document.getElementById('dexToggle').addEventListener('click',()=>dexPanel.classList.toggle('show'));
+  document.getElementById('dexClose').addEventListener('click',()=>dexPanel.classList.remove('show'));
+
+  // ============================================================================
+  //  캠퍼스 은하 뷰 (학과 행성 집단의 상위 계층)
+  // ============================================================================
+  let view='planets';
+  const GALAXIES=new THREE.Group(); scene.add(GALAXIES);
+  const galaxyHits=[]; let galaxies=[];
+
+  // 은하 코어 글로우 스프라이트 텍스처 (1회 생성)
+  const coreTex=(function(){
+    const cv=document.createElement('canvas'); cv.width=cv.height=128;
+    const x=cv.getContext('2d'); const g=x.createRadialGradient(64,64,2,64,64,64);
+    g.addColorStop(0,'rgba(255,246,214,1)'); g.addColorStop(0.3,'rgba(255,210,140,0.7)');
+    g.addColorStop(1,'rgba(255,180,90,0)'); x.fillStyle=g; x.fillRect(0,0,128,128);
+    const t=new THREE.CanvasTexture(cv); return t;
+  })();
+
+  // 학과 행성들로 이루어진 나선 은하 1개
+  function makeGalaxy(ci){
+    const c=CAMPUSES[ci], g=new THREE.Group();
+    const spinner=new THREE.Group(); g.add(spinner);   // 디스크+팽대부만 자전
+    const tmp=new THREE.Color();
+    const SPIN=7.2, R0=2.05, ARMS=6;                   // 감김 · 디스크 반지름 · 나선팔 수
+    const g3=()=>(Math.random()+Math.random()+Math.random()-1.5);  // 의사 가우시안(-1.5~1.5)
+    function addPoints(arr,colArr,size,opacity){
+      const ge=new THREE.BufferGeometry();
+      ge.setAttribute('position',new THREE.BufferAttribute(new Float32Array(arr),3));
+      ge.setAttribute('color',new THREE.BufferAttribute(new Float32Array(colArr),3));
+      spinner.add(new THREE.Points(ge,new THREE.PointsMaterial({size,vertexColors:true,transparent:true,opacity,depthWrite:false,blending:THREE.AdditiveBlending})));
+    }
+    // 1) 그랜드디자인 2팔 — 흰/푸른 별 (팔 사이 빈 곳이 어두운 dust lane처럼 보임)
+    const cWhite=new THREE.Color(0xeaf0ff), cBlue=new THREE.Color(0x82b0ff);
+    const arm=[], armC=[];
+    for(let i=0;i<2800;i++){
+      const t=Math.pow(Math.random(),0.55), r=0.16+t*R0;
+      const base=(i%ARMS)*(6.283/ARMS);                  // 나선팔 대칭 배치
+      const ang=base + t*SPIN + g3()*(0.10+0.16*t);      // 안쪽 가늘고 바깥 넓게
+      arm.push(Math.cos(ang)*r, g3()*0.05*(1-t), Math.sin(ang)*r);
+      tmp.copy(cWhite).lerp(cBlue, Math.min(t*1.1,1)).multiplyScalar(0.55+Math.random()*0.5);
+      armC.push(tmp.r,tmp.g,tmp.b);
+    }
+    addPoints(arm,armC,0.04,0.95);
+    // 2) 분홍 HII 별생성 영역 — 팔 위 드문드문, 약간 크게
+    const cPink=new THREE.Color(0xff5fae); const hii=[], hiiC=[];
+    for(let i=0;i<210;i++){
+      const t=0.22+Math.random()*0.72, r=0.16+t*R0;
+      const ang=(i%ARMS)*(6.283/ARMS) + t*SPIN + g3()*(0.10+0.16*t);
+      hii.push(Math.cos(ang)*r, g3()*0.05*(1-t), Math.sin(ang)*r);
+      tmp.copy(cPink).multiplyScalar(0.7+Math.random()*0.5);
+      hiiC.push(tmp.r,tmp.g,tmp.b);
+    }
+    addPoints(hii,hiiC,0.075,0.9);
+    // 3) 팔 사이 희미한 산개 별
+    const field=[], fieldC=[];
+    for(let i=0;i<700;i++){
+      const t=Math.pow(Math.random(),0.7), r=0.2+t*R0, ang=Math.random()*6.283;
+      field.push(Math.cos(ang)*r, g3()*0.06*(1-t), Math.sin(ang)*r);
+      const b=0.16+Math.random()*0.22; fieldC.push(b,b,b*1.1);
+    }
+    addPoints(field,fieldC,0.026,0.5);
+    // 4) 중심 팽대부 — 크고 밝은 따뜻한 구형
+    const cWarm=new THREE.Color(0xfff2cf), cAmber=new THREE.Color(0xffce82); const bul=[], bulC=[];
+    for(let i=0;i<620;i++){
+      const rr=Math.pow(Math.random(),1.9)*0.62, th=Math.random()*6.283, ph=Math.acos(2*Math.random()-1);
+      bul.push(rr*Math.sin(ph)*Math.cos(th), rr*Math.cos(ph)*0.5, rr*Math.sin(ph)*Math.sin(th));
+      tmp.copy(cWarm).lerp(cAmber, rr/0.62).multiplyScalar(0.85+Math.random()*0.4);
+      bulC.push(tmp.r,tmp.g,tmp.b);
+    }
+    addPoints(bul,bulC,0.05,0.95);
+    // 코어 글로우
+    const core=new THREE.Sprite(new THREE.SpriteMaterial({map:coreTex,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+    core.scale.set(1.7,1.7,1); g.add(core);
+    const hit=new THREE.Mesh(new THREE.SphereGeometry(1.7,8,8), new THREE.MeshBasicMaterial({visible:false}));
+    hit.userData={idx:ci}; g.add(hit); galaxyHits.push(hit);
+    const lab=makeLabel(c.name); lab.position.set(0,2.0,0); g.add(lab);
+    g.rotation.x=-0.5; g.userData={pts:spinner, spin:0.0014+Math.random()*0.0016};
+    return g;
+  }
+  function galaxySlots(n){
+    const out=[], gold=2.39996323;
+    for(let k=0;k<n;k++){
+      const a=k*gold, r=1.2+(k%3)*1.3;
+      out.push(new THREE.Vector3(Math.cos(a)*(r+2.2), Math.sin(a)*(r*0.55+0.7), -2-(k%4)*1.4));
+    }
+    return out;
+  }
+  function rebuildGalaxies(){
+    for(const g of galaxies){ GALAXIES.remove(g);
+      g.traverse(o=>{ if(o.geometry)o.geometry.dispose();
+        if(o.material){ (Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{ if(m.map&&m.map!==coreTex)m.map.dispose(); m.dispose(); }); } }); }
+    galaxies=[]; galaxyHits.length=0;
+    const slots=galaxySlots(CAMPUSES.length);
+    CAMPUSES.forEach((c,i)=>{ const g=makeGalaxy(i); g.position.copy(slots[i]); GALAXIES.add(g); galaxies.push(g); });
+  }
+  rebuildGalaxies();
+
+  // 캠퍼스(은하) 추가 폼
+  const campusForm=document.getElementById('campusForm'), campusMsg=document.getElementById('campusMsg');
+  document.getElementById('campusToggle').addEventListener('click',()=>campusForm.classList.toggle('show'));
+  document.getElementById('c-add').addEventListener('click',()=>{
+    campusMsg.style.color='#e8a33a';
+    const name=document.getElementById('c-name').value.trim();
+    if(!name){ campusMsg.textContent='캠퍼스 이름을 입력하세요'; return; }
+    CAMPUSES.push({ id:'campus'+Date.now(), name, departments:[] });
+    rebuildGalaxies();
+    campusMsg.style.color='#5fd38a'; campusMsg.textContent=`'${name}' 은하 추가됨 (진입 후 학과 추가)`;
+    document.getElementById('c-name').value='';
+  });
+
+  // 뷰 전환
+  const fadeover=document.getElementById('fadeover');
+  function setView(v){
+    view=v; document.body.dataset.view=v;
+    const planet=(v==='planets');
+    earthGroup.visible=planet; SPACE.visible=planet; moon.visible=planet; satOrbit.visible=planet;
+    GALAXIES.visible=!planet;
+    camDist = planet?PLANET_DIST:GALAXY_DIST; updateCam();   // 뷰별 줌
+  }
+  function crossfadeTo(fn){
+    fadeover.style.opacity='1';
+    setTimeout(()=>{ fn(); setTimeout(()=>{ fadeover.style.opacity='0'; }, 40); }, 380);
+  }
+  function enterCampus(idx){
+    activeCampusIdx=idx; DEPARTMENTS=CAMPUSES[idx].departments; selIdx=0;
+    buildSpace();
+    const has=DEPARTMENTS.length>0;
+    if(has){
+      const d=DEPARTMENTS[0];
+      centralScale=0.78+ratioOf(d)*0.4;
+      earthGroup.position.set(0,0,0); earthGroup.scale.setScalar(centralScale); setEarthOpacity(1);
+      current=target=d.score; apply(current);
+      updateDeptLabel(d); slider.value=Math.round(d.score);
+    } else {
+      deptNameEl.textContent='학과 없음 · ＋ 학과 추가';
+    }
+    setView('planets');
+    earthGroup.visible=has;   // 학과 없으면 중앙 행성 없음
+  }
+  document.getElementById('backBtn').addEventListener('click',()=>crossfadeTo(()=>setView('galaxy')));
+
+  // ── 배경 우주 디테일: 색을 가진 항성 · 별자리 · 반짝임 ──
+  let twinkles=[], starShader=null;
+  (function buildCosmos(){
+    // 밝은 별 + 별자리 별을 한 시스템으로 (별마다 위상 다른 반짝임)
+    const palette=[0x9bb8ff,0xffffff,0xfff0c0,0xffcf8a,0xff9a6a,0x8af0ff], tc=new THREE.Color();
+    const sPos=[], sCol=[], sPh=[], lPos=[];
+    function addStar(v,hex,sat){ sPos.push(v.x,v.y,v.z); tc.setHex(hex).multiplyScalar(sat); sCol.push(tc.r,tc.g,tc.b); sPh.push(Math.random()*6.283); }
+    function addConstellation(stars, edges){
+      stars.forEach(v=>addStar(v,0xeaf2ff,1.0));
+      edges.forEach(([a,b])=>{ const p=stars[a],q=stars[b]; lPos.push(p.x,p.y,p.z,q.x,q.y,q.z); });
+    }
+    // 1) 색이 있는 밝은 항성들 (먼 배경)
+    for(let i=0;i<150;i++){
+      const r=42+Math.random()*30, th=Math.random()*6.283, ph=Math.acos(2*Math.random()-1);
+      addStar(new THREE.Vector3(r*Math.sin(ph)*Math.cos(th), r*Math.sin(ph)*Math.sin(th), r*Math.cos(ph)),
+        palette[(Math.random()*palette.length)|0], 0.6+Math.random()*0.6);
+    }
+    // 2) 별자리 = TERRA 글자 (글자 꼭짓점마다 별, 선으로 연결) — 화면 오른쪽 아래
+    (function(){
+      const F={
+        T:{p:[[0,5],[3,5],[1.5,5],[1.5,0]], e:[[0,2],[2,1],[2,3]]},
+        E:{p:[[0,5],[3,5],[0,2.5],[2.3,2.5],[0,0],[3,0]], e:[[0,1],[0,2],[2,4],[2,3],[4,5]]},
+        R:{p:[[0,5],[2.4,5],[2.4,2.6],[0,2.6],[0,0],[3,0]], e:[[0,1],[1,2],[2,3],[0,3],[3,4],[3,5]]},
+        A:{p:[[0,0],[1.5,5],[3,0],[0.75,2.5],[2.25,2.5]], e:[[0,1],[1,2],[3,4]]},
+      };
+      const word='TERRA', S=0.56, cellW=3, gap=1.3, z=-38;
+      const totalW=(word.length*cellW + (word.length-1)*gap)*S;
+      // 화면 픽셀(오른쪽 100·아래 150)을 글자 평면 기준 월드 좌표로 환산
+      const wpp=(2*Math.tan(38*Math.PI/180/2)*(GALAXY_DIST-z))/innerHeight;
+      let ox=32 + 100*wpp - totalW/2;
+      const baseY=-17 - 150*wpp;
+      for(const ch of word){
+        const f=F[ch];
+        addConstellation(f.p.map(([x,y])=> new THREE.Vector3(ox + x*S, baseY + y*S, z)), f.e);
+        ox += (cellW+gap)*S;
+      }
+    })();
+    // 별 시스템 (ShaderMaterial — 별마다 phase가 달라 무작위 반짝임)
+    const gstar=new THREE.BufferGeometry();
+    gstar.setAttribute('position',new THREE.BufferAttribute(new Float32Array(sPos),3));
+    gstar.setAttribute('acolor',new THREE.BufferAttribute(new Float32Array(sCol),3));
+    gstar.setAttribute('phase',new THREE.BufferAttribute(new Float32Array(sPh),1));
+    starShader=new THREE.ShaderMaterial({
+      uniforms:{ time:{value:0}, px:{value:260.0} },
+      vertexShader:'attribute float phase; attribute vec3 acolor; uniform float time; uniform float px; varying float vTw; varying vec3 vCol;'
+        +'void main(){ vTw=0.15+0.85*0.5*(1.0+sin(time*2.4+phase)); vCol=acolor;'
+        +' vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=px/max(-mv.z,1.0); gl_Position=projectionMatrix*mv; }',
+      fragmentShader:'varying float vTw; varying vec3 vCol;'
+        +'void main(){ float d=length(gl_PointCoord-0.5); float a=smoothstep(0.5,0.0,d); if(a<=0.0)discard; gl_FragColor=vec4(vCol, a*vTw); }',
+      transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
+    });
+    scene.add(new THREE.Points(gstar, starShader));
+    // 별자리 연결선
+    const glin=new THREE.BufferGeometry(); glin.setAttribute('position',new THREE.BufferAttribute(new Float32Array(lPos),3));
+    scene.add(new THREE.LineSegments(glin, new THREE.LineBasicMaterial({color:0xbfe3ff,transparent:true,opacity:0.7})));
+
+    // 2.5) 은하수 느낌 청록 성운 구름 + 촘촘한 별 (배경 깊이감)
+    const nebTex=(function(){
+      const cv=document.createElement('canvas'); cv.width=cv.height=128; const x=cv.getContext('2d');
+      const gr=x.createRadialGradient(64,64,4,64,64,64);
+      gr.addColorStop(0,'rgba(160,215,240,0.9)'); gr.addColorStop(0.4,'rgba(60,140,170,0.4)'); gr.addColorStop(1,'rgba(20,60,90,0)');
+      x.fillStyle=gr; x.fillRect(0,0,128,128); return new THREE.CanvasTexture(cv);
+    })();
+    const nebCols=[0x2e6f9e,0x1d8a8a,0x3a5fae,0x5a4f9e];
+    for(let i=0;i<7;i++){
+      const s=new THREE.Sprite(new THREE.SpriteMaterial({map:nebTex,color:nebCols[i%nebCols.length],transparent:true,opacity:0.10+Math.random()*0.10,blending:THREE.AdditiveBlending,depthWrite:false}));
+      const th=Math.random()*6.283, ph=Math.acos(2*Math.random()-1), R=60+Math.random()*16;
+      s.position.set(R*Math.sin(ph)*Math.cos(th),R*Math.sin(ph)*Math.sin(th),R*Math.cos(ph));
+      const sc=22+Math.random()*32; s.scale.set(sc,sc,1); scene.add(s);
+    }
+    // 촘촘한 별 — 3개 레이어가 서로 다른 위상으로 반짝임
+    for(let L=0;L<3;L++){
+      const FN=320, fp=new Float32Array(FN*3);
+      for(let i=0;i<FN;i++){ const r=40+Math.random()*38, th=Math.random()*6.283, ph=Math.acos(2*Math.random()-1);
+        fp[i*3]=r*Math.sin(ph)*Math.cos(th); fp[i*3+1]=r*Math.sin(ph)*Math.sin(th); fp[i*3+2]=r*Math.cos(ph); }
+      const fg=new THREE.BufferGeometry(); fg.setAttribute('position',new THREE.BufferAttribute(fp,3));
+      const fMat=new THREE.PointsMaterial({color:0xcfe0ff,size:0.15+L*0.06,transparent:true,opacity:0.6,depthWrite:false,blending:THREE.AdditiveBlending});
+      scene.add(new THREE.Points(fg,fMat));
+      twinkles.push({mat:fMat, base:0.6, ph:Math.random()*6.28, sp:1.1+L*0.95});
+    }
+  })();
+
+  // 시작은 은하 뷰
+  setView('galaxy');
+
+  // drag: 빈 곳=중앙 지구 회전 / 오브젝트=드래그해서 이동 / 짧은 클릭=선택·진입
+  let rotY=0,rotX=0.14,auto=true,drag=false,lx=0,ly=0,vY=0,vX=0,downX=0,downY=0;
+  let dragObj=null, dragIdx=-1;
   const cv=renderer.domElement;
-  function dn(x,y){drag=true;auto=false;lx=x;ly=y;}
-  function mv(x,y){if(!drag)return;vY=(x-lx)*0.006;vX=(y-ly)*0.006;rotY+=vY;rotX=Math.max(-0.9,Math.min(0.9,rotX+vX));lx=x;ly=y;}
-  function up(){drag=false;}
+  const _ndc2=new THREE.Vector2(), _ray2=new THREE.Raycaster(), _plane=new THREE.Plane(),
+        _camN=new THREE.Vector3(), _off=new THREE.Vector3(), _tmpP=new THREE.Vector3();
+  function pickAt(x,y){
+    _ndc2.set((x/innerWidth)*2-1, -(y/innerHeight)*2+1); _ray2.setFromCamera(_ndc2,camera);
+    if(view==='galaxy'){ const h=_ray2.intersectObjects(galaxyHits,false)[0]; return h?{group:h.object.parent, idx:h.object.userData.idx}:null; }
+    const h=_ray2.intersectObjects(bgPlanets.map(b=>b.mesh),false)[0]; return h?{group:h.object.parent, idx:h.object.parent.userData.idx}:null;
+  }
+  function planePoint(x,y){
+    _ndc2.set((x/innerWidth)*2-1, -(y/innerHeight)*2+1); _ray2.setFromCamera(_ndc2,camera);
+    return _ray2.ray.intersectPlane(_plane,_tmpP);
+  }
+  function dn(x,y){
+    downX=x; downY=y; auto=false;
+    const pick=pickAt(x,y);
+    if(pick){
+      dragObj=pick.group; dragIdx=pick.idx; drag=false;
+      camera.getWorldDirection(_camN);
+      _plane.setFromNormalAndCoplanarPoint(_camN, dragObj.position);
+      const p=planePoint(x,y); _off.copy(dragObj.position); if(p) _off.sub(p);
+    } else { dragObj=null; drag=true; lx=x; ly=y; }
+  }
+  function mv(x,y){
+    if(dragObj){
+      const p=planePoint(x,y);
+      if(p){ dragObj.position.copy(p).add(_off);
+        if(dragObj.userData && 'baseY' in dragObj.userData) dragObj.userData.baseY=dragObj.position.y; }
+      return;
+    }
+    if(!drag)return; vY=(x-lx)*0.006;vX=(y-ly)*0.006;rotY+=vY;rotX=Math.max(-0.9,Math.min(0.9,rotX+vX));lx=x;ly=y;
+  }
+  function up(x,y){
+    const dist=Math.abs(x-downX)+Math.abs(y-downY);
+    if(dragObj){
+      if(dist<6){ if(view==='galaxy') crossfadeTo(()=>enterCampus(dragIdx)); else selectDept(dragIdx); }
+      dragObj=null;
+    }
+    drag=false;
+  }
   cv.addEventListener('mousedown',e=>dn(e.clientX,e.clientY));
   addEventListener('mousemove',e=>mv(e.clientX,e.clientY));
-  addEventListener('mouseup',up);
+  addEventListener('mouseup',e=>up(e.clientX,e.clientY));
   // 휠 줌
   cv.addEventListener('wheel',e=>{ e.preventDefault();
     camDist=Math.max(camMin,Math.min(camMax,camDist+e.deltaY*0.012)); updateCam();
@@ -728,7 +1421,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       camDist=Math.max(camMin,Math.min(camMax,camDist+(pinch-d)*0.02)); pinch=d; updateCam(); }
     else if(drag) mv(e.touches[0].clientX,e.touches[0].clientY);
   },{passive:true});
-  addEventListener('touchend',up);
+  addEventListener('touchend',e=>{const t=e.changedTouches&&e.changedTouches[0];up(t?t.clientX:downX,t?t.clientY:downY);});
 
   // loop
   let smk=0;
@@ -737,6 +1430,35 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     if(Math.abs(target-current)>0.05){current+=(target-current)*0.12;apply(current);}
     if(auto)rotY+=0.0015; else { if(!drag){vY*=0.93;vX*=0.93;rotY+=vY;rotX=Math.max(-0.9,Math.min(0.9,rotX+vX));} }
     earthGroup.rotation.y=rotY;earthGroup.rotation.x=rotX;
+    // 학과 맞교환 + 디테일 크로스페이드 (이동하며 무거움↔가벼움 자연 전환)
+    if(trans.active){
+      const T=trans;
+      T.t+=0.016/T.dur; const u=Math.min(T.t,1), e=u*u*(3-2*u);
+      // 두 경로는 중앙↔클릭, e=0.5에서 정확히 교차
+      _p1.lerpVectors(ORIGIN, T.clicked, e);   // 나가는 경로 (중앙→클릭)
+      _p2.lerpVectors(T.clicked, ORIGIN, e);   // 들어오는 경로 (클릭→중앙)
+      const outVis=2*T.centralOld+(T.outRad-2*T.centralOld)*e;  // 시각 반지름: 지구→bg
+      const inVis =T.inRad+(2*T.centralNew-T.inRad)*e;          //            bg→지구
+      // 가벼운 구체들
+      T.outEntry.group.position.copy(_p1); T.outEntry.group.scale.setScalar(outVis/T.outRad);
+      T.inEntry.group.position.copy(_p2);  T.inEntry.group.scale.setScalar(inVis/T.inRad);
+      // 크로스페이드: 전반=나가는 행성(지구→구), 후반=들어오는 행성(구→지구)
+      if(e<0.5){
+        T.outEntry.mesh.material.opacity=e/0.5;       // 구 0→1
+        T.inEntry.mesh.material.opacity=1;
+        earthGroup.position.copy(_p1); earthGroup.scale.setScalar(outVis/2);
+        setEarthOpacity(1-e/0.5);                     // 지구 1→0
+      } else {
+        if(!T.repainted){ T.repainted=true; selIdx=T.newIdx; current=target=DEPARTMENTS[T.newIdx].score; apply(current); }
+        T.outEntry.mesh.material.opacity=1;
+        T.inEntry.mesh.material.opacity=1-(e-0.5)/0.5; // 구 1→0
+        earthGroup.position.copy(_p2); earthGroup.scale.setScalar(inVis/2);
+        setEarthOpacity((e-0.5)/0.5);                  // 지구 0→1
+      }
+      if(u>=1) finalizeSwap();
+    } else {
+      earthGroup.scale.setScalar(centralScale);
+    }
     cloudGroup.rotation.y+=0.0006;
     smk+=0.016;
     for(const p of props){
@@ -747,6 +1469,12 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       if(p.type==='nuke'&&p.mesh._steam)p.mesh._steam.forEach((s,i)=>{s.position.y=s._b+Math.sin(smk*0.7+i)*0.02;s.rotation.y+=0.006;});
     }
     satOrbit.rotation.y+=0.002; moon.rotation.y+=0.0016;
+    if(starShader) starShader.uniforms.time.value=smk;                         // 별자리/별 무작위 반짝임
+    for(const tw of twinkles){ tw.mat.opacity = tw.base*(0.5+0.5*Math.sin(smk*tw.sp+tw.ph)); }  // 희미한 별 레이어
+    // 은하 뷰: 각 은하 나선 자전
+    if(view==='galaxy'){ for(const g of galaxies){ g.userData.pts.rotation.y += g.userData.spin; } }
+    // 흩어진 학과 행성 — 자전 + 살짝 떠다님
+    for(const b of bgPlanets){ const u=b.group.userData; b.mesh.rotation.y+=u.spin; u.ph+=0.01; b.group.position.y=u.baseY+Math.sin(u.ph)*0.18; }
     // 회전초 — 육지에서만, 바다로 가면 작아지며 사라짐
     for(const t of tumbleweeds){
       _q.setFromAxisAngle(t.axis,t.speed); t.pivot.quaternion.premultiply(_q);

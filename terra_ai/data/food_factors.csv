@@ -1,0 +1,17 @@
+category,item_ko,item_en,factor_kgco2e_per_kg,source,verify
+육류,소고기,beef,44.7,한끼밥상(한국일보)국내연구종합: 소고기120g=5.365kgCO2e,국내값
+육류,돼지고기,pork,7.0,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+육류,닭고기,chicken,6.0,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+육류,양고기,lamb,24.0,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+수산,양식어류,farmed_fish,5.1,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+유제품,치즈,cheese,21.0,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+유제품,우유,milk,3.0,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+단백,달걀,egg,4.5,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+단백,두부,tofu,3.0,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+곡물,쌀밥,cooked_rice,1.0,한끼밥상(한국일보)국내연구종합: 쌀밥115g=115gCO2e,국내값
+곡물,면,noodle,1.4,Poore&Nemecek2018(밀)전지구평균,GIR식품계수로교체
+곡물,빵,bread,1.4,Poore&Nemecek2018(밀)전지구평균,GIR식품계수로교체
+채소,채소,vegetable,0.5,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+채소,감자,potato,0.3,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
+채소,김치,kimchi,0.9,채소+양념조합추정,실측·문헌으로보정
+과일,과일,fruit,0.5,Poore&Nemecek2018(OWID)전지구평균,GIR식품계수로교체
