@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Terra 계산엔진 API — POST /compute, GET /campus/{id} (Lambda + API Gateway HTTP API)
+  Terra API — POST /extract(Claude API 추출) · POST /compute · GET /campus/{id} (Lambda + API Gateway HTTP API)
   + DynamoDB 단일 테이블. CONTRACT.md §5·§6.
 
 # ⚠️ 보안: HTTP API 에 authorizer 없음 → 엔드포인트가 공개(미인증)입니다.
@@ -30,6 +30,14 @@ Parameters:
     Type: String
     Default: arn:aws:iam::842544789367:role/SafeRole-netzero-12
     Description: Lambda 실행 역할(기존). 해커톤 규칙상 새 역할 생성 불가 → SafeRole 사용.
+  AnthropicApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: >
+      Claude API 키(대회 발급). /extract Lambda 환경변수로 주입.
+      배포: sam deploy --parameter-overrides AnthropicApiKey=sk-ant-...
+      ⚠️ 운영 전환 시 Secrets Manager 보관 권장(현재는 데모용 NoEcho 파라미터).
 
 Resources:
   TerraTable:
@@ -91,6 +99,28 @@ Resources:
             ApiId: !Ref TerraHttpApi
             Path: /campus/{campus_id}
             Method: GET
+
+  # 민지 AI 레인 — Claude API 멀티모달 추출 (CONTRACT §5: POST /extract → §1 ExtractionResult)
+  # CodeUri=terra_ai/ → terra_ai/requirements.txt(anthropic) 자동 설치.
+  # ⚠️ 대회 Bedrock 불가 → Anthropic 직접 API. 인증=환경변수 ANTHROPIC_API_KEY(AnthropicApiKey 파라미터).
+  #    bedrock:InvokeModel 권한 불필요. MOCK/fixture 경로는 키·네트워크 불필요.
+  #    Timeout 29s (Globals 10s 오버라이드, API GW HTTP API 상한 30s보다 낮게).
+  ExtractFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: terra_ai/
+      Handler: api.extract_handler.handler
+      Timeout: 29   # API GW HTTP API 통합 상한 30s보다 낮게 → Lambda가 먼저 깔끔히 종료(경계 레이스 방지)
+      Environment:
+        Variables:
+          ANTHROPIC_API_KEY: !Ref AnthropicApiKey   # Claude API 인증 (Globals의 TERRA_TABLE 와 머지됨)
+      Events:
+        Extract:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraHttpApi
+            Path: /extract
+            Method: POST
 
 Outputs:
   ApiUrl:
