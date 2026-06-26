@@ -114,6 +114,8 @@ body {
 /* 측정 페이지 → Earth(나의 행성)로 돌아가기 (헤더 우측, 내부 화면 전환용 ‹ 와 별개) */
 .earth-back {
   margin-left: auto;
+  position: relative;
+  z-index: 5;
   display: inline-flex;
   align-items: center;
   gap: 5px;

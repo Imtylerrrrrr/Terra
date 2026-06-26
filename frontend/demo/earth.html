@@ -1826,5 +1826,15 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   // 로더 숨김
   setTimeout(()=>document.getElementById('loader').classList.add('hide'),350);
   </script>
+  <script>
+    /* 안전장치: 위 3D 초기화가 (CDN 차단·WebGL 불가·file:// 등으로) 중간에 실패해도
+       로더가 영구히 남아 화면이 멈춘 것처럼 보이지 않도록, 독립 스크립트에서 강제로 해제.
+       (스크립트 블록은 서로 독립 실행되므로 위 블록이 throw해도 이 블록은 실행됨) */
+    (function(){
+      var hide=function(){ var l=document.getElementById('loader'); if(l) l.classList.add('hide'); };
+      setTimeout(hide, 2500);
+      window.addEventListener('load', function(){ setTimeout(hide, 600); });
+    })();
+  </script>
 </body>
 </html>
