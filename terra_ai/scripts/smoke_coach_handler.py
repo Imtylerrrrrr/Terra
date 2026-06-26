@@ -67,5 +67,13 @@ resp = handler({"body": "{not json"})
 check("깨진 JSON → 400 invalid_json",
       resp["statusCode"] == 400 and json.loads(resp["body"])["error"]["code"] == "invalid_json")
 
+# 6) 음수 cumulative → 0으로 클램프(remaining 부풀림 차단): cumulative=0 과 동일 동작
+mid = {"total_grams_co2e": 1050.0, "tier": "mid",
+       "best_alternative": {"name": "비건비빔밥", "grams_co2e": 285.0, "saving_grams": 765.0}}
+st6n, r_neg = call({"result": mid, "user_dept": "컴퓨터공학과", "cumulative_saving_grams": -5})
+st6z, r_zero = call({"result": mid, "user_dept": "컴퓨터공학과", "cumulative_saving_grams": 0})
+check("음수 cumulative 200", st6n == 200)
+check("음수 → 0 클램프(=cumulative 0 동작)", r_neg.get("next_action") == r_zero.get("next_action"))
+
 print(f"\n{'전부 PASS ✅' if not fails else f'실패 {len(fails)}건: {fails}'}")
 sys.exit(1 if fails else 0)

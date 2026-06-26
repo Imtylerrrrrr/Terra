@@ -44,6 +44,7 @@ def _coach(body):
             cumulative = float(cumulative)
         except (TypeError, ValueError):
             raise ValueError("cumulative_saving_grams 는 숫자여야 합니다.")
+        cumulative = max(0.0, cumulative)   # 음수 누적 방지 — remaining 부풀림(예: -5 → "505g 더") 차단
     return coach(result, user_dept, cumulative_saving_grams=cumulative)
 
 
