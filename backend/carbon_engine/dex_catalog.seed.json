@@ -1,0 +1,20 @@
+{
+  "_note": "도감 카탈로그(백엔드 벤더 사본) — 단일 진실은 terra_ai/data/collection.json. compute Lambda zip(carbon_engine·store·handlers)에는 terra_ai 가 안 들어가므로 여기에 미러한다. 두 파일의 items(id·milestone_kg)는 항상 일치해야 함 — tests/test_engine.py 의 드리프트 가드가 강제.",
+  "_milestones_kg": [0.5, 2, 5, 10],
+  "items": [
+    { "id": "red_fox",          "name": "여우",         "milestone_kg": 0.5, "type": "quad", "desc": "영리한 토종 여우" },
+    { "id": "otter",            "name": "수달",         "milestone_kg": 0.5, "type": "quad", "desc": "깨끗한 하천의 지표종" },
+    { "id": "goral",            "name": "산양",         "milestone_kg": 0.5, "type": "quad", "desc": "바위산의 우제류" },
+    { "id": "sika_deer",        "name": "대륙사슴",     "milestone_kg": 0.5, "type": "quad", "desc": "점박이 무늬의 사슴" },
+    { "id": "least_weasel",     "name": "무산쇠족제비", "milestone_kg": 2,   "type": "quad", "desc": "가장 작은 족제비" },
+    { "id": "spotted_seal",     "name": "물범",         "milestone_kg": 2,   "type": "quad", "desc": "바위 위 점박이물범" },
+    { "id": "lynx",             "name": "스라소니",     "milestone_kg": 2,   "type": "quad", "desc": "귀 끝 깃털의 살쾡이" },
+    { "id": "golden_bat",       "name": "붉은박쥐",     "milestone_kg": 2,   "type": "bat",  "desc": "황금박쥐로 불리는 희귀 박쥐" },
+    { "id": "tube_nosed_bat",   "name": "작은관코박쥐", "milestone_kg": 5,   "type": "bat",  "desc": "관 모양 코의 희귀 박쥐" },
+    { "id": "musk_deer",        "name": "사향노루",     "milestone_kg": 5,   "type": "quad", "desc": "송곳니가 발달한 희귀 노루" },
+    { "id": "asiatic_black_bear","name": "반달가슴곰",  "milestone_kg": 5,   "type": "quad", "desc": "지리산 복원의 상징종" },
+    { "id": "wolf",             "name": "늑대",         "milestone_kg": 5,   "type": "quad", "desc": "한반도 토종 늑대" },
+    { "id": "leopard",          "name": "표범",         "milestone_kg": 10,  "type": "quad", "desc": "한반도 대형 고양잇과 맹수" },
+    { "id": "tiger",            "name": "호랑이",       "milestone_kg": 10,  "type": "quad", "desc": "숲의 제왕, 최고 보상" }
+  ]
+}

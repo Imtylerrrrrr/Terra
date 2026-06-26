@@ -45,11 +45,11 @@ check("한 번에 0→5kg: 티어1+2+3 동시 해금", newly_unlocked(0, 5000) =
 
 # 4) 다음 마일스톤 넛지 — 남은 양(coach용)
 nm = next_milestone(200)
-check("0.2kg에서 다음=여우(티어1), 남은 300g",
-      nm and nm["id"] == "red_fox" and nm["remaining_grams"] == 300.0)
+check("0.2kg에서 다음=여우(티어1), 남은 300g, 4종 동시",
+      nm and nm["id"] == "red_fox" and nm["remaining_grams"] == 300.0 and nm["count"] == 4)
 nm2 = next_milestone(2000)
-check("2kg 달성 후 다음=티어3 선두(작은관코박쥐), 남은 3000g",
-      nm2 and nm2["id"] == "tube_nosed_bat" and nm2["remaining_grams"] == 3000.0)
+check("2kg 달성 후 다음=티어3 선두(작은관코박쥐), 남은 3000g, 4종",
+      nm2 and nm2["id"] == "tube_nosed_bat" and nm2["remaining_grams"] == 3000.0 and nm2["count"] == 4)
 check("전종 해금 시 next=None", next_milestone(99999) is None)
 
 # 5) progress 요약 — 프론트 바인딩 형태

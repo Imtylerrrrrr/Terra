@@ -6,6 +6,7 @@
 from .engine import compute, aggregate
 from .tiers import tier_from_grams, TIER_LOW, TIER_HIGH
 from .factors import load_factors, Factors
+from .unlocks import unlocked_ids, catalog_ids
 
 __all__ = [
     "compute",
@@ -15,4 +16,6 @@ __all__ = [
     "TIER_HIGH",
     "load_factors",
     "Factors",
+    "unlocked_ids",
+    "catalog_ids",
 ]
