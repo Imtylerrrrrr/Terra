@@ -37,5 +37,11 @@ check("타입이 계약 범위(menu/food/purchase/screentime/energy)", types <= 
 e = handler({"body": "{}"})
 check("빈 본문 400", e["statusCode"] == 400)
 
+# 4) fixture 폴백 (라이브·AWS 없이 결정적)
+fr = handler({"body": json.dumps({"fixture": "소불고기덮밥"})})
+fb = json.loads(fr["body"])
+check("fixture 폴백 200+해당메뉴",
+      fr["statusCode"] == 200 and fb["activities"][0].get("name") == "소불고기덮밥")
+
 print(f"\n{'전부 PASS ✅' if not fails else f'실패 {len(fails)}건: {fails}'}")
 sys.exit(1 if fails else 0)
