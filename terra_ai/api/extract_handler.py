@@ -53,6 +53,11 @@ def _extract(body):
     raise ValueError("fixture · text · image_base64 중 하나 필요")
 
 
+def _error(code, message):
+    """CONTRACT §5 에러 형식 {"error":{"code","message"}}."""
+    return {"error": {"code": code, "message": str(message)}}
+
+
 def handler(event, context=None):
     """AWS Lambda — API Gateway proxy 통합 (POST /extract)."""
     try:
@@ -63,13 +68,13 @@ def handler(event, context=None):
         result = _extract(body)
         code = 200
     except (ValueError, json.JSONDecodeError) as e:
-        result, code = {"error": str(e)}, 400
+        result, code = _error("invalid_json" if isinstance(e, json.JSONDecodeError) else "bad_request", e), 400
     except Exception as e:   # 라이브 추출 실패 → 데모 폴백 (opt-in: TERRA_DEMO_FALLBACK)
         fb = os.environ.get("TERRA_DEMO_FALLBACK")
         if fb and fb in _FIXTURES:
             result, code = {**_FIXTURES[fb], "_fallback": fb}, 200
         else:
-            result, code = {"error": "extraction_failed", "detail": str(e)}, 502
+            result, code = _error("extraction_failed", e), 502
     return {"statusCode": code,
             "headers": {"Content-Type": "application/json; charset=utf-8"},
             "body": json.dumps(result, ensure_ascii=False)}
@@ -89,7 +94,7 @@ def _serve(port):
             try:
                 result, code = _extract(json.loads(raw)), 200
             except (ValueError, json.JSONDecodeError) as e:
-                result, code = {"error": str(e)}, 400
+                result, code = _error("invalid_json" if isinstance(e, json.JSONDecodeError) else "bad_request", e), 400
             payload = json.dumps(result, ensure_ascii=False).encode()
             self.send_response(code)
             self.send_header("Content-Type", "application/json; charset=utf-8")

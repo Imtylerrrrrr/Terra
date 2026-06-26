@@ -43,6 +43,11 @@ def _parse_json(text):
         return {"activities": [], "needs_review": True}
 
 
+def _first_text(resp):
+    """응답에서 첫 text 블록(없으면 빈 문자열). text 블록 부재 시 StopIteration→500 방지."""
+    return next((b.text for b in resp.content if b.type == "text"), "")
+
+
 def extract_from_image_bytes(image_bytes, media_type="image/jpeg"):
     """이미지 바이트 → CONTRACT.md §1 activities JSON. (엔드포인트·업로드용)"""
     if os.environ.get("MOCK") == "1":
@@ -58,7 +63,7 @@ def extract_from_image_bytes(image_bytes, media_type="image/jpeg"):
             {"type": "text", "text": "이 캠퍼스 입력을 스키마대로 분류해. JSON만."},
         ]}],
     )
-    return _parse_json(next(b.text for b in resp.content if b.type == "text"))
+    return _parse_json(_first_text(resp))
 
 
 def extract_from_image(image_path, media_type="image/jpeg"):
@@ -78,7 +83,7 @@ def extract_from_text(text):
         system=SYSTEM,
         messages=[{"role": "user", "content": f"입력: {text}\n스키마대로 분류해. JSON만."}],
     )
-    return _parse_json(next(b.text for b in resp.content if b.type == "text"))
+    return _parse_json(_first_text(resp))
 
 
 def _mock(_):

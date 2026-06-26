@@ -33,9 +33,13 @@ check("activities 존재", isinstance(body.get("activities"), list) and len(body
 types = {a.get("type") for a in body["activities"]}
 check("타입이 계약 범위(menu/food/purchase/screentime/energy)", types <= CONTRACT_TYPES)
 
-# 3) 빈 본문 → 400
+# 3) 빈 본문 → 400 + §5 에러 형식 {"error":{"code","message"}}
 e = handler({"body": "{}"})
+ebody = json.loads(e["body"])
 check("빈 본문 400", e["statusCode"] == 400)
+check("에러 형식 §5(error.code/message)",
+      isinstance(ebody.get("error"), dict)
+      and "code" in ebody["error"] and "message" in ebody["error"])
 
 # 4) fixture 폴백 (라이브·AWS 없이 결정적)
 fr = handler({"body": json.dumps({"fixture": "소불고기덮밥"})})
