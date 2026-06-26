@@ -83,7 +83,7 @@ def extract_from_image_bytes(image_bytes, media_type="image/jpeg"):
 
 
 def extract_from_image(image_path, media_type="image/jpeg"):
-    """식단·영수증 사진 파일 → CONTRACT.md §1 activities JSON. (Bedrock 비전 통일, Textract 미사용)"""
+    """식단·영수증 사진 파일 → CONTRACT.md §1 activities JSON. (Claude API 비전 통일, Textract 미사용)"""
     if os.environ.get("MOCK") == "1":
         return _mock(image_path)
     return extract_from_image_bytes(pathlib.Path(image_path).read_bytes(), media_type)
@@ -103,7 +103,7 @@ def extract_from_text(text):
 
 
 def _mock(_):
-    """라이브 Bedrock 없이 파이프라인·스키마 검증용."""
+    """라이브 추출 없이 파이프라인·스키마 검증용."""
     return {"activities": [{"type": "menu", "name": "제육덮밥"}],
             "confidence": 0.82, "needs_review": False}
 
