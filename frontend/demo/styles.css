@@ -133,6 +133,14 @@ body {
   transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 .earth-back:hover { border-color: var(--green-bright); background: rgba(95, 196, 136, 0.15); }
+/* 홈 화면 전용: 화살표 대신 '행성으로' 텍스트 (카테고리 하위화면은 원형 ‹ 유지) */
+.back-btn.to-planet {
+  width: auto; height: 34px;
+  border-radius: 18px;
+  padding: 0 14px;
+  font-size: 14px; font-weight: 700;
+  white-space: nowrap;
+}
 
 /* ================= 화면 전환 ================= */
 .screen { display: none; padding: 20px; flex: 1; }
