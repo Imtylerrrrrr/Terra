@@ -34,13 +34,18 @@ export interface ComputeRequest {
   campus_id?: string;
 }
 
-/** 저장 여부 플래그가 붙은 개인 결과 */
-export type ComputeResponse = PersonalResult & { persisted?: boolean };
+/** 저장 여부 플래그가 붙은 개인 결과 (§5: /compute 응답에 항상 포함) */
+export type ComputeResponse = PersonalResult & { persisted: boolean };
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  // Content-Type 은 바디가 있을 때만 (GET 에 붙이면 불필요한 CORS preflight 유발).
+  // init.headers 는 덮어쓰지 않고 머지 — 호출측이 헤더를 추가/지정할 수 있게.
   const res = await fetch(`${BASE_URL}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...init,
+    headers: {
+      ...(init?.body != null ? { "Content-Type": "application/json" } : {}),
+      ...init?.headers,
+    },
   });
 
   let data: unknown = null;
@@ -57,6 +62,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       err?.message ?? res.statusText,
       res.status,
     );
+  }
+  // 2xx 인데 바디가 비었거나 JSON 이 아니면(계약상 항상 JSON) 명시적 에러로 — 호출측 null 접근 방지.
+  if (data === null) {
+    throw new ApiError("empty_response", "응답 바디가 비어 있거나 JSON이 아닙니다.", res.status);
   }
   return data as T;
 }
