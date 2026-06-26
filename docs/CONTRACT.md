@@ -118,9 +118,23 @@ Bedrock 멀티모달이 식판·영수증·스크린타임·전력을 정규화�
 | 메서드 · 경로 | 요청 바디 | 응답 | 담당 |
 |---|---|---|---|
 | `POST /extract` | 이미지(S3 key) 또는 텍스트 | §1 `ExtractionResult` | 민지 (Bedrock) |
-| `POST /compute` | `{ user_id, dept_id, extraction: §1 }` | §2-A `PersonalResult` | 주영 (엔진) |
+| `POST /compute` | `{ user_id, dept_id, extraction: §1, campus_id? }` | §2-A `PersonalResult` (+ `persisted`) | 주영 (엔진) |
 | `GET /campus/{campus_id}` | — | §2-B `AggregateResult` | 주영 (집계) |
 
 - 인프라: **API Gateway HTTP API + Lambda**, JSON 입출력.
 - 인증: 코어는 `user_id`를 바디/헤더로 전달. Cognito(플러스) 붙으면 토큰 `sub`로 대체.
 - 에러 응답: `{ "error": { "code": string, "message": string } }` + 적절한 HTTP status.
+- `campus_id`는 선택(기본 `"main"`). `/compute`는 계산 후 결과를 DynamoDB에 저장(집계용)하고 응답에 `persisted: bool` 포함.
+
+## 6) DynamoDB 스키마 (주영 확정 — 단일 테이블)
+
+`POST /compute` 저장 → `GET /campus/{id}` 집계의 백킹 스토어. 환경변수 `TERRA_TABLE`.
+
+| PK | SK | 용도 | 주요 속성 |
+|---|---|---|---|
+| `CAMPUS#{campus_id}` | `RESULT#{dept_id}#{user_id}` | 개인 결과 | `total_grams_co2e` · `tier` · `dept_id` · `user_id` |
+| `CAMPUS#{campus_id}` | `DEPT#{dept_id}` | 학과 메타 | `name` · `total_students` |
+
+- 캠퍼스 1건 **Query(PK)** 로 결과 + 학과 메타를 한 번에 조회 → `aggregate()`.
+- 학과 메타(`total_students`)는 관성 가상데이터에서 미리 적재(`put_dept_meta`).
+- 코드: `backend/store/` (Dynamo / InMemory 동일 인터페이스).
