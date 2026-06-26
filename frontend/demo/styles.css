@@ -26,6 +26,7 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
+body { overflow-x: hidden; }
 
 body {
   font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
@@ -77,10 +78,13 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+  /* 화면 전체 폭으로 펼치되 내용은 480px 컬럼에 맞춰 정렬 */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 20px;
+  padding: 16px max(20px, calc(50vw - 240px + 20px));
   background: rgba(13, 13, 22, 0.78);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
