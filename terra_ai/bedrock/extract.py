@@ -28,9 +28,9 @@ REGION = os.environ.get("AWS_REGION", "us-east-1")
 
 
 def _client():
-    """Bedrock Mantle 클라이언트 (Messages API, 주영의 AWS 계정 자격증명 사용)."""
-    from anthropic import AnthropicBedrockMantle
-    return AnthropicBedrockMantle(aws_region=REGION)
+    """Bedrock 클라이언트 (anthropic SDK, Messages API, 주영의 AWS 자격증명 사용)."""
+    from anthropic import AnthropicBedrock
+    return AnthropicBedrock(aws_region=REGION)
 
 
 def _parse_json(text):
