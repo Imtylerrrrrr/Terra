@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Terra 계산엔진 API — POST /compute, GET /campus/{id} (Lambda + API Gateway HTTP API)
+  + DynamoDB 단일 테이블. CONTRACT.md §5·§6.
+
+# ⚠️ 보안: HTTP API 에 authorizer 없음 → 엔드포인트가 공개(미인증)입니다.
+#    코어 데모 기준. 운영/플러스에서는 Cognito JWT Authorizer 를 붙여 user_id 를 토큰 sub 로 대체.
+#
+# 해커톤 제한계정(netzero-12) 대응:
+#  - 리전 us-east-1 고정 (samconfig)
+#  - 새 IAM Role 생성 불가 → 기존 SafeRole-{username} 을 ExecRoleArn 으로 지정(Role 생성 안 함)
+#    SafeRole 에 DynamoDB(CRUD)+Logs 권한이 포함돼 있어야 함(관리자 확인 항목).
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 10
+    MemorySize: 256
+    Role: !Ref ExecRoleArn
+    Environment:
+      Variables:
+        TERRA_TABLE: !Ref TerraTable
+
+Parameters:
+  StageName:
+    Type: String
+    Default: prod
+  ExecRoleArn:
+    Type: String
+    Default: arn:aws:iam::842544789367:role/SafeRole-netzero-12
+    Description: Lambda 실행 역할(기존). 해커톤 규칙상 새 역할 생성 불가 → SafeRole 사용.
+
+Resources:
+  TerraTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AWS::StackName}-terra"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+
+  TerraHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: !Ref StageName
+      # 공개(미인증) + PAY_PER_REQUEST → 호출 폭주가 곧 비용.
+      # 기본 라우트 스로틀로 데모 중 사고 방지(데모 트래픽엔 충분, 필요 시 상향).
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
+      CorsConfiguration:
+        AllowOrigins:
+          - "*"
+        AllowMethods:
+          - GET
+          - POST
+        AllowHeaders:
+          - "*"
+
+  ComputeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: handlers.compute_handler.handler
+      Events:
+        Compute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraHttpApi
+            Path: /compute
+            Method: POST
+
+  CampusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: handlers.campus_handler.handler
+      Events:
+        Campus:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TerraHttpApi
+            Path: /campus/{campus_id}
+            Method: GET
+
+Outputs:
+  ApiUrl:
+    Description: HTTP API base URL (프론트가 호출)
+    Value: !Sub "https://${TerraHttpApi}.execute-api.${AWS::Region}.amazonaws.com/${StageName}"
+  TableName:
+    Description: DynamoDB 테이블명 (TERRA_TABLE)
+    Value: !Ref TerraTable
