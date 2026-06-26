@@ -5,7 +5,8 @@ REM %~dp0 = 이 .bat 이 있는 폴더(=레포 루트). 한글 경로도 안전�
 cd /d "%~dp0"
 
 set "PORT=8012"
-set "URL=http://localhost:%PORT%/frontend/demo/"
+REM app.html = 폰 프레임 셸(데모를 모바일 화면처럼 감쌈). 데모 본체는 그 안 iframe.
+set "URL=http://localhost:%PORT%/frontend/demo/app.html"
 
 echo ============================================
 echo   Terra Demo

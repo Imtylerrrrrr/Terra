@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
+  <title>Terra — 캠퍼스의 안부</title>
+  <style>
+    /* 데모를 '폰 화면'처럼 보이게 하는 셸.
+       데스크톱 → 가운데 390×844 폰 프레임(노치·홈바·베젤) 안에 데모를 iframe 으로 띄움.
+       실제 폰(좁은 뷰포트) → 프레임을 풀화면으로 펴서 앱처럼 보이게 함.
+       데모 4페이지(index/planet/carbon/coaching)는 iframe 자체 뷰포트(폰 폭)를 가지므로
+       100vw/vh·position:fixed·three.js(window 크기 렌더)가 수정 없이 그대로 동작한다. */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      min-height:100dvh;
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(1100px 700px at 50% -12%, rgba(95,211,138,.10), transparent 60%),
+        linear-gradient(165deg,#0c0e15 0%,#05060a 60%);
+      font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    /* 폰 프레임 — 390:844 비율 유지하며 뷰포트에 맞게 축소 */
+    .phone{
+      position:relative;
+      aspect-ratio:390 / 844;
+      height:min(844px, calc(100dvh - 24px));
+      width:auto;
+      max-width:calc(100dvw - 24px);
+      border:12px solid #0a0b10;
+      border-radius:50px;
+      overflow:hidden;
+      background:#05060a;
+      box-shadow:
+        0 0 0 2.5px #23262f,                 /* 금속 림 */
+        0 34px 80px -12px rgba(0,0,0,.72),    /* 바닥 그림자 */
+        inset 0 0 0 1px rgba(255,255,255,.04);
+    }
+
+    .phone iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+      background:#05060a;
+    }
+
+    /* 다이내믹 아일랜드(노치) */
+    .notch{
+      position:absolute;
+      top:9px; left:50%;
+      transform:translateX(-50%);
+      width:34%; max-width:122px; height:26px;
+      background:#000;
+      border-radius:16px;
+      z-index:3;
+      pointer-events:none;
+    }
+    .notch::after{ /* 카메라 점 */
+      content:"";
+      position:absolute;
+      top:50%; right:14px;
+      transform:translateY(-50%);
+      width:7px; height:7px;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 30%, #1d2740, #05060a 75%);
+      box-shadow:0 0 0 1px rgba(70,90,130,.45);
+    }
+
+    /* 홈 인디케이터 */
+    .home{
+      position:absolute;
+      bottom:8px; left:50%;
+      transform:translateX(-50%);
+      width:38%; max-width:138px; height:5px;
+      border-radius:3px;
+      background:rgba(255,255,255,.55);
+      z-index:3;
+      pointer-events:none;
+    }
+
+    /* 실제 폰: 프레임 제거 → 풀화면 앱 */
+    @media (max-width:480px){
+      body{background:#05060a}
+      .phone{
+        width:100dvw; height:100dvh;
+        max-width:none; aspect-ratio:auto;
+        border:0; border-radius:0; box-shadow:none;
+      }
+      .notch,.home{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="phone" role="application" aria-label="Terra 데모">
+    <iframe src="index.html" title="Terra 데모" allow="fullscreen; accelerometer; gyroscope"></iframe>
+    <div class="notch" aria-hidden="true"></div>
+    <div class="home" aria-hidden="true"></div>
+  </div>
+</body>
+</html>
