@@ -285,7 +285,7 @@
   #world.show{display:flex;opacity:0;transition:opacity .8s}
   #world.arrived{opacity:1}
   .book-scene{position:relative;z-index:1;display:flex;flex-direction:column;
-    align-items:center;gap:8px;padding:8px;width:100%;height:100%}
+    align-items:center;justify-content:center;gap:8px;padding:8px;width:100%;height:100%}
 
   /* 책 이미지 배경 — 화면 꽉 차게 */
   .book{position:relative;
@@ -378,25 +378,26 @@
   #prog{font-family:'Noto Serif KR',serif;font-size:11px;font-weight:600;color:#4a2e08}
 
   /* 오른쪽: 2열×3행 카드 그리드 — 페이지 꽉 채움 */
-  .species-grid{display:grid;grid-template-columns:repeat(2,1fr);
+  /* 1열 × 3행 — B안 가로형 카드 */
+  .species-grid{display:grid;grid-template-columns:1fr;
     grid-template-rows:repeat(3,1fr);gap:7px;flex:1;min-height:0}
 
-  /* 카드 */
+  /* 카드: 이미지 좌 + 텍스트 우 */
   .sp-card{border:1.5px solid rgba(120,80,30,.5);border-radius:6px;
     background:transparent;cursor:pointer;transition:all .17s;
-    text-align:center;display:flex;flex-direction:column;overflow:hidden;
-    min-height:0}
+    text-align:left;display:flex;flex-direction:row;overflow:hidden;min-height:0}
   .sp-card:hover{background:rgba(180,140,70,.16);transform:translateY(-2px);
     box-shadow:0 4px 12px rgba(80,40,0,.18);border-color:rgba(120,80,30,.8)}
   .sp-card.locked-card{opacity:.45;cursor:default}
   .sp-card.locked-card:hover{transform:none;background:transparent}
   .sp-card.active-card{background:rgba(180,140,70,.25);border-color:#7a5010;
     box-shadow:0 0 0 2px rgba(180,140,70,.65)}
-  /* 카드 이미지 */
-  .sp-card-img{flex:1;min-height:0;display:flex;align-items:center;
-    justify-content:center;padding:5px 4px 2px}
-  .sp-card-img img{max-height:100%;max-width:85%;object-fit:contain;
-    filter:drop-shadow(0 2px 5px rgba(0,0,0,.18))}
+  /* 카드 이미지 — 고정 너비, 좌측 */
+  .sp-card-img{width:48%;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;padding:3px;
+    border-right:1.5px solid rgba(120,80,30,.3)}
+  .sp-card-img img{max-height:100%;max-width:100%;object-fit:contain;
+    filter:drop-shadow(0 3px 8px rgba(0,0,0,.22))}
   .sp-card.locked-card .sp-card-img img{filter:brightness(0) opacity(.15)}
   .sp-lock-overlay{position:absolute;inset:0;display:flex;flex-direction:column;
     align-items:center;justify-content:center;gap:2px}
@@ -404,18 +405,18 @@
     filter:drop-shadow(0 2px 6px rgba(0,0,0,.3))}
   .sp-lock-overlay .lock-score{font-family:'Noto Serif KR',serif;
     font-size:10px;font-weight:700;color:#5a3c18;letter-spacing:.04em}
-  /* 카드 텍스트 */
-  .sp-card-body{padding:4px 7px 6px;border-top:1.5px solid rgba(120,80,30,.35);
-    flex-shrink:0}
+  /* 카드 텍스트 — 우측 */
+  .sp-card-body{padding:6px 8px;flex:1;display:flex;flex-direction:column;
+    justify-content:center}
   .sp-card-name{font-family:'Noto Serif KR',serif;
     font-size:14px;font-weight:700;color:#1a0d02;line-height:1.25;word-break:keep-all}
   .sp-card.locked-card .sp-card-name{color:#7a5830}
   .sp-card-en{font-family:'Playfair Display',serif;
-    font-size:10.5px;font-weight:700;color:#2e1a08;line-height:1.3;margin-top:2px}
+    font-size:10px;font-weight:700;color:#2e1a08;line-height:1.3;margin-top:2px}
   .sp-card-latin{font-family:'Playfair Display',serif;
-    font-size:9.5px;color:#4a3010;font-style:italic;line-height:1.3}
+    font-size:9px;color:#4a3010;font-style:italic;line-height:1.3}
   .sp-card-range{font-family:'Noto Serif KR',serif;
-    font-size:9px;color:#5a3c18;line-height:1.3;margin-top:2px}
+    font-size:8.5px;color:#5a3c18;line-height:1.3;margin-top:1px}
   .sp-lock-badge{font-family:'Noto Serif KR',serif;
     font-size:10px;color:#7a5830;margin-top:3px;font-weight:600}
 
@@ -550,7 +551,7 @@
   const isFound = s => UNLOCKS ? UNLOCKS.includes(speciesKey(s)) : SCORE >= s.req;
 
   let curPage = 0;
-  const PER_PAGE = 6;
+  const PER_PAGE = 3;
   let selected = null;
 
   function showDetail(s) {
