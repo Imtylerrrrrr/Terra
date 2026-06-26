@@ -60,6 +60,23 @@ sam deploy --guided   # 최초 1회 (이후 sam deploy)
 - `TERRA_TABLE` 환경변수는 템플릿이 자동 주입.
 - ⚠️ HTTP API에 authorizer 없음 = **공개(미인증) 엔드포인트**. 코어 데모용이며, 운영/플러스는 Cognito JWT Authorizer로 보호.
 
+### 데모 시드 (배포 직후 1회)
+
+갓 배포된 테이블은 비어 있어 `GET /campus/{id}` 가 빈 집계를 반환한다.
+`aggregate()` 는 **개인 결과** 기준으로 학과를 만들기 때문에 메타만으론 빈 집계 →
+시드 스크립트가 학과 메타 + 샘플 개인 결과를 함께 적재한다.
+
+```bash
+# 드라이런: 인메모리에 적재 → §2-B 집계를 출력(AWS 불필요)
+python scripts/seed.py
+
+# 실제 적재: 배포된 DynamoDB 테이블로 (boto3 + AWS 자격증명 필요)
+pip install boto3
+TERRA_TABLE=<출력 TableName> python scripts/seed.py --campus main
+```
+
+- `scripts/seed.py` 의 인원·메뉴는 **임시 데모값**(관성 가상데이터로 교체 예정).
+
 ## 남은 통합 작업 (주영)
 - DynamoDB 테이블 프로비저닝(`TERRA_TABLE`) + API Gateway/Lambda 배포(SAM/CDK).
 - `unlocks`(도감 해금)는 누적 절감 이력이 필요 → DB 집계 단계에서 마일스톤(0.5/2/5/10kg) 적용.
