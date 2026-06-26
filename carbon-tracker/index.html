@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>탄소 측정</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- 우주 배경 레이어 -->
+  <div class="space-bg" aria-hidden="true">
+    <div class="stars stars-1"></div>
+    <div class="stars stars-2"></div>
+    <div class="nebula nebula-green"></div>
+    <div class="nebula nebula-teal"></div>
+  </div>
+
+  <!-- 공용 SVG 그라데이션 정의 -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="iconGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#c4f5d3" />
+        <stop offset="100%" stop-color="#36a368" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <!-- 상단 헤더 -->
+    <header class="app-header">
+      <button id="backBtn" class="back-btn" hidden aria-label="뒤로가기">‹</button>
+      <svg class="header-icon" id="iconCO2" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7.4 19a4 4 0 0 1-.4-8 5.5 5.5 0 0 1 10.6-1A3.75 3.75 0 0 1 17 19z" />
+        <text x="12" y="16" font-size="6" font-weight="800" fill="url(#iconGrad)" stroke="none" text-anchor="middle">CO₂</text>
+      </svg>
+      <svg class="header-icon" id="iconLeaf" hidden viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M7 20h10" />
+        <path d="M10 20c5.5-2.5.8-6.4 3-10" />
+        <path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" />
+        <path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
+      </svg>
+      <h1 id="appTitle">탄소 측정</h1>
+    </header>
+
+    <!-- ===================== 메인 메뉴 ===================== -->
+    <section id="screen-home" class="screen active">
+      <!-- 히어로 -->
+      <div class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-orb"></div>
+        <span class="hero-badge">CARBON · DAILY</span>
+        <p class="hero-sub">내 하루가 만드는 탄소 발자국</p>
+        <h2 class="hero-title">지금, 바로<br />측정해보세요</h2>
+        <p class="hero-desc">식단·전기·영수증·휴대폰 사용까지, 일상 속 탄소를 한 곳에서 측정하고 눈으로 확인하세요.</p>
+
+        <div class="hero-stats">
+          <div class="stat"><strong>4</strong><span>측정 카테고리</span></div>
+          <div class="stat"><strong id="statToday">0.0</strong><span>오늘 kg CO₂</span></div>
+          <div class="stat"><strong id="statWeek">0.0</strong><span>최근 7일 kg</span></div>
+          <div class="stat"><strong>1일</strong><span>자동 초기화</span></div>
+        </div>
+      </div>
+
+      <!-- 카테고리 -->
+      <p class="section-eyebrow">CATEGORY · 일상 탄소 측정</p>
+      <h3 class="section-title">카테고리별 측정</h3>
+      <div class="menu-grid">
+        <!-- 식단 사진 -->
+        <button class="menu-card" data-target="screen-diet">
+          <span class="card-deco"></span>
+          <span class="icon-tile">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.52-4.48 10-10 10z" />
+              <path d="M2 21c0-3 1.85-5.36 5.08-6" />
+            </svg>
+          </span>
+          <span class="menu-label">식단 사진</span>
+          <span class="menu-sub">음식 칼로리·종류 분석</span>
+        </button>
+        <!-- 전기계량기 -->
+        <button class="menu-card" data-target="screen-power">
+          <span class="card-deco"></span>
+          <span class="icon-tile">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13 2 5 13h6l-1 9 8-12h-6z" />
+            </svg>
+          </span>
+          <span class="menu-label">전기계량기</span>
+          <span class="menu-sub">전력 사용량 분석</span>
+        </button>
+        <!-- 영수증 -->
+        <button class="menu-card" data-target="screen-receipt">
+          <span class="card-deco"></span>
+          <span class="icon-tile">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 8h12l-1 12a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" />
+              <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+            </svg>
+          </span>
+          <span class="menu-label">영수증</span>
+          <span class="menu-sub">구매 품목 분석</span>
+        </button>
+        <!-- 휴대폰 -->
+        <button class="menu-card" data-target="screen-phone">
+          <span class="card-deco"></span>
+          <span class="icon-tile">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="url(#iconGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6.5" y="2" width="11" height="20" rx="2.5" />
+              <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" />
+            </svg>
+          </span>
+          <span class="menu-label">휴대폰</span>
+          <span class="menu-sub">스크린타임 분석</span>
+        </button>
+      </div>
+
+      <!-- ===== 하단 대시보드 ===== -->
+      <div class="dashboard">
+        <!-- 최근 7일 추이 -->
+        <div class="dash-card week-card">
+          <span class="dash-title">최근 7일 추이</span>
+          <div class="week-chart" id="weekChart"></div>
+          <div class="chart-tip" id="chartTip" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 식단 사진 ===================== -->
+    <section id="screen-diet" class="screen">
+      <h2 class="screen-title">식단 사진 분석</h2>
+      <p class="screen-desc">아침·점심·저녁 사진을 올리면 끼니별 칼로리와 종류를 분석해 탄소 배출량을 계산합니다.</p>
+
+      <div class="meal-grid">
+        <div class="meal-slot">
+          <span class="meal-label">🌅 아침</span>
+          <label class="upload-box meal-upload" for="diet-breakfast">
+            <input type="file" id="diet-breakfast" accept="image/*" data-meal="아침" hidden />
+            <div class="upload-placeholder">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="15" rx="2.5" />
+                <circle cx="12" cy="12.5" r="3.5" />
+                <path d="M8 5l1.5-2h5L16 5" />
+              </svg>
+              <span>사진</span>
+            </div>
+            <img class="preview" alt="아침 미리보기" hidden />
+          </label>
+        </div>
+        <div class="meal-slot">
+          <span class="meal-label">🌞 점심</span>
+          <label class="upload-box meal-upload" for="diet-lunch">
+            <input type="file" id="diet-lunch" accept="image/*" data-meal="점심" hidden />
+            <div class="upload-placeholder">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="15" rx="2.5" />
+                <circle cx="12" cy="12.5" r="3.5" />
+                <path d="M8 5l1.5-2h5L16 5" />
+              </svg>
+              <span>사진</span>
+            </div>
+            <img class="preview" alt="점심 미리보기" hidden />
+          </label>
+        </div>
+        <div class="meal-slot">
+          <span class="meal-label">🌙 저녁</span>
+          <label class="upload-box meal-upload" for="diet-dinner">
+            <input type="file" id="diet-dinner" accept="image/*" data-meal="저녁" hidden />
+            <div class="upload-placeholder">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="15" rx="2.5" />
+                <circle cx="12" cy="12.5" r="3.5" />
+                <path d="M8 5l1.5-2h5L16 5" />
+              </svg>
+              <span>사진</span>
+            </div>
+            <img class="preview" alt="저녁 미리보기" hidden />
+          </label>
+        </div>
+      </div>
+
+      <button class="analyze-btn" data-kind="diet" disabled>분석하기</button>
+
+      <div class="result-card" hidden>
+        <h3>분석 결과</h3>
+        <ul class="result-list"></ul>
+        <div class="carbon-box">
+          <span class="carbon-label">예상 탄소 배출량</span>
+          <span class="carbon-value">- kg CO₂</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 전기계량기 ===================== -->
+    <section id="screen-power" class="screen">
+      <h2 class="screen-title">전기계량기 분석</h2>
+      <p class="screen-desc">계량기 사진을 올리면 전기 사용량을 인식해 탄소 배출량을 계산합니다.</p>
+
+      <p class="lock-note" id="powerLock" hidden>🔒 전기계량기는 <b>매달 1일</b>에만 업로드할 수 있어요.<br /><span id="powerNextDate"></span></p>
+
+      <label class="upload-box" id="powerBox" for="power-file">
+        <input type="file" id="power-file" accept="image/*" hidden />
+        <div class="upload-placeholder">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="15" rx="2.5" />
+            <circle cx="12" cy="12.5" r="3.5" />
+            <path d="M8 5l1.5-2h5L16 5" />
+          </svg>
+          <span>사진 업로드 / 촬영</span>
+        </div>
+        <img class="preview" alt="계량기 미리보기" hidden />
+      </label>
+
+      <button class="analyze-btn" data-kind="power" disabled>분석하기</button>
+
+      <div class="result-card" hidden>
+        <h3>분석 결과</h3>
+        <ul class="result-list"></ul>
+        <div class="carbon-box">
+          <span class="carbon-label">예상 탄소 배출량</span>
+          <span class="carbon-value">- kg CO₂</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 영수증 ===================== -->
+    <section id="screen-receipt" class="screen">
+      <h2 class="screen-title">영수증 분석</h2>
+      <p class="screen-desc">영수증을 여러 장 올릴 수 있어요. "영수증 추가"를 누르면 아래에 간단히 정리됩니다.</p>
+
+      <label class="upload-box" for="receipt-file">
+        <input type="file" id="receipt-file" accept="image/*" hidden />
+        <div class="upload-placeholder">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="5" width="18" height="15" rx="2.5" />
+            <circle cx="12" cy="12.5" r="3.5" />
+            <path d="M8 5l1.5-2h5L16 5" />
+          </svg>
+          <span>사진 업로드 / 촬영</span>
+        </div>
+        <img class="preview" alt="영수증 미리보기" hidden />
+      </label>
+
+      <button class="analyze-btn" id="receiptAddBtn" data-kind="receiptAdd" disabled>영수증 추가</button>
+
+      <div class="receipt-summary" id="receiptSummary" hidden>
+        <h3>추가한 영수증 <span id="receiptCount">0</span>장</h3>
+        <ul class="receipt-list" id="receiptList"></ul>
+        <button class="more-btn" id="receiptMoreBtn" hidden>전체 보기</button>
+        <div class="carbon-box">
+          <span class="carbon-label">영수증 합계 탄소 배출량</span>
+          <span class="carbon-value" id="receiptTotal">0.00 kg CO₂</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 휴대폰 ===================== -->
+    <section id="screen-phone" class="screen">
+      <h2 class="screen-title">휴대폰 사용량 분석</h2>
+      <p class="screen-desc">스크린타임을 연동해 휴대폰 사용량을 가져와 탄소 배출량을 계산합니다.</p>
+
+      <button class="analyze-btn screentime-btn" data-kind="phone">스크린타임 연동하기</button>
+
+      <div class="result-card" hidden>
+        <h3>오늘의 스크린타임</h3>
+        <ul class="result-list"></ul>
+        <div class="carbon-box">
+          <span class="carbon-label">예상 탄소 배출량</span>
+          <span class="carbon-value">- kg CO₂</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="app-footer">
+      <p class="footer-tagline">내 캠퍼스 생활이 만드는 지구를 눈으로 봐요</p>
+      <small>※ 분석/연동 결과는 데모용 추정치입니다.</small>
+    </footer>
+  </div>
+
+  <!-- 영수증 전체 보기 모달 -->
+  <div class="modal" id="receiptModal" hidden>
+    <div class="modal-backdrop" id="receiptModalBackdrop"></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3>추가한 영수증 전체</h3>
+        <button class="modal-close" id="receiptModalClose" aria-label="닫기">×</button>
+      </div>
+      <ul class="receipt-list" id="receiptModalList"></ul>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
