@@ -1342,6 +1342,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       spawning.delete(id);
       if(creatures.find(c=>c.id===id)) return;
       const m=gltf.scene;
+      m.scale.set(1,1,1); m.position.set(0,0,0); m.rotation.set(0,0,0); m.quaternion.identity();   // 재추가 시 변환 누적 방지(캐시 재사용)
       const s=new THREE.Box3().setFromObject(m).getSize(_v1.clone());
       const maxDim=Math.max(s.x,s.y,s.z)||1;                       // 몸 최장축(=길이) 기준 → 종 무관 균일 크기
       const target=(def.type==='fly')?0.40:0.50;                   // 여우와 동일 톤(여우는 길이가 최장축이라 기존 유지)
@@ -1355,7 +1356,17 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
       if(def.anim && gltf.animations && gltf.animations.length){ mixer=new THREE.AnimationMixer(m); mixer.clipAction(gltf.animations[0]).play(); }
       const dir=(def.type==='fly')? new THREE.Vector3(Math.random()-.5,Math.random()-.5,Math.random()-.5).normalize() : (def.habitat==='sea'?randSeaDir():randLandDir());
       creatures.push({id,type:def.type,habitat:def.habitat,holder,model:m,mixer,dir,fwd:tangentOf(dir),phase:0,baseY:m.position.y});
+      const it=DEX.find(d=>d.id===id); if(it&&it.el) it.el.classList.add('spawned');   // 실제 스폰 성공 시에만 '행성에 있음' 배지
     });
+  }
+  // 동물 제거: 씬에서 detach하고 도감 배지 해제 (GLB는 캐시 공유라 dispose하지 않음 → 재추가 가능)
+  function removeCreature(id){
+    const i=creatures.findIndex(c=>c.id===id); if(i<0) return false;
+    earthGroup.remove(creatures[i].holder);
+    creatures.splice(i,1);
+    spawning.delete(id);
+    const it=DEX.find(d=>d.id===id); if(it&&it.el) it.el.classList.remove('spawned');
+    return true;
   }
   function updateCreature(c){
     c.fwd.applyAxisAngle(c.dir,(Math.random()-0.5)*0.025).normalize();          // 가끔 방향 틀기
@@ -1388,7 +1399,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   stageEl.addEventListener('dragover',e=>e.preventDefault());
   stageEl.addEventListener('drop',e=>{ e.preventDefault();
     const id=e.dataTransfer.getData('text/plain');
-    if(CREATURES[id]){ spawnCreature(id); const it=DEX.find(d=>d.id===id); if(it&&it.el) it.el.classList.add('spawned'); } });
+    const it=DEX.find(d=>d.id===id); if(it) tryRelease(it); });   // 드롭도 동일 경로(가드·배지·토스트 일원화)
 
   // 도감 카드 클릭/탭 → 추가 (모바일 드래그 대체) + 결과 토스트
   const dexToastEl=document.getElementById('dexToast'); let _dexToastT=null;
@@ -1403,8 +1414,7 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
     if(!CREATURES[it.id]){ showDexToast(it.name+'는 아직 풀어놓을 수 없어요'); return; }
     if(view!=='avatar'){ showDexToast('내 아바타 행성에서 풀어놓을 수 있어요'); return; }
     if(creatures.find(c=>c.id===it.id) || spawning.has(it.id)){ showDexToast(it.name+'는 이미 행성에 있어요'); return; }
-    spawnCreature(it.id);
-    if(it.el) it.el.classList.add('spawned');
+    spawnCreature(it.id);   // 배지는 실제 스폰 성공 시 spawnCreature 내부에서 부착
     showDexToast(it.name+' 풀어놨어요 🐾');
     // 모바일: 도감 패널이 화면을 덮으므로 닫아서 풀어놓은 동물이 보이게
     if(window.innerWidth<=600) setTimeout(()=>dexPanel.classList.remove('show'),450);
@@ -1884,8 +1894,17 @@ spotsFar(c=>c.b===3||c.b===5, builtDirs, 0.3, 1).forEach(s=>{
   addEventListener('mouseup',e=>{ if(e.button!==0)return; up(e.clientX,e.clientY); });
   // 우클릭 = 삭제 (은하 뷰: 캠퍼스 / 행성 뷰: 학과)
   function doDelete(x,y){
-    if(trans.active||view==='avatar') return;
+    if(trans.active) return;
     _ndc2.set((x/innerWidth)*2-1, -(y/innerHeight)*2+1); _ray2.setFromCamera(_ndc2,camera);
+    if(view==='avatar'){
+      // 아바타 뷰: 동물을 우클릭/길게눌러 행성에서 내보내기 (도감 배지도 함께 해제)
+      const holders=creatures.map(c=>c.holder);
+      const hc=holders.length?_ray2.intersectObjects(holders,true)[0]:null;
+      if(hc){ let o=hc.object; while(o.parent && o.parent!==earthGroup) o=o.parent;
+        const c=creatures.find(cc=>cc.holder===o);
+        if(c && confirm('이 동물을 행성에서 내보낼까요?')) removeCreature(c.id); }
+      return;
+    }
     if(view==='galaxy'){ const h=_ray2.intersectObjects(galaxyHits,false)[0]; if(h) deleteCampus(h.object.userData.idx); return; }
     const hb=_ray2.intersectObjects(bgPlanets.map(b=>b.mesh),false)[0];
     if(hb){ deleteDept(hb.object.parent.userData.idx); return; }
